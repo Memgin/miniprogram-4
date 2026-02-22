@@ -1,0 +1,189 @@
+.container {
+  padding: 20rpx;
+  min-height: 100vh;
+  background-color: #f5f7fa;
+}
+
+/* 卡片通用 */
+.card {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.06);
+}
+
+.card-title {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 24rpx;
+}
+
+.form-item {
+  margin-bottom: 24rpx;
+}
+
+.label {
+  font-size: 26rpx;
+  color: #666;
+  margin-bottom: 10rpx;
+}
+
+.input {
+  width: 100%;
+  height: 76rpx;
+  padding: 0 20rpx;
+  border-radius: 10rpx;
+  background: #f7f8fa;
+  border: 1rpx solid #e5e6eb;
+  font-size: 28rpx;
+  box-sizing: border-box;
+}
+
+/* 币种条目：左边信息 + 右边按钮组 */
+.currency-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+  margin-bottom: 8rpx;
+}
+
+.currency-left {
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+}
+
+.currency-name {
+  font-size: 28rpx;
+  color: #333;
+}
+
+.currency-amount {
+  font-size: 24rpx;
+  color: #666;
+}
+
+/* 按钮组：编辑 + 删除 同行右对齐 */
+.currency-right {
+  display: flex;
+  gap: 12rpx;
+  align-items: center;
+}
+
+.edit-btn {
+  font-size: 24rpx;
+  color: #1890ff;
+  padding: 0 16rpx;
+  height: 50rpx;
+  line-height: 50rpx;
+  background: #e6f7ff;
+  border-radius: 8rpx;
+}
+
+.del-btn {
+  font-size: 24rpx;
+  color: #ff4d4f;
+  padding: 0 16rpx;
+  height: 50rpx;
+  line-height: 50rpx;
+  background: #fff1f0;
+  border-radius: 8rpx;
+}
+
+/* 添加币种区域 */
+.add-currency-area {
+  display: flex;
+  gap: 12rpx;
+  margin-top: 20rpx;
+  align-items: center;
+}
+
+.picker {
+  flex: 1.2;
+  height: 70rpx;
+  line-height: 70rpx;
+  padding: 0 16rpx;
+  background: #f7f8fa;
+  border-radius: 10rpx;
+  font-size: 26rpx;
+  text-align: center;
+  border: 1rpx solid #e5e6eb;
+}
+
+.input-amount {
+  flex: 1;
+  height: 70rpx;
+  padding: 0 16rpx;
+  background: #f7f8fa;
+  border-radius: 10rpx;
+  font-size: 26rpx;
+  border: 1rpx solid #e5e6eb;
+}
+
+.add-btn {
+  width: 80rpx;
+  height: 70rpx;
+  line-height: 70rpx;
+  background: #1890ff;
+  color: #fff;
+  font-size: 30rpx;
+  border-radius: 10rpx;
+}
+
+/* 保存按钮 */
+.save-btn {
+  width: 100%;
+  height: 88rpx;
+  line-height: 88rpx;
+  background: #1890ff;
+  color: #fff;
+  font-size: 30rpx;
+  border-radius: 16rpx;
+  margin-top: 20rpx;
+}
+
+/* 自定义弹窗 - 必显示+完美居中（核心修复） */
+.custom-toast-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 9999; /* 提高层级，避免被遮挡 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.custom-toast {
+  background: #fff;
+  padding: 40rpx 50rpx;
+  border-radius: 16rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.15);
+  min-width: 280rpx; /* 保证最小宽度，内容不挤 */
+}
+/* 对勾图标（文字版，兼容所有库） */
+.toast-icon {
+  font-size: 60rpx;
+  color: #1890ff;
+  line-height: 60rpx;
+}
+.toast-text {
+  font-size: 28rpx;
+  color: #333;
+  font-weight: 500;
+  text-align: center;
+}
+.toast-subtext {
+  font-size: 24rpx;
+  color: #666;
+  text-align: center;
+}

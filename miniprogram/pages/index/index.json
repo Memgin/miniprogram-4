@@ -1,0 +1,6 @@
+{ 
+  "navigationBarTitleText": "银行卡余额汇总",
+  "enablePullDownRefresh": true,
+  "backgroundTextStyle": "dark",
+  "onReachBottomDistance": 50
+}

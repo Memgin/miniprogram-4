@@ -1,0 +1,50 @@
+<view class="container {{lockScroll ? 'lock-scroll' : ''}}">
+  <view class="top-bar"></view>
+
+  <view class="section">
+    <view class="section-title">当前主页展示的汇率</view>
+    <view class="card-list">
+      <view 
+        class="rate-card {{item.dragging ? 'dragging' : ''}}"
+        wx:for="{{showingRates}}" 
+        wx:key="code"
+        data-index="{{index}}"
+        data-code="{{item.code}}"
+        bind:touchstart="onTouchStart"
+        bind:touchmove="onTouchMove"
+        bind:touchend="onTouchEnd"
+        bind:touchcancel="onTouchCancel"
+        bind:tap="onTapItem"
+      >
+        <view class="rate-info">
+          <text class="currency-code">{{item.code}}</text>
+          <text class="rate-value">1 {{item.code}} = ¥{{item.rate}}</text>
+        </view>
+        <text class="check-icon">✓</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-title optional-title">可选添加至主页的汇率</view>
+    <view class="card-list">
+      <view 
+        class="rate-card"
+        wx:for="{{optionalRates}}" 
+        wx:key="code"
+        bindtap="addToShow"
+        data-code="{{item.code}}"
+      >
+        <view class="rate-info">
+          <text class="currency-code">{{item.code}}</text>
+          <text class="rate-value">1 {{item.code}} = ¥{{item.rate}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="custom-toast" wx:if="{{toastVisible}}">
+    <text class="icon" wx:if="{{toastIcon === 'success'}}">✓</text>
+    <text class="text">{{toastText}}</text>
+  </view>
+</view>

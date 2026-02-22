@@ -1,0 +1,343 @@
+/* 全局容器：更柔和的背景，统一视觉基调 */
+.container {
+  padding: 30rpx;
+  min-height: 100vh;
+  background-color: #f5f7fa; /* 替代刺眼的#f8f8f8 */
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+}
+
+/* 操作栏：渐变按钮+细腻阴影+按压动效 */
+.operate-bar {
+  display: flex;
+  gap: 20rpx;
+  margin-bottom: 30rpx;
+}
+.add-btn {
+  flex: 1;
+  background: linear-gradient(135deg, #1890ff, #40a9ff);
+  color: #fff;
+  border-radius: 16rpx;
+  font-size: 28rpx;
+  padding: 20rpx 0;
+  box-shadow: 0 4rpx 12rpx rgba(24, 144, 255, 0.2);
+  transition: all 0.2s ease;
+}
+.add-btn:active {
+  background: linear-gradient(135deg, #096dd9, #1890ff);
+  transform: translateY(2rpx);
+  box-shadow: 0 2rpx 8rpx rgba(24, 144, 255, 0.15);
+}
+.export-btn {
+  flex: 1;
+  background: linear-gradient(135deg, #faad14, #ffc53d);
+  color: #fff;
+  border-radius: 16rpx;
+  font-size: 28rpx;
+  padding: 20rpx 0;
+  box-shadow: 0 4rpx 12rpx rgba(250, 173, 20, 0.2);
+  transition: all 0.2s ease;
+}
+.export-btn:active {
+  background: linear-gradient(135deg, #d48806, #faad14);
+  transform: translateY(2rpx);
+  box-shadow: 0 2rpx 8rpx rgba(250, 173, 20, 0.15);
+}
+
+/* 通用卡片：全页面统一质感（汇率/汇总/总计） */
+.rate-card, .summary-card {
+  padding: 32rpx;
+  margin-bottom: 24rpx;
+  background: #fff;
+  border-radius: 18rpx;
+  box-shadow: 0 6rpx 20rpx rgba(0,0,0,0.04), 0 2rpx 8rpx rgba(0,0,0,0.02);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  position: relative;
+}
+/* 总计卡片单独强化：突出核心数据 */
+.total-card {
+  padding: 40rpx 36rpx 0rpx;
+  margin-bottom: 24rpx;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border-radius: 20rpx;
+  box-shadow: 0 8rpx 24rpx rgba(0,0,0,0.06), 0 2rpx 8rpx rgba(0,0,0,0.04);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  position: relative;
+  overflow: hidden;
+}
+/* 总计卡片左侧装饰条：提升层次感 */
+.total-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 6rpx;
+  height: 100%;
+  background: linear-gradient(180deg, #ff6b6b, #ff8e8e);
+  border-top-left-radius: 20rpx;
+  border-bottom-left-radius: 20rpx;
+}
+
+/* 卡片标题：统一字体/间距/颜色 */
+.card-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  margin-bottom: 24rpx;
+  color: #1e293b;
+  letter-spacing: 0.6rpx;
+  line-height: 1.3;
+}
+
+/* 汇率/汇总列表：更精致的排版和分割线 */
+.rate-item, .summary-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 18rpx 0;
+  border-bottom: 1rpx solid #f1f5f9;
+  align-items: center;
+}
+.rate-item:last-child, .summary-item:last-child {
+  border-bottom: none;
+}
+.rate-name, .currency-name {
+  width: 160rpx;
+  color: #475569;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 28rpx;
+}
+.rate-value, .currency-amount {
+  flex: 1;
+  text-align: right;
+  padding-right: 20rpx;
+  white-space: nowrap;
+  font-size: 28rpx;
+  color: #1e293b;
+  font-weight: 500;
+}
+.cny-amount {
+  width: 180rpx;
+  font-size: 26rpx;
+  color: #94a3b8;
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* 银行卡列表标题：和卡片标题统一风格 */
+.card-list .list-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  margin-bottom: 24rpx;
+  color: #1e293b;
+  letter-spacing: 0.5rpx;
+}
+
+/* ========== 左滑删除样式（统一高级质感） ========== */
+.card-swipe-wrapper {
+  position: relative;
+  width: 100%;
+  height: auto;
+  margin-bottom: 24rpx;
+  border-radius: 18rpx;
+  box-shadow: 0 6rpx 20rpx rgba(0,0,0,0.04), 0 2rpx 8rpx rgba(0,0,0,0.02);
+  overflow: hidden !important;
+}
+/* 银行卡卡片：和其他卡片统一圆角/内边距 */
+.bank-card-item {
+  width: 100%;
+  background: #fff;
+  border-radius: 18rpx;
+  padding: 32rpx;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 2;
+  transition: all 0.2s ease;
+}
+.bank-card-item:active {
+  background: #f8fafc;
+  transform: scale(0.99);
+}
+/* 删除按钮：渐变红色+圆角 */
+.delete-btn {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 120rpx;
+  height: 100%;
+  background: linear-gradient(135deg, #ff4444, #ff6666);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  z-index: 1;
+  border-top-right-radius: 18rpx;
+  border-bottom-right-radius: 18rpx;
+}
+
+/* 银行卡内容：统一文字层级和颜色 */
+.bank-card-item .card-name {
+  font-size: 30rpx;
+  font-weight: 600;
+  margin-bottom: 16rpx;
+  color: #1e293b;
+}
+.bank-card-item .card-total-cny {
+  font-size: 26rpx;
+  color: #475569;
+  margin: 12rpx 0 20rpx;
+}
+.bank-card-item .card-currencies {
+  padding: 8rpx 0;
+  color: #475569;
+  line-height: 38rpx;
+  font-size: 28rpx;
+}
+.card-total-num {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+/* 人民币总计：放大字号+强化视觉 */
+.total-amount {
+  font-size: 58rpx;
+  font-weight: 700;
+  color: #dc2626;
+  text-align: center;
+  padding: 20rpx 0;
+  line-height: 1.2;
+  letter-spacing: 1.2rpx;
+}
+
+/* 空提示：更柔和的样式，和整体风格统一 */
+.empty-tip {
+  text-align: center;
+  padding: 120rpx 0;
+  color: #94a3b8;
+  font-size: 28rpx;
+  line-height: 1.5;
+}
+
+/* 刷新按钮：和其他按钮统一圆角/动效 */
+.refresh-btn {
+  margin-top: 24rpx;
+  background: #f1f5f9;
+  color: #475569;
+  border-radius: 12rpx;
+  padding: 16rpx 0;
+  font-size: 28rpx;
+  transition: all 0.2s ease;
+}
+.refresh-btn:active {
+  background: #e2e8f0;
+  transform: scale(0.98);
+}
+
+/* 编辑汇率按钮：hover效果+统一颜色 */
+.edit-rate-btn {
+  font-size: 28rpx;
+  color: #1890ff;
+  padding: 4rpx 16rpx;
+  font-weight: 500;
+  border-radius: 8rpx;
+  transition: background 0.2s ease;
+}
+.edit-rate-btn:active {
+  background: rgba(24, 144, 255, 0.1);
+}
+
+/* 按钮重置：去除默认样式，保证自定义样式生效 */
+button {
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+button::after {
+  border: none;
+}
+
+/* 存款目标：全模块优化，和整体风格统一 */
+.target-container {
+  padding: 16rpx 0 24rpx; /* 上16，下24，减少顶部留白 */
+  margin-top: 16rpx;      /* 原来的24rpx，现在减少和上面金额的距离 */
+  border-top: 1px dashed #e2e8f0;
+}
+.target-empty {
+  font-size: 28rpx;
+  color: #475569;
+  padding: 22rpx;
+  text-align: center;
+  border: 1px dashed #cbd5e1;
+  border-radius: 12rpx;
+  background: #f8fafc;
+  transition: all 0.2s ease;
+}
+.target-empty:active {
+  background: #e2e8f0;
+}
+.target-content {
+  margin-top: 12rpx;
+}
+.target-title {
+  font-size: 28rpx;
+  margin-bottom: 20rpx;
+  color: #334155;
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+/* 进度条：细+渐变+发光+丝滑动画 */
+.progress-bar {
+  width: 100%;
+  height: 12rpx;
+  background: #e2e8f0;
+  border-radius: 999rpx;
+  overflow: hidden;
+  margin-bottom: 20rpx;
+  box-shadow: inset 0 2rpx 4rpx rgba(0,0,0,0.06);
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #FF7D00, #FFB547);
+  border-radius: 999rpx;
+  transition: width 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  box-shadow: 0 0 12rpx rgba(255, 125, 0, 0.3);
+}
+.target-diff {
+  font-size: 26rpx;
+  margin-top: 12rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.diff-deficit {
+  color: #64748b;
+}
+.diff-surplus {
+  color: #22c55e;
+  font-weight: 600;
+}
+.edit-target-btn {
+  font-size: 24rpx;
+  padding: 12rpx 20rpx;
+  background: #f8fafc;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+  border-radius: 10rpx;
+  transition: all 0.2s ease;
+}
+.edit-target-btn:active {
+  background: #e2e8f0;
+  transform: scale(0.96);
+}
+/* 强制转换币种代码为大写，不影响 JS 原始数据 */
+.u-code {
+  text-transform: uppercase !important;
+  display: inline-block;
+}
+
+/* 解决可能存在的 Duplicate key 导致的渲染重叠 */
+.card-currencies {
+  display: block;
+  width: 100%;
+}

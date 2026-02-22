@@ -1,0 +1,85 @@
+<view class="container">
+  <view class="operate-bar">
+    <button class="add-btn" bindtap="gotoAddCard">+ 添加银行卡</button>
+    <button class="export-btn" bindtap="gotoExport" wx:if="{{currencySummary.length > 0}}">导出数据</button>
+  </view>
+
+  <view class="total-card card" wx:if="{{totalCny > 0}}">
+    <view class="card-title">人民币总计</view>
+    <view class="total-amount">¥{{totalCny}}</view>
+    
+    <view class="target-container">
+      <view wx:if="{{!depositTarget}}" class="target-empty" bindtap="setDepositTarget">
+        📝 点击设置存款目标
+      </view>
+      <view wx:else class="target-content">
+        <view class="target-title">🎯 存款目标：¥{{depositTarget}}  进度：{{targetProgress}}%</view>
+        <view class="progress-bar">
+          <view class="progress-fill" style="{{progressStyle}}"></view>
+        </view>
+        <view class="target-diff {{targetDiff >= 0 ? 'diff-deficit' : 'diff-surplus'}}">
+          <text>{{targetDiff >= 0 ? '还差¥' + targetDiff + ' 达成目标' : '超额¥' + (-targetDiff) + ' 🎉'}}</text>
+          <button class="edit-target-btn" bindtap="setDepositTarget">✏️ 修改</button>
+        </view>
+      </view>
+    </view>
+    </view>
+
+  <view class="rate-card card" wx:if="{{ratesLoaded}}">
+    <view class="rate-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+      <text class="rate-title">实时汇率</text>
+      <view class="edit-rate-btn" bindtap="gotoRatesPage">编辑</view>
+    </view>
+    <view class="rate-list">
+      <view class="rate-item">
+        <text class="rate-name">更新时间</text>
+        <text class="rate-value" style="font-weight: normal; color: #94a3b8; font-size: 24rpx;">{{updateTime}}</text>
+      </view>
+      <view class="rate-item" wx:for="{{selectedRateList}}" wx:key="code">
+        <text class="rate-name u-code">{{item.code || item.name}}</text>
+        <text class="rate-value">1 <text class="u-code">{{item.code || item.name}}</text> = ¥{{item.rate}}</text>
+      </view>
+    </view>
+    <button class="refresh-btn" bindtap="loadAllData">刷新汇率</button>
+  </view>
+
+  <view class="summary-card card" wx:if="{{currencySummary.length > 0}}">
+    <view class="card-title">各币种总余额</view>
+    <view class="summary-item" wx:for="{{currencySummary}}" wx:key="code">
+      <text class="currency-name u-code">{{item.code || item.name}}</text>
+      <text class="currency-amount"><text class="u-code">{{item.code}}</text>: {{item.totalAmount}}</text>
+      <text class="cny-amount">≈ ¥{{item.cnyAmount}}</text>
+    </view>
+  </view>
+
+  <view class="card-list" wx:if="{{bankCards.length > 0}}">
+    <view class="list-title">已添加银行卡</view>
+    <block wx:for="{{bankCards}}" wx:key="id" wx:for-item="cardItem">
+      <view class="card-swipe-wrapper" style="overflow: hidden !important;">
+        <view 
+          class="bank-card-item card" 
+          bindtap="gotoAccountDetail" 
+          data-cardid="{{cardItem.id}}"
+          bindtouchstart="onTouchStart"
+          bindtouchmove="onTouchMove"
+          bindtouchend="onTouchEnd"
+          data-index="{{index}}"
+          style="transform: {{cardItem.showDelete ? 'translateX(-120rpx)' : 'translateX(0)'}}; transition: transform 0.2s ease;"
+        >
+          <view class="card-name">{{cardItem.name}}</view>
+          <view class="card-total-cny" wx:if="{{cardItem.currencies.length > 0}}">
+            该卡人民币总计：<text class="card-total-num">¥{{cardItem.totalCny}}</text>
+          </view>
+          <view class="card-currencies" wx:for="{{cardItem.currencies}}" wx:key="code" wx:for-item="currency">
+            <text class="u-code">{{currencyMap[currency.code] || currency.code}}</text>: {{currency.amount}}
+          </view>
+        </view>
+        <view class="delete-btn" bindtap="deleteCard" data-cardid="{{cardItem.id}}">删除</view>
+      </view>
+    </block>
+  </view>
+
+  <view class="empty-tip" wx:else>
+    暂无银行卡数据，请点击「添加银行卡」录入
+  </view>
+</view>

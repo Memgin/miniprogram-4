@@ -1,0 +1,263 @@
+/* 全局容器 */
+.container {
+  padding: 0 30rpx;
+  box-sizing: border-box;
+  min-height: 100vh;
+  background-color: #f5f5f5;
+}
+
+/* 头部：只保留标题，居中 */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20rpx 0 5rpx 0;
+  border-bottom: 1rpx solid #eee;
+}
+.card-name-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #333;
+  text-align: center;
+}
+
+/* 卡片基础样式 */
+.card {
+  background: #fff;
+  border-radius: 12rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.05);
+  padding: 30rpx;
+  box-sizing: border-box;
+  margin-bottom: 20rpx;
+}
+.card-title {
+  font-size: 30rpx;
+  color: #333;
+  font-weight: 500;
+  margin-bottom: 20rpx;
+  padding-bottom: 10rpx;
+  border-bottom: 1rpx solid #f5f5f5;
+}
+.total-card {
+  margin-top: 20rpx;
+}
+.total-amount {
+  font-size: 48rpx;
+  font-weight: 700;
+  color: #e53935;
+  text-align: center;
+  padding: 10rpx 0;
+}
+
+/* ==========================================
+   图表配置修复：必须显式指定高度
+   ========================================== */
+.canvas-container {
+  width: 100%;
+  height: 500rpx; /* 关键修复：必须设置具体高度值，否则图表无法显示 */
+  margin: 20rpx 0;
+  position: relative;
+}
+
+ec-canvas {
+  width: 100%;
+  height: 100%;
+}
+
+/* 币种列表 */
+.account-list {
+  margin-top: 20rpx;
+}
+.list-title {
+  font-size: 30rpx;
+  color: #333;
+  font-weight: 500;
+  margin-bottom: 20rpx;
+}
+
+/* 条目容器 */
+.account-item {
+  position: relative;
+  background: #fff;
+  border-radius: 12rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.05);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* 内容层 */
+.item-content {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30rpx;
+  box-sizing: border-box;
+  background: #fff;
+  z-index: 10;
+  transition: transform 0.2s ease-out;
+}
+.account-item.show-del .item-content {
+  transform: translateX(-120rpx);
+}
+
+/* 币种信息 */
+.account-info {
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+}
+.currency-name {
+  font-size: 32rpx;
+  color: #333;
+  font-weight: 500;
+}
+.balance-text {
+  font-size: 28rpx;
+  color: #666;
+}
+
+/* 编辑按钮 */
+.edit-btn {
+  padding: 0 24rpx;
+  height: 60rpx;
+  line-height: 60rpx;
+  background: #1677ff;
+  color: #fff;
+  font-size: 24rpx;
+  border-radius: 8rpx;
+  flex-shrink: 0;
+  white-space: nowrap;
+  border: none;
+}
+
+/* 删除按钮 */
+.del-btn {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 120rpx;
+  height: 100%;
+  background: #e53935;
+  color: #fff;
+  font-size: 24rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+  pointer-events: auto;
+  border-radius: 0 12rpx 12rpx 0;
+}
+
+/* 添加币种按钮 */
+.add-currency-btn {
+  width: 100%;
+  height: 80rpx;
+  line-height: 80rpx;
+  background: #1677ff;
+  color: #fff;
+  font-size: 28rpx;
+  border-radius: 8rpx;
+  margin-top: 20rpx;
+  border: none;
+}
+
+/* 空数据提示 */
+.empty-tip {
+  text-align: center;
+  font-size: 28rpx;
+  color: #999;
+  margin-top: 100rpx;
+}
+
+/* 弹窗样式 */
+.modal-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+.modal-content {
+  width: 80%;
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 40rpx 30rpx;
+  box-sizing: border-box;
+}
+.modal-title {
+  font-size: 32rpx;
+  color: #333;
+  text-align: center;
+  margin-bottom: 30rpx;
+  font-weight: 500;
+}
+.amount-input {
+  width: 100%;
+  height: 80rpx;
+  border: 1rpx solid #eee;
+  border-radius: 8rpx;
+  padding: 0 20rpx;
+  box-sizing: border-box;
+  font-size: 28rpx;
+  margin-bottom: 30rpx;
+}
+.modal-btn-group {
+  display: flex;
+  gap: 20rpx;
+}
+.modal-cancel, .modal-confirm {
+  flex: 1;
+  height: 80rpx;
+  line-height: 80rpx;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+  border: none;
+}
+.modal-cancel {
+  background: #eee;
+  color: #333;
+}
+.modal-confirm {
+  background: #1677ff;
+  color: #fff;
+}
+
+/* 币种选择器 */
+.currency-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+  margin-bottom: 20rpx;
+}
+.currency-item {
+  flex: 1 1 140rpx;
+  height: 60rpx;
+  line-height: 60rpx;
+  text-align: center;
+  background: #f5f5f5;
+  border-radius: 8rpx;
+  font-size: 24rpx;
+}
+.currency-item.active {
+  background: #1677ff;
+  color: #fff;
+}
+
+/* 消除小程序所有button的默认样式干扰 */
+button {
+  margin: 0;
+  padding: 0;
+  border: none;
+  outline: none;
+}
+button::after {
+  border: none;
+}

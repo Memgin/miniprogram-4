@@ -1,0 +1,31 @@
+.container {
+  padding: 30rpx;
+  min-height: 100vh;
+}
+.export-item {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+}
+.item-icon {
+  font-size: 40rpx;
+  width: 60rpx;
+  text-align: center;
+}
+.item-text {
+  flex: 1;
+  font-size: 32rpx;
+}
+.item-arrow {
+  font-size: 30rpx;
+  color: #999;
+}
+.canvas-hidden {
+  position: fixed;
+  top: -9999rpx;
+  left: -9999rpx;
+  width: 700rpx;
+  height: 900rpx;
+}

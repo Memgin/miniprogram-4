@@ -1,0 +1,108 @@
+<view class="container">
+  <view class="header" bindtap="showEditNameModal">
+    <view class="card-name-title">
+      {{cardInfo.name}}
+      <text class="edit-icon"></text>
+    </view>
+  </view>
+
+  <view class="total-card card" wx:if="{{totalCny > 0}}">
+    <view class="card-title">该卡人民币总计</view>
+    <view class="total-amount">¥{{totalCny}}</view>
+  </view>
+
+  <view class="chart-box card" wx:if="{{currencyList.length > 0}}">
+    <view class="list-title">资产占比分析</view>
+    <view class="canvas-container">
+      <ec-canvas 
+        wx:if="{{!showModal && !showAddModal && !showNameModal}}"
+        id="mychart-dom-pie" 
+        canvas-id="mychart-pie" 
+        ec="{{ ec }}" 
+        force-use-old-canvas="false" 
+        type="2d">
+      </ec-canvas>
+      
+      <view class="chart-placeholder" wx:else>
+        <view class="placeholder-content">
+          <text class="placeholder-text">正在编辑账户数据...</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="account-list" wx:if="{{currencyList.length > 0}}">
+    <view class="list-title">该卡币种账户</view>
+    <view 
+      class="account-item {{item.delShow ? 'show-del' : ''}}"
+      wx:for="{{currencyList}}" 
+      wx:key="code"
+      bindtouchstart="touchStart"
+      bindtouchmove="touchMove"
+      bindtouchend="touchEnd"
+      data-index="{{index}}"
+    >
+      <view class="item-content">
+        <view class="account-info">
+          <text class="currency-name">{{currencyMap[item.code] || item.code}}</text>
+          <text class="balance-text">当前余额：{{item.amount}} {{currencyMap[item.code] || item.code}}</text>
+        </view>
+        <button class="edit-btn" bindtap="showEditModal" data-code="{{item.code}}" data-amount="{{item.amount}}">编辑余额</button>
+      </view>
+      <view class="del-btn" bindtap="deleteCurrency" data-index="{{index}}" data-code="{{item.code}}">
+        删除
+      </view>
+    </view>
+  </view>
+
+  <view class="empty-tip" wx:else>
+    该银行卡暂无币种账户数据
+  </view>
+
+  <button class="add-currency-btn" bindtap="showAddCurrencyModal">+ 添加币种</button>
+
+  <view class="modal-mask" wx:if="{{showNameModal}}" bindtap="hideNameModal">
+    <view class="modal-content" catchtap="stopPropagation">
+      <view class="modal-title">修改账户名称</view>
+      <input type="text" class="amount-input" placeholder="请输入新名称" value="{{tempCardName}}" bindinput="bindNameInput" focus="{{showNameModal}}"/>
+      <view class="modal-btn-group">
+        <button class="modal-cancel" bindtap="hideNameModal">取消</button>
+        <button class="modal-confirm" bindtap="saveCardName">保存名称</button>
+      </view>
+    </view>
+  </view>
+
+  <view class="modal-mask" wx:if="{{showModal}}" bindtap="hideEditModal">
+    <view class="modal-content" catchtap="stopPropagation">
+      <view class="modal-title">编辑{{currentCurName}}余额</view>
+      <input type="digit" class="amount-input" placeholder="请输入新余额" value="{{newAmount}}" bindinput="bindNewAmount"/>
+      <view class="modal-btn-group">
+        <button class="modal-cancel" bindtap="hideEditModal">取消</button>
+        <button class="modal-confirm" bindtap="saveBalance">保存修改</button>
+      </view>
+    </view>
+  </view>
+
+  <view class="modal-mask" wx:if="{{showAddModal}}" bindtap="hideAddModal">
+    <view class="modal-content" catchtap="stopPropagation">
+      <view class="modal-title">添加币种</view>
+      <view class="currency-picker">
+        <view 
+          class="currency-item {{selectedAddCode === item.code ? 'active' : ''}}" 
+          wx:for="{{allCurrencyList}}" 
+          wx:key="code" 
+          bindtap="selectAddCurrency" 
+          data-code="{{item.code}}" 
+          data-name="{{item.name}}"
+        >
+          {{item.name}}
+        </view>
+      </view>
+      <input type="digit" class="amount-input" placeholder="请输入金额" value="{{addAmount}}" bindinput="bindAddAmount"/>
+      <view class="modal-btn-group">
+        <button class="modal-cancel" bindtap="hideAddModal">取消</button>
+        <button class="modal-confirm" bindtap="saveAddCurrency">确认添加</button>
+      </view>
+    </view>
+  </view>
+</view>
