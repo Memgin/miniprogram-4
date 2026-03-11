@@ -101,6 +101,9 @@ Page({
       await this.loadCardRiskInsights();
       await this.loadPortfolioOutlook();
       this.refreshAllCharts(); 
+    }).catch((error) => {
+      console.error('loadCardAndCalculateTotal failed:', error);
+      wx.showToast({ title: '实时汇率暂不可用', icon: 'none' });
     });
   },
 
@@ -111,7 +114,7 @@ Page({
     });
   },
 
-  loadCardAndCalculateTotal: function() {
+  loadCardAndCalculateTotal: async function() {
     var cardId = this.data.cardId;
     var bankCards = app.globalData.bankCards || wx.getStorageSync('bankCards') || [];
     var targetCard = bankCards.find(item => item.id === cardId);
@@ -123,7 +126,9 @@ Page({
     }
 
     var currencyList = (targetCard.currencies || []).map(item => Object.assign({}, item, { delShow: false }));
-    var rates = app.globalData.exchangeRates || {};
+    var rates = await exchangeRateUtil.getSinaRealTimeRates();
+    app.globalData.exchangeRates = rates;
+    wx.setStorageSync('exchangeRates', rates);
     var totalCny = this.calcCardCnyTotal(currencyList, rates);
 
     return new Promise((resolve) => {
@@ -547,7 +552,7 @@ Page({
   },
 
   callAiProjection: async function(code) {
-    var fnCandidates = ['aiFxMonitor', 'aiOnnxInference'];
+    var fnCandidates = ['aiFxMonitor'];
     for (var i = 0; i < fnCandidates.length; i += 1) {
       try {
         var res = await wx.cloud.callFunction({

@@ -104,23 +104,6 @@ exports.main = async (event) => {
     const softDeadlineMs = 2400;
     const hasBudget = (reserveMs = 200) => (Date.now() - startedAt) < (softDeadlineMs - reserveMs);
 
-    // Last fallback anchors for common currencies in case upstream API is slow.
-    const fallbackPriceMap = {
-      USD: 7.2,
-      HKD: 0.92,
-      EUR: 7.8,
-      JPY: 0.048,
-      GBP: 9.2,
-      CAD: 5.3,
-      AUD: 4.8,
-      NZD: 4.4,
-      CHF: 8.2,
-      SGD: 5.4,
-      THB: 0.2,
-      MYR: 1.55,
-      KRW: 0.0054
-    };
-
     let prices = [];
     let dataSource = 'history_api';
 
@@ -145,12 +128,10 @@ exports.main = async (event) => {
     }
 
     if (!Array.isArray(prices) || prices.length === 0) {
-      dataSource = 'local_fallback';
-      const fallback = Number(fallbackPriceMap[symbol] || 1);
-      prices = [fallback];
+      throw new Error('Live FX data unavailable');
     }
 
-    while (prices.length < seqLen) {
+    while (prices.length > 1 && prices.length < seqLen) {
       prices.push(prices[prices.length - 1]);
     }
     prices = prices.slice(-seqLen);

@@ -18,7 +18,7 @@
 - `riskAnalyzer`
 - `aiPortfolioAdvisor`
 - `alertMonitor`
-- `aiFxMonitor` 或 `aiOnnxInference`
+- `aiFxMonitor`
 
 ## 云函数说明
 
@@ -66,7 +66,7 @@
 1. 先部署 `getUserProfile` 和 `syncUserProfile`，确保新增字段可正常读写。
 2. 再部署 `tushareImport`，并验证 `rates_history` 集合开始有去重后的历史数据。
 3. 部署 `riskAnalyzer`、`aiPortfolioAdvisor`、`alertMonitor`。
-4. 若需要 AI 预测曲线，确保 `aiFxMonitor` 或 `aiOnnxInference` 至少有一个可用。
+4. 若需要 AI 预测曲线，确保 `aiFxMonitor` 已部署可用。
 5. 真机验证生物认证能力，模拟器通常不能完整覆盖。
 
 ## 参考文档

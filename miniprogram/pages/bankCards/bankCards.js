@@ -1,6 +1,7 @@
 import * as echarts from '../../components/ec-canvas/echarts';
 
 const app = getApp();
+const exchangeRateUtil = require('../../utils/exchangeRate.js');
 
 function initChart(canvas, width, height, dpr) {
   const chart = echarts.init(canvas, null, {
@@ -502,51 +503,58 @@ Page({
   },
 
   async loadBankCards() {
-    const bankCards = Array.isArray(app.globalData.bankCards) ? app.globalData.bankCards : (wx.getStorageSync('bankCards') || []);
-    const rates = app.globalData.exchangeRates || wx.getStorageSync('exchangeRates') || { CNY: 1 };
-    const summary = this.buildSummary(bankCards, rates);
-    const shockCurrencyOptions = summary.currencySummary.map((item) => ({ code: item.code, label: item.code }));
-    const shockCodeIndex = Math.min(this.data.shockCodeIndex || 0, Math.max(shockCurrencyOptions.length - 1, 0));
-    const selectedShockCode = shockCurrencyOptions[shockCodeIndex] ? shockCurrencyOptions[shockCodeIndex].code : '';
-    const heatmap = this.buildHeatmapPayload(summary.cards, summary.currencySummary);
-    const sankey = this.buildSankeyPayload(summary.cards, summary.currencySummary);
-    const fundsFlow = this.buildFundsFlowPayload(summary.cards, summary.currencySummary, summary.totalCny);
+    try {
+      const bankCards = Array.isArray(app.globalData.bankCards) ? app.globalData.bankCards : (wx.getStorageSync('bankCards') || []);
+      const rates = await exchangeRateUtil.getSinaRealTimeRates();
+      app.globalData.exchangeRates = rates;
+      wx.setStorageSync('exchangeRates', rates);
+      const summary = this.buildSummary(bankCards, rates);
+      const shockCurrencyOptions = summary.currencySummary.map((item) => ({ code: item.code, label: item.code }));
+      const shockCodeIndex = Math.min(this.data.shockCodeIndex || 0, Math.max(shockCurrencyOptions.length - 1, 0));
+      const selectedShockCode = shockCurrencyOptions[shockCodeIndex] ? shockCurrencyOptions[shockCodeIndex].code : '';
+      const heatmap = this.buildHeatmapPayload(summary.cards, summary.currencySummary);
+      const sankey = this.buildSankeyPayload(summary.cards, summary.currencySummary);
+      const fundsFlow = this.buildFundsFlowPayload(summary.cards, summary.currencySummary, summary.totalCny);
 
-    this.setData({
-      bankCards: summary.cards,
-      currencySummary: summary.currencySummary,
-      totalCny: summary.totalCny,
-      cardCount: summary.cardCount,
-      currencyAccountCount: summary.currencyAccountCount,
-      uniqueCurrencyCount: summary.uniqueCurrencyCount,
-      topCurrencyExposureText: summary.topCurrencyExposureText,
-      topCardName: summary.topCardName,
-      topCardValueText: summary.topCardValueText,
-      averageAssetText: summary.averageAssetText,
-      dashboardTone: summary.dashboardTone,
-      shockCurrencyOptions,
-      shockCurrencyLabels: shockCurrencyOptions.map((item) => item.label),
-      shockCodeIndex,
-      heatmapXAxis: heatmap.heatmapXAxis,
-      heatmapYAxis: heatmap.heatmapYAxis,
-      heatmapData: heatmap.heatmapData,
-      heatmapRows: heatmap.heatmapRows,
-      sankeyNodes: sankey.sankeyNodes,
-      sankeyLinks: sankey.sankeyLinks,
-      fundsFlowCards: fundsFlow.fundsFlowCards,
-      fundsFlowCurrencies: fundsFlow.fundsFlowCurrencies,
-      privacyMode: !!app.globalData.privacyMode,
-      biometricEnabled: !!app.globalData.biometricEnabled
-    }, () => {
-      if (selectedShockCode) {
-        this.applyShockPreview(selectedShockCode, this.data.shockPct || 0);
-      } else {
-        this.setData({ shockImpactSummary: null, shockImpactedCards: [], shockAlertHits: [] });
-      }
-      this.refreshVisualCharts();
-    });
+      this.setData({
+        bankCards: summary.cards,
+        currencySummary: summary.currencySummary,
+        totalCny: summary.totalCny,
+        cardCount: summary.cardCount,
+        currencyAccountCount: summary.currencyAccountCount,
+        uniqueCurrencyCount: summary.uniqueCurrencyCount,
+        topCurrencyExposureText: summary.topCurrencyExposureText,
+        topCardName: summary.topCardName,
+        topCardValueText: summary.topCardValueText,
+        averageAssetText: summary.averageAssetText,
+        dashboardTone: summary.dashboardTone,
+        shockCurrencyOptions,
+        shockCurrencyLabels: shockCurrencyOptions.map((item) => item.label),
+        shockCodeIndex,
+        heatmapXAxis: heatmap.heatmapXAxis,
+        heatmapYAxis: heatmap.heatmapYAxis,
+        heatmapData: heatmap.heatmapData,
+        heatmapRows: heatmap.heatmapRows,
+        sankeyNodes: sankey.sankeyNodes,
+        sankeyLinks: sankey.sankeyLinks,
+        fundsFlowCards: fundsFlow.fundsFlowCards,
+        fundsFlowCurrencies: fundsFlow.fundsFlowCurrencies,
+        privacyMode: !!app.globalData.privacyMode,
+        biometricEnabled: !!app.globalData.biometricEnabled
+      }, () => {
+        if (selectedShockCode) {
+          this.applyShockPreview(selectedShockCode, this.data.shockPct || 0);
+        } else {
+          this.setData({ shockImpactSummary: null, shockImpactedCards: [], shockAlertHits: [] });
+        }
+        this.refreshVisualCharts();
+      });
 
-    await this.loadRiskSummary(bankCards, rates, summary);
+      await this.loadRiskSummary(bankCards, rates, summary);
+    } catch (error) {
+      console.error('loadBankCards failed:', error);
+      wx.showToast({ title: '实时汇率暂不可用', icon: 'none' });
+    }
   },
 
   requestBiometricAuth(reason = '验证身份后显示敏感金额') {

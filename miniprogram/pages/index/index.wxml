@@ -5,8 +5,19 @@
   </view> -->
 
   <view class="security-toolbar card">
-    <view class="security-pill" bindtap="togglePrivacyMode">{{privacyMode ? '显示金额' : '隐藏金额'}}</view>
-    <view class="security-pill {{biometricEnabled ? 'security-pill-active' : ''}}" bindtap="toggleBiometricEnabled">{{biometricEnabled ? '已启用生物验证' : '启用生物验证'}}</view>
+    <view class="security-toolbar-main">
+      <view class="security-eye-btn" bindtap="togglePrivacyMode" aria-label="切换金额显示">
+        <view class="security-eye security-eye-{{privacyMode ? 'off' : 'on'}}">
+          <view class="security-eye-pupil"></view>
+          <view class="security-eye-strike" wx:if="{{privacyMode}}"></view>
+        </view>
+      </view>
+      <view class="security-toolbar-copy">
+        <view class="security-toolbar-title">金额隐私</view>
+        <view class="security-toolbar-subtitle">{{privacyMode ? '已隐藏所有敏感金额' : '当前显示金额明细'}}</view>
+      </view>
+    </view>
+    <view class="security-compact-toggle {{biometricEnabled ? 'security-compact-toggle-active' : ''}}" bindtap="toggleBiometricEnabled">{{biometricEnabled ? 'Bio On' : 'Bio Off'}}</view>
   </view>
 
   <view class="total-card card total-card-clickable" wx:if="{{totalCny > 0}}" bindtap="gotoBankCardsPage">

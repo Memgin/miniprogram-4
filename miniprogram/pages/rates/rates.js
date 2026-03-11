@@ -32,17 +32,21 @@ Page({
     wx.showLoading({ title: 'AI 分析中...', mask: true });
 
     try {
-      const fnCandidates = ['aiFxMonitor', 'aiOnnxInference'];
+      const fnCandidates = ['aiFxMonitor'];
       let inferRes = null;
       let lastErr = null;
 
       for (const fnName of fnCandidates) {
         try {
-          inferRes = await wx.cloud.callFunction({
+          const currentRes = await wx.cloud.callFunction({
             name: fnName,
             data: { symbol: code.toUpperCase(), seq_len: 20 }
           });
-          break;
+          if (currentRes.result?.success) {
+            inferRes = currentRes;
+            break;
+          }
+          lastErr = new Error(currentRes.result?.msg || '预测失败');
         } catch (err) {
           lastErr = err;
           const errText = JSON.stringify(err || {});
@@ -63,8 +67,7 @@ Page({
         const riskLabel = riskMap[r.risk_level] || '未知';
         const sourceMap = {
           history_api: '历史数据',
-          spot_api: '实时数据',
-          local_fallback: '本地兜底'
+          spot_api: '实时数据'
         };
         const sourceLabel = sourceMap[r.data_source] || '未知';
 
@@ -104,12 +107,11 @@ Page({
    * 1. 初始化汇率数据 (保持不变)
    */
   async initAllRates() {
-    // ... 你原有的代码内容 ...
     try {
       wx.showLoading({ title: '同步汇率中...', mask: true });
-      const rawRates = await exchangeRateUtil.getSinaRealTimeRates();
-      const rates = (rawRates && Object.keys(rawRates).length > 2) ? rawRates : (wx.getStorageSync('exchangeRates') || { CNY: 1 });
+      const rates = await exchangeRateUtil.getSinaRealTimeRates();
       app.globalData.exchangeRates = rates;
+      wx.setStorageSync('exchangeRates', rates);
       const whitelist = ['USD', 'HKD', 'EUR', 'JPY', 'GBP', 'CAD', 'AUD', 'NZD', 'CHF', 'SGD', 'THB', 'MYR', 'KRW'];
       const allValidRates = whitelist.map(code => {
         const val = rates[code] || rates[code.toLowerCase()] || (code === 'MYR' ? (rates['RM'] || rates['rm']) : null);
@@ -135,7 +137,7 @@ Page({
       this.setData({ showingRates, optionalRates });
     } catch (err) {
       console.error('汇率初始化失败：', err);
-      this.showToast('数据加载延迟', 'none');
+      this.showToast('实时汇率暂不可用', 'none');
     } finally {
       wx.hideLoading();
     }

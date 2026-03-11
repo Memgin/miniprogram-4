@@ -124,10 +124,13 @@ def main(event, context):
                 if cur is not None:
                     prices = [float(cur)]
 
-        # pad/trim to seq_len
         if not prices:
-            prices = [1.0] * seq_len
-        while len(prices) < seq_len:
+            return {
+                'success': False,
+                'msg': 'Live FX data unavailable'
+            }
+
+        while len(prices) > 1 and len(prices) < seq_len:
             prices.append(prices[-1])
         prices = prices[-seq_len:]
 

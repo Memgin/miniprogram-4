@@ -137,28 +137,18 @@ Page({
     wx.showLoading({ title: '加载中...' });
 
     try {
-      // A. 获取汇率
-      let rates = await exchangeRateUtil.getSinaRealTimeRates();
-      
-      // B. 校验汇率有效性
-      if (!rates || Object.keys(rates).length <= 2) {
-        rates = wx.getStorageSync('exchangeRates') || app.globalData.exchangeRates || { CNY: 1 };
-      } else {
-        app.globalData.exchangeRates = rates;
-        wx.setStorageSync('exchangeRates', rates);
-      }
+      const rates = await exchangeRateUtil.getSinaRealTimeRates();
+      app.globalData.exchangeRates = rates;
+      wx.setStorageSync('exchangeRates', rates);
 
-      // C. 获取银行卡数据
       let bankCards = [...(app.globalData.bankCards || [])];
       if (bankCards.length === 0) {
         bankCards = wx.getStorageSync('bankCards') || [];
       }
 
-      // D. 执行汇总计算
       const summaryResult = this.calculateSummary(rates, bankCards);
       const selectedRateList = this.getSelectedRateList(rates);
 
-      // E. 格式化银行卡列表
       const formattedCards = bankCards.map(card => {
         let cardTotal = 0;
         card.currencies.forEach(cur => {
@@ -178,13 +168,14 @@ Page({
         totalCny: summaryResult.totalCny.toFixed(2),
         ratesLoaded: true,
         selectedRateList,
-        updateTime: rates.updateTime || new Date().toLocaleString()
+        updateTime: rates.updateTime || ''
       });
 
       this.calculateTargetProgress();
       await this.loadAdvancedInsights(rates, formattedCards);
     } catch (err) {
       console.error('loadAllData Error:', err);
+      wx.showToast({ title: '实时汇率暂不可用', icon: 'none' });
     } finally {
       this.setData({ isLoading: false });
       wx.hideLoading();
@@ -274,17 +265,21 @@ Page({
     wx.showLoading({ title: 'AI 分析中...', mask: true });
 
     try {
-      const fnCandidates = ['aiFxMonitor', 'aiOnnxInference'];
+      const fnCandidates = ['aiFxMonitor'];
       let inferRes = null;
       let lastErr = null;
 
       for (const fnName of fnCandidates) {
         try {
-          inferRes = await wx.cloud.callFunction({
+          const currentRes = await wx.cloud.callFunction({
             name: fnName,
             data: { symbol: String(code).toUpperCase(), seq_len: 20 }
           });
-          break;
+          if (currentRes.result?.success) {
+            inferRes = currentRes;
+            break;
+          }
+          lastErr = new Error(currentRes.result?.msg || '预测失败');
         } catch (err) {
           lastErr = err;
           const errText = JSON.stringify(err || {});
@@ -305,8 +300,7 @@ Page({
         const riskLabel = riskMap[r.risk_level] || '未知';
         const sourceMap = {
           history_api: '历史数据',
-          spot_api: '实时数据',
-          local_fallback: '本地兜底'
+          spot_api: '实时数据'
         };
         const sourceLabel = sourceMap[r.data_source] || '未知';
 

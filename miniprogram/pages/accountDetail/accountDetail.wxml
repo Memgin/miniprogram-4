@@ -4,7 +4,16 @@
   </view>
 
   <view class="detail-security-bar">
-    <view class="detail-security-pill" bindtap="togglePrivacyMode">{{privacyMode ? '显示金额' : '隐藏金额'}}</view>
+    <view class="detail-security-copy">
+      <view class="detail-security-title">金额隐私</view>
+      <view class="detail-security-subtitle">{{privacyMode ? '当前为隐藏模式' : '当前为显示模式'}}</view>
+    </view>
+    <view class="detail-eye-toggle" bindtap="togglePrivacyMode" aria-label="切换金额显示">
+      <view class="detail-eye detail-eye-{{privacyMode ? 'off' : 'on'}}">
+        <view class="detail-eye-pupil"></view>
+        <view class="detail-eye-strike" wx:if="{{privacyMode}}"></view>
+      </view>
+    </view>
   </view>
 
   <view class="total-card card" wx:if="{{totalCny > 0}}">

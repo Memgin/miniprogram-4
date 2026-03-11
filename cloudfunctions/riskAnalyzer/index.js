@@ -52,9 +52,10 @@ async function getCurrentRate(currentRates, code) {
 async function getSeriesForCurrency(code, limit = 30) {
   const safeCode = String(code || '').toUpperCase();
   if (!safeCode || safeCode === 'CNY') {
+    const labels = Array.from({ length: limit }, (_, index) => `T-${limit - index - 1}`);
     return {
       prices: Array(limit).fill(1),
-      labels: Array.from({ length: limit }, (_, index) => `T-${limit - index - 1}`)
+      labels
     };
   }
 
@@ -95,7 +96,7 @@ async function getSeriesForCurrency(code, limit = 30) {
       }))
       .filter((item) => Number.isFinite(item.price) && item.price > 0)
       .slice(-limit);
-    if (records.length) {
+    if (records.length >= 8) {
       return {
         prices: records.map((item) => item.price),
         labels: records.map((item) => item.label)
@@ -105,10 +106,9 @@ async function getSeriesForCurrency(code, limit = 30) {
     // ignore fallback failures
   }
 
-  const spot = await fetchSpotRate(safeCode).catch(() => 1);
   return {
-    prices: Array(limit).fill(spot || 1),
-    labels: Array.from({ length: limit }, (_, index) => `T-${limit - index - 1}`)
+    prices: [],
+    labels: []
   };
 }
 

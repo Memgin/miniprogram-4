@@ -31,7 +31,12 @@
 
     <view class="hero-actions">
       <button class="hero-btn hero-btn-primary" bindtap="gotoAddCard">新增银行卡</button>
-      <button class="hero-btn hero-btn-ghost" bindtap="togglePrivacyMode">{{privacyMode ? '显示金额' : '隐藏金额'}}</button>
+      <view class="hero-eye-toggle" bindtap="togglePrivacyMode" aria-label="切换金额显示">
+        <view class="hero-eye hero-eye-{{privacyMode ? 'off' : 'on'}}">
+          <view class="hero-eye-pupil"></view>
+          <view class="hero-eye-strike" wx:if="{{privacyMode}}"></view>
+        </view>
+      </view>
     </view>
   </view>
 

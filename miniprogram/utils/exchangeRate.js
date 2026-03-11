@@ -1,6 +1,7 @@
 let rateCache = null;
 let lastUpdateTime = 0;
-const CACHE_TIME = 30 * 60 * 1000;
+let inflightPromise = null;
+const CACHE_TIME = 15 * 1000;
 
 module.exports = {
   async getSinaRealTimeRates() {
@@ -9,44 +10,24 @@ module.exports = {
       return rateCache;
     }
 
-    return new Promise((resolve, reject) => {
-      wx.request({
-        url: 'https://api.exchangerate-api.com/v4/latest/USD',
-        method: 'GET',
-        success: (res) => {
-          if (res.statusCode === 200 && res.data && res.data.rates) {
-            const base = res.data.rates;
-            const usdToCny = base.CNY || 7.2; 
+    if (inflightPromise) {
+      return inflightPromise;
+    }
 
-            // 币种白名单
-            const whitelist = ['USD', 'HKD', 'EUR', 'JPY', 'GBP', 'CAD', 'AUD', 'NZD', 'CHF', 'SGD', 'THB', 'MYR', 'KRW'];
-            
-            const rates = {
-              CNY: 1.0,
-              updateTime: new Date().toLocaleString()
-            };
-
-            // 动态计算：CNY / (USD_to_Target) = Target_to_CNY
-            whitelist.forEach(code => {
-              const targetToUsd = base[code];
-              if (targetToUsd) {
-                const val = parseFloat((usdToCny / targetToUsd).toFixed(4));
-                rates[code] = val;
-                rates[code.toLowerCase()] = val;
-                if (code === 'MYR') { rates['RM'] = val; rates['rm'] = val; }
-              }
-            });
-
-            console.log('✅ 汇率链路已打通:', rates);
-            rateCache = rates;
-            lastUpdateTime = now;
-            resolve(rates);
-          } else {
-            reject(new Error('接口异常'));
-          }
-        },
-        fail: (err) => reject(err)
-      });
+    inflightPromise = wx.cloud.callFunction({
+      name: 'getRealtimeFx'
+    }).then((res) => {
+      const rates = res && res.result && res.result.success ? res.result.rates : null;
+      if (!rates || Object.keys(rates).length <= 4) {
+        throw new Error((res && res.result && res.result.msg) || '实时汇率云函数返回异常');
+      }
+      rateCache = rates;
+      lastUpdateTime = Date.now();
+      return rates;
+    }).finally(() => {
+      inflightPromise = null;
     });
+
+    return inflightPromise;
   }
 };
