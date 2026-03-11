@@ -23,7 +23,6 @@ module.exports = {
             
             const rates = {
               CNY: 1.0,
-              cny: 1.0,
               updateTime: new Date().toLocaleString()
             };
 

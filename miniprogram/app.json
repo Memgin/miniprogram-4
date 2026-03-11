@@ -1,10 +1,12 @@
 {
   "pages": [
     "pages/index/index",
+    "pages/bankCards/bankCards",
     "pages/addCard/addCard",
     "pages/rates/rates",
-    "pages/accountDetail/accountDetail", 
-    "pages/export/export"
+    "pages/accountDetail/accountDetail",
+    "pages/export/export",
+    "pages/diagnostics/diagnostics"
   ],
   "window": {
     "backgroundTextStyle": "light",
@@ -12,5 +14,6 @@
     "navigationBarTitleText": "银行卡管理",
     "navigationBarTextStyle": "black"
   },
+  "usingComponents": {},
   "sitemapLocation": "sitemap.json"
 }

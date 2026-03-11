@@ -1,0 +1,13 @@
+{
+  "name": "tushareImport",
+  "version": "1.0.0",
+  "description": "Import FX history from Tushare into rates_history",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"No tests\""
+  },
+  "dependencies": {
+    "axios": "^1.13.1",
+    "wx-server-sdk": "~3.0.4"
+  }
+}

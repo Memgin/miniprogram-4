@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "openapi": []
+  },
+  "triggers": [
+    {
+      "name": "dailyFxHistoryImport",
+      "type": "timer",
+      "config": "0 10 18 * * * *"
+    }
+  ]
+}

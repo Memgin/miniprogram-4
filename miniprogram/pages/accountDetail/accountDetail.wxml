@@ -1,33 +1,161 @@
 <view class="container">
   <view class="header" bindtap="showEditNameModal">
-    <view class="card-name-title">
-      {{cardInfo.name}}
-      <text class="edit-icon"></text>
-    </view>
+    <view class="card-name-title">{{cardInfo.name}}</view>
+  </view>
+
+  <view class="detail-security-bar">
+    <view class="detail-security-pill" bindtap="togglePrivacyMode">{{privacyMode ? '显示金额' : '隐藏金额'}}</view>
   </view>
 
   <view class="total-card card" wx:if="{{totalCny > 0}}">
     <view class="card-title">该卡人民币总计</view>
-    <view class="total-amount">¥{{totalCny}}</view>
+    <view class="total-amount" style="color: #e53935;">{{privacyMode ? '***' : '¥' + totalCny}}</view>
   </view>
 
-  <view class="chart-box card" wx:if="{{currencyList.length > 0}}">
-    <view class="list-title">资产占比分析</view>
-    <view class="canvas-container">
-      <ec-canvas 
-        wx:if="{{!showModal && !showAddModal && !showNameModal}}"
-        id="mychart-dom-pie" 
-        canvas-id="mychart-pie" 
-        ec="{{ ec }}" 
-        force-use-old-canvas="false" 
-        type="2d">
-      </ec-canvas>
-      
+  <view class="card" wx:if="{{cardRiskSummary || isCardRiskLoading}}">
+    <view class="detail-section-head">
+      <view>
+        <view class="list-title section-title-no-pad">单卡风险雷达</view>
+        <view class="detail-subtitle">按这张卡的独立持仓估算 VaR、回撤和风险贡献。</view>
+      </view>
+      <view class="detail-loading" wx:if="{{isCardRiskLoading}}">计算中</view>
+    </view>
+
+    <view class="detail-risk-grid" wx:if="{{cardRiskSummary}}">
+      <view class="detail-risk-box">
+        <view class="detail-risk-label">组合总值</view>
+        <view class="detail-risk-value">{{privacyMode ? '***' : cardRiskSummary.totalValueText}}</view>
+      </view>
+      <view class="detail-risk-box">
+        <view class="detail-risk-label">VaR 95%</view>
+        <view class="detail-risk-value">{{privacyMode ? '***' : cardRiskSummary.var95Text}}</view>
+      </view>
+      <view class="detail-risk-box">
+        <view class="detail-risk-label">VaR 99%</view>
+        <view class="detail-risk-value">{{privacyMode ? '***' : cardRiskSummary.var99Text}}</view>
+      </view>
+      <view class="detail-risk-box">
+        <view class="detail-risk-label">年化波动率</view>
+        <view class="detail-risk-value">{{cardRiskSummary.volatilityText}}</view>
+      </view>
+    </view>
+
+    <view class="detail-risk-pulse" wx:if="{{cardRiskSummary}}">
+      <view class="detail-risk-badge detail-risk-badge-{{cardRiskSummary.pulseTone}}">风险状态 {{cardRiskSummary.pulseLabel}}</view>
+      <view class="detail-risk-pulse-text">{{cardRiskSummary.pulseText}}</view>
+      <view class="detail-risk-meta">历史最大回撤 {{cardRiskSummary.maxDrawdownText}} · {{cardRiskSummary.confidenceText}}</view>
+    </view>
+
+    <view class="detail-risk-signal" wx:for="{{cardRiskSummary.signals}}" wx:key="*this">{{item}}</view>
+
+    <view class="detail-risk-focus" wx:if="{{cardRiskFocusCode}}">
+      <view class="detail-risk-focus-title">当前聚焦 {{cardRiskFocusCode}}</view>
+      <view class="detail-risk-focus-desc">这张卡里与该币种相关的风险贡献和守护提醒会同步高亮。</view>
+      <view class="detail-risk-suggestion" wx:if="{{cardRiskSuggestion}}">
+        <view class="detail-risk-mode-tabs">
+          <view class="detail-risk-mode-tab {{selectedCardRiskSuggestionMode === item.key ? 'detail-risk-mode-tab-active' : ''}}" wx:for="{{cardRiskSuggestionModes}}" wx:key="key" data-mode="{{item.key}}" bindtap="selectCardRiskSuggestionMode">{{item.label}}</view>
+        </view>
+        <view class="detail-risk-suggestion-line">当前汇率：1 {{cardRiskSuggestion.code}} = ¥{{cardRiskSuggestion.currentRateText}}</view>
+        <view class="detail-risk-suggestion-line">{{cardRiskSuggestion.modeLabel}}策略：建议提醒 {{cardRiskSuggestion.directionText}} {{cardRiskSuggestion.thresholdText}}，缓冲带 {{cardRiskSuggestion.bufferText}}</view>
+        <view class="detail-risk-suggestion-line" wx:if="{{cardRiskSuggestion.existingCount > 0}}">该卡该币种已有 {{cardRiskSuggestion.existingCount}} 条守护提醒，执行后会更新。</view>
+        <button class="detail-risk-btn" bindtap="applyCardRiskSuggestion">{{cardRiskSuggestion.actionText}}</button>
+      </view>
+      <text class="detail-risk-clear" bindtap="clearCardRiskFocus">清除聚焦</text>
+    </view>
+
+    <view class="detail-risk-chart-block" wx:if="{{cardRiskSummary && cardRiskSummary.riskContributions.length > 0}}">
+      <view class="list-title section-title-no-pad">风险贡献拆分</view>
+      <view class="detail-subtitle">点击某个币种，直接为这张卡生成守护提醒。</view>
+      <block wx:if="{{!privacyMode}}">
+        <view class="detail-risk-chart-canvas">
+          <ec-canvas id="card-risk-contribution-chart" canvas-id="card-risk-contribution-chart-canvas" ec="{{ ecCardRiskContribution }}" type="2d"></ec-canvas>
+        </view>
+      </block>
       <view class="chart-placeholder" wx:else>
         <view class="placeholder-content">
-          <text class="placeholder-text">正在编辑账户数据...</text>
+          <text class="placeholder-text">隐私模式下已隐藏风险贡献图</text>
         </view>
       </view>
+    </view>
+
+    <view class="detail-risk-rule-list" wx:if="{{cardAlertRules.length > 0}}">
+      <view class="list-title section-title-no-pad">该卡守护提醒</view>
+      <view class="detail-risk-rule-item {{cardRiskFocusCode && cardRiskFocusCode === item.code ? 'detail-linked-highlight' : ''}} {{highlightedCardAlertId === item.id ? 'detail-alert-emphasis' : ''}}" wx:for="{{cardAlertRules}}" wx:key="id">
+        <view>
+          <view class="detail-risk-rule-name">{{item.note}}</view>
+          <view class="detail-risk-rule-meta">{{item.code}} {{item.directionText}} {{item.thresholdText}} · {{item.enabled ? '已启用' : '已暂停'}}</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="chart-box card" wx:if="{{currencyList.length > 0 && !showModal && !showAddModal && !showNameModal}}">
+    <swiper 
+      class="swiper-container" 
+      indicator-dots="{{true}}" 
+      indicator-active-color="#ff9f43" 
+      indicator-color="rgba(0,0,0,.1)"
+      circular="{{true}}"
+    >
+      <swiper-item>
+        <view class="chart-wrapper">
+          <view class="list-title">资产占比分析</view>
+          <view class="canvas-container">
+            <ec-canvas id="mychart-dom-pie" canvas-id="mychart-pie" ec="{{ ec }}" type="2d"></ec-canvas>
+          </view>
+        </view>
+      </swiper-item>
+
+      <swiper-item>
+        <view class="chart-wrapper">
+          <view class="list-title">余额趋势分析</view>
+          <view class="canvas-container">
+            <block wx:if="{{cardInfo.history && cardInfo.history.length > 1}}">
+              <ec-canvas id="trend-chart-dom" canvas-id="trend-chart" ec="{{ ecTrend }}" type="2d"></ec-canvas>
+            </block>
+            <view class="chart-placeholder" wx:else>
+              <view class="placeholder-content">
+                <text class="placeholder-text">暂无足够历史趋势数据</text>
+              </view>
+            </view>
+          </view>
+        </view>
+      </swiper-item>
+
+      <swiper-item>
+        <view class="chart-wrapper">
+          <view class="list-title">组合预测曲线</view>
+          <view class="canvas-container">
+            <block wx:if="{{portfolioOutlook && portfolioOutlook.forecastValues.length > 0}}">
+              <ec-canvas id="forecast-chart-dom" canvas-id="forecast-chart" ec="{{ ecForecast }}" type="2d"></ec-canvas>
+            </block>
+            <view class="chart-placeholder" wx:else>
+              <view class="placeholder-content">
+                <text class="placeholder-text">{{isOutlookLoading ? '正在生成未来敏感度预测...' : '暂无可用预测数据'}}</text>
+              </view>
+            </view>
+          </view>
+        </view>
+      </swiper-item>
+    </swiper>
+  </view>
+
+  <view class="card" wx:if="{{portfolioOutlook}}">
+    <view class="list-title">组合展望</view>
+    <view class="outlook-summary">{{portfolioOutlook.summary}}</view>
+    <view class="outlook-risk">{{portfolioOutlook.riskText}}</view>
+    <view class="outlook-grid">
+      <view class="outlook-box">
+        <view class="outlook-label">当前组合估值</view>
+        <view class="outlook-value">{{privacyMode ? '***' : portfolioOutlook.totalNowText}}</view>
+      </view>
+      <view class="outlook-box">
+        <view class="outlook-label">T+5 预测值</view>
+        <view class="outlook-value">{{privacyMode ? '***' : portfolioOutlook.projectedText}}</view>
+      </view>
+    </view>
+    <view class="outlook-drivers" wx:if="{{portfolioOutlook.drivers.length > 0}}">
+      <view class="outlook-driver" wx:for="{{portfolioOutlook.drivers}}" wx:key="*this">{{item}}</view>
     </view>
   </view>
 
@@ -45,21 +173,15 @@
       <view class="item-content">
         <view class="account-info">
           <text class="currency-name">{{currencyMap[item.code] || item.code}}</text>
-          <text class="balance-text">当前余额：{{item.amount}} {{currencyMap[item.code] || item.code}}</text>
+          <text class="balance-text">当前余额：{{privacyMode ? '***' : item.amount}} {{privacyMode ? '' : (currencyMap[item.code] || item.code)}}</text>
         </view>
         <button class="edit-btn" bindtap="showEditModal" data-code="{{item.code}}" data-amount="{{item.amount}}">编辑余额</button>
       </view>
-      <view class="del-btn" bindtap="deleteCurrency" data-index="{{index}}" data-code="{{item.code}}">
-        删除
-      </view>
+      <view class="del-btn" bindtap="deleteCurrency" data-index="{{index}}" data-code="{{item.code}}">删除</view>
     </view>
   </view>
 
-  <view class="empty-tip" wx:else>
-    该银行卡暂无币种账户数据
-  </view>
-
-  <button class="add-currency-btn" bindtap="showAddCurrencyModal">+ 添加币种</button>
+  <button class="add-currency-btn" bindtap="showAddCurrencyModal">+ 添加币种账户</button>
 
   <view class="modal-mask" wx:if="{{showNameModal}}" bindtap="hideNameModal">
     <view class="modal-content" catchtap="stopPropagation">
@@ -87,16 +209,7 @@
     <view class="modal-content" catchtap="stopPropagation">
       <view class="modal-title">添加币种</view>
       <view class="currency-picker">
-        <view 
-          class="currency-item {{selectedAddCode === item.code ? 'active' : ''}}" 
-          wx:for="{{allCurrencyList}}" 
-          wx:key="code" 
-          bindtap="selectAddCurrency" 
-          data-code="{{item.code}}" 
-          data-name="{{item.name}}"
-        >
-          {{item.name}}
-        </view>
+        <view class="currency-item {{selectedAddCode === item.code ? 'active' : ''}}" wx:for="{{allCurrencyList}}" wx:key="code" bindtap="selectAddCurrency" data-code="{{item.code}}" data-name="{{item.name}}">{{item.name}}</view>
       </view>
       <input type="digit" class="amount-input" placeholder="请输入金额" value="{{addAmount}}" bindinput="bindAddAmount"/>
       <view class="modal-btn-group">

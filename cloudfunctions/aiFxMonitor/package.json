@@ -1,0 +1,12 @@
+{
+  "name": "aiFxMonitor",
+  "version": "1.0.0",
+  "description": "FX monitor with prediction and volatility scoring",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"No tests\""
+  },
+  "dependencies": {
+    "wx-server-sdk": "~3.0.4"
+  }
+}

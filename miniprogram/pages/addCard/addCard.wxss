@@ -20,141 +20,210 @@
   margin-bottom: 24rpx;
 }
 
+/* 表单与输入框 */
 .form-item {
-  margin-bottom: 24rpx;
+  margin-bottom: 10rpx;
 }
 
 .label {
   font-size: 26rpx;
   color: #666;
-  margin-bottom: 10rpx;
+  margin-bottom: 12rpx;
 }
 
 .input {
   width: 100%;
-  height: 76rpx;
-  padding: 0 20rpx;
-  border-radius: 10rpx;
+  height: 80rpx;
+  padding: 0 24rpx;
+  border-radius: 12rpx;
   background: #f7f8fa;
   border: 1rpx solid #e5e6eb;
   font-size: 28rpx;
   box-sizing: border-box;
 }
 
-/* 币种条目：左边信息 + 右边按钮组 */
+/* 币种条目列表 */
 .currency-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16rpx 0;
+  padding: 24rpx 0;
   border-bottom: 1rpx solid #f0f0f0;
-  margin-bottom: 8rpx;
 }
 
 .currency-left {
   display: flex;
   flex-direction: column;
-  gap: 6rpx;
+  gap: 8rpx;
 }
 
 .currency-name {
   font-size: 28rpx;
+  font-weight: 500;
   color: #333;
 }
 
 .currency-amount {
   font-size: 24rpx;
-  color: #666;
+  color: #888;
 }
 
-/* 按钮组：编辑 + 删除 同行右对齐 */
-.currency-right {
-  display: flex;
-  gap: 12rpx;
-  align-items: center;
-}
-
-.edit-btn {
-  font-size: 24rpx;
-  color: #1890ff;
-  padding: 0 16rpx;
-  height: 50rpx;
-  line-height: 50rpx;
-  background: #e6f7ff;
-  border-radius: 8rpx;
-}
-
-.del-btn {
-  font-size: 24rpx;
-  color: #ff4d4f;
-  padding: 0 16rpx;
-  height: 50rpx;
-  line-height: 50rpx;
-  background: #fff1f0;
-  border-radius: 8rpx;
-}
-
-/* 添加币种区域 */
-.add-currency-area {
-  display: flex;
-  gap: 12rpx;
-  margin-top: 20rpx;
-  align-items: center;
-}
-
-.picker {
-  flex: 1.2;
-  height: 70rpx;
-  line-height: 70rpx;
-  padding: 0 16rpx;
-  background: #f7f8fa;
-  border-radius: 10rpx;
-  font-size: 26rpx;
+/* 列表中的删除叉号 */
+.del-icon {
+  width: 44rpx;
+  height: 44rpx;
+  line-height: 40rpx;
   text-align: center;
-  border: 1rpx solid #e5e6eb;
+  background: #fff1f0;
+  color: #ff4d4f;
+  border-radius: 50%;
+  font-size: 32rpx;
 }
 
-.input-amount {
-  flex: 1;
-  height: 70rpx;
-  padding: 0 16rpx;
-  background: #f7f8fa;
-  border-radius: 10rpx;
-  font-size: 26rpx;
-  border: 1rpx solid #e5e6eb;
+/* 核心：添加币种触发区域 */
+.add-currency-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30rpx;
+  border: 2rpx dashed #ffbd69; /* 使用浅橘色虚线 */
+  border-radius: 16rpx;
+  color: #ff9f43; /* 活力橘 */
+  font-size: 28rpx;
+  margin-top: 30rpx;
+  background: #fffcf9;
 }
 
-.add-btn {
-  width: 80rpx;
-  height: 70rpx;
-  line-height: 70rpx;
-  background: #1890ff;
-  color: #fff;
-  font-size: 30rpx;
-  border-radius: 10rpx;
+.add-currency-trigger .plus {
+  font-size: 36rpx;
+  margin-right: 12rpx;
+  font-weight: bold;
 }
 
-/* 保存按钮 */
+/* 底部保存按钮 */
 .save-btn {
   width: 100%;
-  height: 88rpx;
-  line-height: 88rpx;
-  background: #1890ff;
+  height: 94rpx;
+  line-height: 94rpx;
+  background: #ff9f43;
   color: #fff;
-  font-size: 30rpx;
-  border-radius: 16rpx;
-  margin-top: 20rpx;
+  font-size: 32rpx;
+  font-weight: bold;
+  border-radius: 47rpx; /* 圆角矩形 */
+  margin-top: 40rpx;
+  box-shadow: 0 8rpx 20rpx rgba(255, 159, 67, 0.2);
 }
 
-/* 自定义弹窗 - 必显示+完美居中（核心修复） */
+/* --- 模态弹窗样式 (仿 accountDetail) --- */
+.modal-mask {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px); /* 增加磨砂效果 */
+}
+
+.modal-content {
+  width: 85%;
+  background: #fff;
+  border-radius: 30rpx;
+  padding: 40rpx;
+  box-sizing: border-box;
+}
+
+.modal-header {
+  font-size: 32rpx;
+  font-weight: bold;
+  text-align: center;
+  color: #333;
+  margin-bottom: 30rpx;
+}
+
+/* 币种网格 */
+.currency-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16rpx;
+  max-height: 400rpx; /* 防止币种太多撑破屏幕 */
+  overflow-y: auto;
+  padding: 10rpx 0;
+}
+
+.grid-item {
+  padding: 20rpx 0;
+  text-align: center;
+  font-size: 26rpx;
+  background: #f7f8fa;
+  border-radius: 12rpx;
+  border: 2rpx solid transparent;
+  color: #666;
+  transition: all 0.2s;
+}
+
+.grid-item.active {
+  background: #fff5eb;
+  border-color: #ff9f43;
+  color: #ff9f43;
+  font-weight: bold;
+}
+
+/* 弹窗输入框 */
+.modal-input-box {
+  margin-top: 40rpx;
+  padding: 20rpx 0;
+  border-bottom: 2rpx solid #f0f0f0;
+}
+
+.modal-label {
+  font-size: 24rpx;
+  color: #999;
+  margin-bottom: 10rpx;
+  display: block;
+}
+
+.modal-input {
+  height: 80rpx;
+  font-size: 40rpx;
+  font-weight: 500;
+  color: #ff9f43;
+}
+
+/* 按钮组 */
+.modal-btn-group {
+  display: flex;
+  margin-top: 50rpx;
+  gap: 20rpx;
+}
+
+.modal-cancel {
+  flex: 1;
+  height: 80rpx;
+  line-height: 80rpx;
+  background: #f5f5f5;
+  color: #666;
+  font-size: 28rpx;
+  border-radius: 40rpx;
+}
+
+.modal-confirm {
+  flex: 2;
+  height: 80rpx;
+  line-height: 80rpx;
+  background: #ff9f43;
+  color: #fff;
+  font-size: 28rpx;
+  border-radius: 40rpx;
+}
+
+/* 你的合并成功 Toast 保持不变 */
 .custom-toast-mask {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
+  top: 0; left: 0; width: 100vw; height: 100vh;
   background: rgba(0, 0, 0, 0.3);
-  z-index: 9999; /* 提高层级，避免被遮挡 */
+  z-index: 9999;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -168,22 +237,19 @@
   align-items: center;
   gap: 12rpx;
   box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.15);
-  min-width: 280rpx; /* 保证最小宽度，内容不挤 */
+  min-width: 280rpx;
 }
-/* 对勾图标（文字版，兼容所有库） */
 .toast-icon {
   font-size: 60rpx;
-  color: #1890ff;
+  color: #ff9f43; /* 改为主橘色 */
   line-height: 60rpx;
 }
 .toast-text {
   font-size: 28rpx;
   color: #333;
   font-weight: 500;
-  text-align: center;
 }
 .toast-subtext {
   font-size: 24rpx;
   color: #666;
-  text-align: center;
 }

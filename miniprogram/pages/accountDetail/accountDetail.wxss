@@ -1,263 +1,646 @@
-/* 全局容器 */
-.container {
-  padding: 0 30rpx;
-  box-sizing: border-box;
-  min-height: 100vh;
-  background-color: #f5f5f5;
-}
-
-/* 头部：只保留标题，居中 */
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20rpx 0 5rpx 0;
-  border-bottom: 1rpx solid #eee;
-}
-.card-name-title {
-  font-size: 36rpx;
-  font-weight: 600;
-  color: #333;
-  text-align: center;
-}
-
-/* 卡片基础样式 */
-.card {
-  background: #fff;
-  border-radius: 12rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.05);
-  padding: 30rpx;
-  box-sizing: border-box;
-  margin-bottom: 20rpx;
-}
-.card-title {
-  font-size: 30rpx;
-  color: #333;
-  font-weight: 500;
-  margin-bottom: 20rpx;
-  padding-bottom: 10rpx;
-  border-bottom: 1rpx solid #f5f5f5;
-}
-.total-card {
-  margin-top: 20rpx;
-}
-.total-amount {
-  font-size: 48rpx;
-  font-weight: 700;
-  color: #e53935;
-  text-align: center;
-  padding: 10rpx 0;
-}
-
 /* ==========================================
-   图表配置修复：必须显式指定高度
+   1. 全局容器与头部
    ========================================== */
-.canvas-container {
-  width: 100%;
-  height: 500rpx; /* 关键修复：必须设置具体高度值，否则图表无法显示 */
-  margin: 20rpx 0;
-  position: relative;
-}
+   .container {
+    padding: 0 30rpx 60rpx;
+    box-sizing: border-box;
+    min-height: 100vh;
+    background-color: #f8f9fb;
+  }
+  
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 30rpx 0 10rpx 0;
+  }
 
-ec-canvas {
-  width: 100%;
-  height: 100%;
-}
+  .detail-security-bar {
+    display: flex;
+    gap: 16rpx;
+    margin-bottom: 20rpx;
+  }
 
-/* 币种列表 */
-.account-list {
-  margin-top: 20rpx;
-}
-.list-title {
-  font-size: 30rpx;
-  color: #333;
-  font-weight: 500;
-  margin-bottom: 20rpx;
-}
+  .detail-security-pill {
+    flex: 1;
+    text-align: center;
+    padding: 16rpx 12rpx;
+    border-radius: 999rpx;
+    font-size: 24rpx;
+    color: #7c4f00;
+    background: #fff3d9;
+    border: 1rpx solid #f8d57e;
+  }
 
-/* 条目容器 */
-.account-item {
-  position: relative;
-  background: #fff;
-  border-radius: 12rpx;
-  margin-bottom: 20rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.05);
-  overflow: hidden;
-  box-sizing: border-box;
-}
+  .detail-security-pill-active {
+    color: #125d35;
+    background: #eaf8ef;
+    border-color: #9dd9b6;
+  }
+  
+  .card-name-title {
+    font-size: 36rpx;
+    font-weight: 600;
+    color: #333;
+    text-align: center;
+  }
+  
+  .edit-icon {
+    display: inline-block;
+    width: 24rpx;
+    height: 24rpx;
+    margin-left: 10rpx;
+    border: 2rpx solid #999;
+    border-radius: 4rpx;
+  }
+  
+  /* ==========================================
+     2. 卡片基础与金额展示
+     ========================================== */
+  .card {
+    background: #fff;
+    border-radius: 20rpx;
+    box-shadow: 0 4rpx 16rpx rgba(0,0,0,0.04);
+    padding: 30rpx;
+    box-sizing: border-box;
+    margin-bottom: 24rpx;
+  }
+  
+  .card-title {
+    font-size: 28rpx;
+    color: #999;
+    font-weight: 500;
+    margin-bottom: 16rpx;
+    text-align: center;
+  }
+  
+  .total-card {
+    margin-top: 10rpx;
+  }
+  
+  /* 核心修改：人民币总计显示为原来的红色 */
+  .total-amount {
+    font-size: 52rpx;
+    font-weight: bold;
+    color: #e53935; 
+    text-align: center;
+  }
+  
+  /* ==========================================
+     3. 图表 Swiper 区域 (循环滑动)
+     ========================================== */
+  .chart-box {
+    padding: 20rpx 0 !important;
+  }
+  
+  .swiper-container {
+    height: 580rpx;
+    width: 100%;
+  }
+  
+  .chart-wrapper {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .list-title {
+    font-size: 30rpx;
+    color: #333;
+    font-weight: 600;
+    padding: 0 30rpx;
+    margin-bottom: 10rpx;
+  }
+  
+  .canvas-container {
+    flex: 1;
+    width: 100%;
+    position: relative;
+  }
+  
+  ec-canvas {
+    width: 100%;
+    height: 100%;
+  }
+  
+  .chart-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fafafa;
+  }
+  
+  .placeholder-text {
+    font-size: 26rpx;
+    color: #bbb;
+  }
 
-/* 内容层 */
-.item-content {
-  position: relative;
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 30rpx;
-  box-sizing: border-box;
-  background: #fff;
-  z-index: 10;
-  transition: transform 0.2s ease-out;
-}
-.account-item.show-del .item-content {
-  transform: translateX(-120rpx);
-}
+  .outlook-summary {
+    margin-top: 8rpx;
+    font-size: 26rpx;
+    line-height: 1.7;
+    color: #334155;
+  }
 
-/* 币种信息 */
-.account-info {
-  display: flex;
-  flex-direction: column;
-  gap: 10rpx;
-}
-.currency-name {
-  font-size: 32rpx;
-  color: #333;
-  font-weight: 500;
-}
-.balance-text {
-  font-size: 28rpx;
-  color: #666;
-}
+  .outlook-risk {
+    margin-top: 12rpx;
+    font-size: 24rpx;
+    color: #64748b;
+  }
 
-/* 编辑按钮 */
-.edit-btn {
-  padding: 0 24rpx;
-  height: 60rpx;
-  line-height: 60rpx;
-  background: #1677ff;
-  color: #fff;
-  font-size: 24rpx;
-  border-radius: 8rpx;
-  flex-shrink: 0;
-  white-space: nowrap;
-  border: none;
-}
+  .outlook-grid {
+    display: flex;
+    gap: 16rpx;
+    margin-top: 22rpx;
+  }
 
-/* 删除按钮 */
-.del-btn {
-  position: absolute;
-  right: 0;
-  top: 0;
-  width: 120rpx;
-  height: 100%;
-  background: #e53935;
-  color: #fff;
-  font-size: 24rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 5;
-  pointer-events: auto;
-  border-radius: 0 12rpx 12rpx 0;
-}
+  .outlook-box {
+    flex: 1;
+    background: #f8fafc;
+    border: 1rpx solid #e2e8f0;
+    border-radius: 16rpx;
+    padding: 22rpx;
+  }
 
-/* 添加币种按钮 */
-.add-currency-btn {
-  width: 100%;
-  height: 80rpx;
-  line-height: 80rpx;
-  background: #1677ff;
-  color: #fff;
-  font-size: 28rpx;
-  border-radius: 8rpx;
-  margin-top: 20rpx;
-  border: none;
-}
+  .outlook-label {
+    font-size: 22rpx;
+    color: #64748b;
+  }
 
-/* 空数据提示 */
-.empty-tip {
-  text-align: center;
-  font-size: 28rpx;
-  color: #999;
-  margin-top: 100rpx;
-}
+  .outlook-value {
+    margin-top: 10rpx;
+    font-size: 28rpx;
+    font-weight: 600;
+    color: #0f172a;
+  }
 
-/* 弹窗样式 */
-.modal-mask {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 999;
-}
-.modal-content {
-  width: 80%;
-  background: #fff;
-  border-radius: 16rpx;
-  padding: 40rpx 30rpx;
-  box-sizing: border-box;
-}
-.modal-title {
-  font-size: 32rpx;
-  color: #333;
-  text-align: center;
-  margin-bottom: 30rpx;
-  font-weight: 500;
-}
-.amount-input {
-  width: 100%;
-  height: 80rpx;
-  border: 1rpx solid #eee;
-  border-radius: 8rpx;
-  padding: 0 20rpx;
-  box-sizing: border-box;
-  font-size: 28rpx;
-  margin-bottom: 30rpx;
-}
-.modal-btn-group {
-  display: flex;
-  gap: 20rpx;
-}
-.modal-cancel, .modal-confirm {
-  flex: 1;
-  height: 80rpx;
-  line-height: 80rpx;
-  border-radius: 8rpx;
-  font-size: 28rpx;
-  border: none;
-}
-.modal-cancel {
-  background: #eee;
-  color: #333;
-}
-.modal-confirm {
-  background: #1677ff;
-  color: #fff;
-}
+  .outlook-drivers {
+    margin-top: 18rpx;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12rpx;
+  }
 
-/* 币种选择器 */
-.currency-picker {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16rpx;
-  margin-bottom: 20rpx;
-}
-.currency-item {
-  flex: 1 1 140rpx;
-  height: 60rpx;
-  line-height: 60rpx;
-  text-align: center;
-  background: #f5f5f5;
-  border-radius: 8rpx;
-  font-size: 24rpx;
-}
-.currency-item.active {
-  background: #1677ff;
-  color: #fff;
-}
+  .outlook-driver {
+    padding: 10rpx 18rpx;
+    border-radius: 999rpx;
+    background: #eef5ff;
+    color: #2f54eb;
+    font-size: 22rpx;
+  }
 
-/* 消除小程序所有button的默认样式干扰 */
-button {
-  margin: 0;
-  padding: 0;
-  border: none;
-  outline: none;
-}
-button::after {
-  border: none;
-}
+  .detail-section-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 18rpx;
+  }
+
+  .section-title-no-pad {
+    padding: 0;
+  }
+
+  .detail-subtitle,
+  .detail-loading {
+    font-size: 23rpx;
+    line-height: 1.6;
+    color: #64748b;
+  }
+
+  .detail-risk-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16rpx;
+    margin-top: 22rpx;
+  }
+
+  .detail-risk-box {
+    padding: 20rpx;
+    border-radius: 16rpx;
+    background: #f8fafc;
+    border: 1rpx solid #e2e8f0;
+  }
+
+  .detail-risk-label {
+    font-size: 22rpx;
+    color: #64748b;
+  }
+
+  .detail-risk-value {
+    margin-top: 8rpx;
+    font-size: 28rpx;
+    font-weight: 600;
+    color: #0f172a;
+  }
+
+  .detail-risk-pulse {
+    margin-top: 18rpx;
+    padding: 20rpx;
+    border-radius: 16rpx;
+    background: linear-gradient(135deg, #f8fafc, #eefbf8);
+    border: 1rpx solid #dbeafe;
+  }
+
+  .detail-risk-badge {
+    display: inline-flex;
+    padding: 8rpx 18rpx;
+    border-radius: 999rpx;
+    font-size: 22rpx;
+    font-weight: 600;
+  }
+
+  .detail-risk-badge-steady {
+    background: #dcfce7;
+    color: #15803d;
+  }
+
+  .detail-risk-badge-watch {
+    background: #fef3c7;
+    color: #b45309;
+  }
+
+  .detail-risk-badge-elevated {
+    background: #fee2e2;
+    color: #b91c1c;
+  }
+
+  .detail-risk-pulse-text {
+    margin-top: 12rpx;
+    font-size: 25rpx;
+    line-height: 1.6;
+    color: #0f172a;
+  }
+
+  .detail-risk-meta {
+    margin-top: 10rpx;
+    font-size: 23rpx;
+    color: #64748b;
+  }
+
+  .detail-risk-signal {
+    margin-top: 12rpx;
+    padding-left: 18rpx;
+    position: relative;
+    font-size: 24rpx;
+    line-height: 1.6;
+    color: #334155;
+  }
+
+  .detail-risk-signal::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 14rpx;
+    width: 8rpx;
+    height: 8rpx;
+    border-radius: 50%;
+    background: #0f766e;
+  }
+
+  .detail-risk-focus {
+    margin-top: 18rpx;
+    padding: 20rpx;
+    border-radius: 16rpx;
+    background: linear-gradient(135deg, #fff7ed, #fffbeb);
+    border: 1rpx solid #fed7aa;
+  }
+
+  .detail-risk-focus-title {
+    font-size: 26rpx;
+    font-weight: 600;
+    color: #9a3412;
+  }
+
+  .detail-risk-focus-desc {
+    margin-top: 10rpx;
+    font-size: 24rpx;
+    line-height: 1.6;
+    color: #7c2d12;
+  }
+
+  .detail-risk-suggestion {
+    margin-top: 14rpx;
+    padding: 18rpx 20rpx;
+    border-radius: 14rpx;
+    background: rgba(255, 255, 255, 0.84);
+    border: 1rpx solid #fed7aa;
+  }
+
+  .detail-risk-mode-tabs {
+    display: flex;
+    gap: 10rpx;
+    margin-bottom: 14rpx;
+    flex-wrap: wrap;
+  }
+
+  .detail-risk-mode-tab {
+    padding: 8rpx 16rpx;
+    border-radius: 999rpx;
+    background: #ffffff;
+    border: 1rpx solid #fed7aa;
+    color: #9a3412;
+    font-size: 22rpx;
+  }
+
+  .detail-risk-mode-tab-active {
+    background: #ea580c;
+    border-color: #ea580c;
+    color: #ffffff;
+  }
+
+  .detail-risk-suggestion-line {
+    font-size: 23rpx;
+    line-height: 1.7;
+    color: #7c2d12;
+  }
+
+  .detail-risk-btn {
+    margin-top: 16rpx;
+    height: 72rpx;
+    line-height: 72rpx;
+    border-radius: 999rpx;
+    background: linear-gradient(135deg, #ea580c, #f59e0b);
+    color: #ffffff;
+    font-size: 25rpx;
+  }
+
+  .detail-risk-btn::after,
+  .detail-security-pill::after,
+  .add-currency-btn::after,
+  .edit-btn::after {
+    border: none;
+  }
+
+  .detail-risk-clear {
+    display: inline-block;
+    margin-top: 14rpx;
+    font-size: 24rpx;
+    color: #c2410c;
+  }
+
+  .detail-risk-chart-block {
+    margin-top: 18rpx;
+    padding: 20rpx;
+    border-radius: 16rpx;
+    background: #f8fafc;
+    border: 1rpx solid #e2e8f0;
+  }
+
+  .detail-risk-chart-canvas {
+    height: 320rpx;
+    margin-top: 14rpx;
+  }
+
+  .detail-risk-rule-list {
+    margin-top: 18rpx;
+  }
+
+  .detail-risk-rule-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 18rpx;
+    padding: 18rpx 0;
+    border-bottom: 1rpx solid #e2e8f0;
+  }
+
+  .detail-risk-rule-item:last-child {
+    border-bottom: none;
+  }
+
+  .detail-risk-rule-name {
+    font-size: 27rpx;
+    color: #0f172a;
+    font-weight: 600;
+  }
+
+  .detail-risk-rule-meta {
+    margin-top: 8rpx;
+    font-size: 23rpx;
+    color: #64748b;
+  }
+
+  .detail-linked-highlight {
+    margin-left: -12rpx;
+    margin-right: -12rpx;
+    padding-left: 12rpx;
+    padding-right: 12rpx;
+    border-radius: 14rpx;
+    background: linear-gradient(135deg, #fff8db, #fff1bf);
+    border-bottom-color: transparent;
+  }
+
+  .detail-alert-emphasis {
+    background: linear-gradient(135deg, #ecfeff, #f0fdf4);
+    box-shadow: 0 0 0 2rpx rgba(16, 185, 129, 0.18) inset;
+  }
+
+  @media (max-width: 420px) {
+    .detail-risk-grid,
+    .outlook-grid {
+      grid-template-columns: 1fr;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .detail-section-head {
+      flex-direction: column;
+    }
+  }
+  
+  /* ==========================================
+     4. 币种账户列表 (左滑删除)
+     ========================================== */
+  .account-list {
+    margin-top: 10rpx;
+  }
+  
+  .account-item {
+    position: relative;
+    background: #fff;
+    border-radius: 16rpx;
+    margin-bottom: 20rpx;
+    box-shadow: 0 2rpx 10rpx rgba(0,0,0,0.03);
+    overflow: hidden;
+  }
+  
+  .item-content {
+    position: relative;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 30rpx;
+    box-sizing: border-box;
+    background: #fff;
+    z-index: 10;
+    transition: transform 0.2s ease-out;
+  }
+  
+  .account-item.show-del .item-content {
+    transform: translateX(-140rpx);
+  }
+  
+  .account-info {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .currency-name {
+    font-size: 32rpx;
+    color: #333;
+    font-weight: 600;
+  }
+  
+  .balance-text {
+    font-size: 26rpx;
+    color: #999;
+    margin-top: 6rpx;
+  }
+  
+  .edit-btn {
+    padding: 0 30rpx;
+    height: 64rpx;
+    line-height: 64rpx;
+    background: #fff5eb;
+    color: #ff9f43;
+    font-size: 26rpx;
+    border-radius: 32rpx;
+    border: 1rpx solid #ff9f43;
+  }
+  
+  .del-btn {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 140rpx;
+    height: 100%;
+    background: #ff4d4f;
+    color: #fff;
+    font-size: 28rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 5;
+  }
+  
+  .add-currency-btn {
+    width: 100%;
+    height: 94rpx;
+    line-height: 94rpx;
+    background: #ff9f43;
+    color: #fff;
+    font-size: 32rpx;
+    font-weight: bold;
+    border-radius: 47rpx;
+    margin-top: 40rpx;
+    box-shadow: 0 8rpx 20rpx rgba(255, 159, 67, 0.2);
+  }
+  
+  /* ==========================================
+     5. 弹窗样式 (优化按钮间距)
+     ========================================== */
+  .modal-mask {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+  }
+  
+  .modal-content {
+    width: 85%;
+    background: #fff;
+    border-radius: 30rpx;
+    padding: 40rpx;
+    box-sizing: border-box;
+  }
+  
+  .modal-title {
+    font-size: 34rpx;
+    color: #333;
+    text-align: center;
+    margin-bottom: 40rpx;
+    font-weight: bold;
+  }
+  
+  .amount-input {
+    width: 100%;
+    height: 100rpx;
+    background: #f7f8fa;
+    border-radius: 16rpx;
+    padding: 0 30rpx;
+    box-sizing: border-box;
+    font-size: 32rpx;
+    margin-bottom: 40rpx;
+  }
+  
+  /* 按钮组配置：增加 gap 以产生间隔 */
+  .modal-btn-group {
+    display: flex;
+    justify-content: space-between;
+    gap: 30rpx; 
+    margin-top: 20rpx;
+  }
+  
+  .modal-cancel, .modal-confirm {
+    flex: 1;
+    height: 88rpx;
+    line-height: 88rpx;
+    border-radius: 44rpx;
+    font-size: 28rpx;
+    font-weight: bold;
+    margin: 0 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .modal-cancel {
+    background: #f5f5f5;
+    color: #888;
+  }
+  
+  .modal-confirm {
+    background: #ff9f43;
+    color: #fff;
+    box-shadow: 0 4rpx 12rpx rgba(255, 159, 67, 0.2);
+  }
+  
+  /* 币种选择器网格 */
+  .currency-picker {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16rpx;
+    margin-bottom: 30rpx;
+  }
+  
+  .currency-item {
+    height: 70rpx;
+    line-height: 70rpx;
+    text-align: center;
+    background: #f5f5f5;
+    border-radius: 12rpx;
+    font-size: 26rpx;
+    color: #666;
+  }
+  
+  .currency-item.active {
+    background: #fff5eb;
+    color: #ff9f43;
+    border: 1rpx solid #ff9f43;
+    font-weight: bold;
+  }
+  
+  /* 基础重置 */
+  button { margin: 0; padding: 0; border: none; }
+  button::after { border: none; }

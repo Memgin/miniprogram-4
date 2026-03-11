@@ -85,6 +85,21 @@ page {
   font-weight: 500;
   color: #333;
 }
+.ai-monitor-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6rpx;
+  margin-left: 12rpx;
+  padding: 2rpx 12rpx;
+  border-radius: 999rpx;
+  font-size: 22rpx;
+  color: #125d35;
+  background: #eaf8ef;
+  border: 1rpx solid #9dd9b6;
+}
+.ai-icon {
+  font-size: 22rpx;
+}
 .rate-value {
   font-size: 26rpx;
   color: #666;

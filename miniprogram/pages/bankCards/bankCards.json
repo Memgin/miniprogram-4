@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "银行卡账户",
+  "usingComponents": {
+    "ec-canvas": "../../components/ec-canvas/ec-canvas"
+  }
+}

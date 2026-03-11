@@ -1,25 +1,31 @@
 <view class="container">
-  <view class="operate-bar">
+  <!-- <view class="operate-bar">
     <button class="add-btn" bindtap="gotoAddCard">+ 添加银行卡</button>
     <button class="export-btn" bindtap="gotoExport" wx:if="{{currencySummary.length > 0}}">导出数据</button>
+  </view> -->
+
+  <view class="security-toolbar card">
+    <view class="security-pill" bindtap="togglePrivacyMode">{{privacyMode ? '显示金额' : '隐藏金额'}}</view>
+    <view class="security-pill {{biometricEnabled ? 'security-pill-active' : ''}}" bindtap="toggleBiometricEnabled">{{biometricEnabled ? '已启用生物验证' : '启用生物验证'}}</view>
   </view>
 
-  <view class="total-card card" wx:if="{{totalCny > 0}}">
+  <view class="total-card card total-card-clickable" wx:if="{{totalCny > 0}}" bindtap="gotoBankCardsPage">
     <view class="card-title">人民币总计</view>
-    <view class="total-amount">¥{{totalCny}}</view>
+    <view class="total-amount">{{privacyMode ? '***' : '¥' + totalCny}}</view>
+    <view class="total-card-entry">点击查看已添加银行卡与账户明细</view>
     
     <view class="target-container">
-      <view wx:if="{{!depositTarget}}" class="target-empty" bindtap="setDepositTarget">
+      <view wx:if="{{!depositTarget}}" class="target-empty" catchtap="setDepositTarget">
         📝 点击设置存款目标
       </view>
       <view wx:else class="target-content">
-        <view class="target-title">🎯 存款目标：¥{{depositTarget}}  进度：{{targetProgress}}%</view>
+        <view class="target-title">🎯 存款目标：{{privacyMode ? '***' : '¥' + depositTarget}}  进度：{{targetProgress}}%</view>
         <view class="progress-bar">
           <view class="progress-fill" style="{{progressStyle}}"></view>
         </view>
         <view class="target-diff {{targetDiff >= 0 ? 'diff-deficit' : 'diff-surplus'}}">
-          <text>{{targetDiff >= 0 ? '还差¥' + targetDiff + ' 达成目标' : '超额¥' + (-targetDiff) + ' 🎉'}}</text>
-          <button class="edit-target-btn" bindtap="setDepositTarget">✏️ 修改</button>
+          <text>{{privacyMode ? '金额已隐藏' : (targetDiff >= 0 ? '还差¥' + targetDiff + ' 达成目标' : '超额¥' + (-targetDiff) + ' 🎉')}}</text>
+          <button class="edit-target-btn" catchtap="setDepositTarget">✏️ 修改</button>
         </view>
       </view>
     </view>
@@ -28,58 +34,348 @@
   <view class="rate-card card" wx:if="{{ratesLoaded}}">
     <view class="rate-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
       <text class="rate-title">实时汇率</text>
-      <view class="edit-rate-btn" bindtap="gotoRatesPage">编辑</view>
+      <view class="rate-header-actions">
+        <view class="edit-rate-btn" bindtap="gotoDiagnostics">诊断</view>
+        <view class="edit-rate-btn" bindtap="gotoRatesPage">编辑</view>
+      </view>
     </view>
     <view class="rate-list">
       <view class="rate-item">
         <text class="rate-name">更新时间</text>
         <text class="rate-value" style="font-weight: normal; color: #94a3b8; font-size: 24rpx;">{{updateTime}}</text>
       </view>
-      <view class="rate-item" wx:for="{{selectedRateList}}" wx:key="code">
-        <text class="rate-name u-code">{{item.code || item.name}}</text>
+      <view class="rate-item {{selectedRiskFocusCode && selectedRiskFocusCode === item.upperCode ? 'linked-highlight' : ''}}" wx:for="{{selectedRateList}}" wx:key="code">
+        <view class="rate-name-wrap">
+          <text class="rate-name u-code">{{item.code || item.name}}</text>
+          <view class="ai-monitor-tag" catchtap="runAIMonitor" data-code="{{item.code || item.name}}">AI监测</view>
+        </view>
         <text class="rate-value">1 <text class="u-code">{{item.code || item.name}}</text> = ¥{{item.rate}}</text>
       </view>
     </view>
-    <button class="refresh-btn" bindtap="loadAllData">刷新汇率</button>
-  </view>
-
-  <view class="summary-card card" wx:if="{{currencySummary.length > 0}}">
-    <view class="card-title">各币种总余额</view>
-    <view class="summary-item" wx:for="{{currencySummary}}" wx:key="code">
-      <text class="currency-name u-code">{{item.code || item.name}}</text>
-      <text class="currency-amount"><text class="u-code">{{item.code}}</text>: {{item.totalAmount}}</text>
-      <text class="cny-amount">≈ ¥{{item.cnyAmount}}</text>
+    <view class="rate-actions">
+      <button class="refresh-btn" bindtap="loadAllData">刷新汇率</button>
+      <button class="stress-btn" bindtap="runStressTest">场景压力测试</button>
     </view>
   </view>
 
-  <view class="card-list" wx:if="{{bankCards.length > 0}}">
-    <view class="list-title">已添加银行卡</view>
-    <block wx:for="{{bankCards}}" wx:key="id" wx:for-item="cardItem">
-      <view class="card-swipe-wrapper" style="overflow: hidden !important;">
-        <view 
-          class="bank-card-item card" 
-          bindtap="gotoAccountDetail" 
-          data-cardid="{{cardItem.id}}"
-          bindtouchstart="onTouchStart"
-          bindtouchmove="onTouchMove"
-          bindtouchend="onTouchEnd"
-          data-index="{{index}}"
-          style="transform: {{cardItem.showDelete ? 'translateX(-120rpx)' : 'translateX(0)'}}; transition: transform 0.2s ease;"
-        >
-          <view class="card-name">{{cardItem.name}}</view>
-          <view class="card-total-cny" wx:if="{{cardItem.currencies.length > 0}}">
-            该卡人民币总计：<text class="card-total-num">¥{{cardItem.totalCny}}</text>
-          </view>
-          <view class="card-currencies" wx:for="{{cardItem.currencies}}" wx:key="code" wx:for-item="currency">
-            <text class="u-code">{{currencyMap[currency.code] || currency.code}}</text>: {{currency.amount}}
+  <view class="stress-center card" wx:if="{{stressResult || savedStressScenarios.length > 0}}">
+    <view class="stress-center-head">
+      <view>
+        <view class="card-title stress-title">压力测试中心</view>
+        <view class="stress-subtitle">常驻展示最近结果，并支持已保存场景快速复用</view>
+      </view>
+      <view class="stress-head-actions">
+        <text class="stress-head-link" bindtap="openStressEditor">新建</text>
+        <text class="stress-head-link" wx:if="{{stressResult}}" bindtap="clearStressResult">清空</text>
+      </view>
+    </view>
+
+    <view class="stress-result-box" wx:if="{{stressResult}}">
+      <view class="stress-result-top">
+        <view>
+          <view class="stress-result-name">{{stressResult.scenarioName}}</view>
+          <view class="stress-result-time">{{stressResult.timestamp}}</view>
+        </view>
+        <view class="stress-badge stress-badge-{{stressResult.resultTone}}">{{stressResult.deltaText}}</view>
+      </view>
+
+      <view class="stress-metrics">
+        <view class="stress-metric">
+          <text class="stress-metric-label">当前资产</text>
+          <text class="stress-metric-value">{{privacyMode ? '***' : stressResult.baseTotalText}}</text>
+        </view>
+        <view class="stress-metric">
+          <text class="stress-metric-label">压力后资产</text>
+          <text class="stress-metric-value">{{privacyMode ? '***' : stressResult.stressedTotalText}}</text>
+        </view>
+        <view class="stress-metric">
+          <text class="stress-metric-label">收益变化</text>
+          <text class="stress-metric-value stress-metric-{{stressResult.resultTone}}">{{privacyMode ? '***' : stressResult.pnlText}}</text>
+        </view>
+      </view>
+
+      <view class="stress-summary-line">冲击设定：{{stressResult.shockSummary}}</view>
+
+      <view class="stress-impact-list" wx:if="{{stressResult.topImpacts.length > 0}}">
+        <view class="stress-impact-item" wx:for="{{stressResult.topImpacts}}" wx:key="code">
+          <text class="stress-impact-code u-code">{{item.code}}</text>
+          <text class="stress-impact-value stress-impact-{{item.tone}}">{{privacyMode ? '***' : item.deltaText}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="saved-scenario-section" wx:if="{{savedStressScenarios.length > 0}}">
+      <view class="saved-title">已保存场景</view>
+      <view class="saved-scenario-item" wx:for="{{savedStressScenarios}}" wx:key="key">
+        <view class="saved-scenario-main" bindtap="runSavedScenario" data-key="{{item.key}}">
+          <view class="saved-scenario-name">{{item.name}}</view>
+          <view class="saved-scenario-summary">{{item.shockSummary}}</view>
+        </view>
+        <view class="saved-scenario-actions">
+          <text class="saved-action" bindtap="openSavedScenarioEditor" data-key="{{item.key}}">编辑</text>
+          <text class="saved-action danger" bindtap="deleteSavedScenario" data-key="{{item.key}}">删除</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="insight-card card" wx:if="{{latestRiskSummary || isAdvancedLoading}}">
+    <view class="insight-head">
+      <view>
+        <view class="card-title">风险雷达</view>
+        <view class="insight-subtitle">基于历史汇率序列估算组合 VaR 与敞口集中度</view>
+      </view>
+      <view class="insight-loading" wx:if="{{isAdvancedLoading}}">计算中</view>
+    </view>
+
+    <view class="risk-metric-grid" wx:if="{{latestRiskSummary}}">
+      <view class="risk-metric-box">
+        <view class="risk-metric-label">组合总值</view>
+        <view class="risk-metric-value">{{privacyMode ? '***' : latestRiskSummary.totalValueText}}</view>
+      </view>
+      <view class="risk-metric-box">
+        <view class="risk-metric-label">VaR 95%</view>
+        <view class="risk-metric-value">{{privacyMode ? '***' : latestRiskSummary.var95Text}}</view>
+      </view>
+      <view class="risk-metric-box">
+        <view class="risk-metric-label">VaR 99%</view>
+        <view class="risk-metric-value">{{privacyMode ? '***' : latestRiskSummary.var99Text}}</view>
+      </view>
+      <view class="risk-metric-box">
+        <view class="risk-metric-label">年化波动率</view>
+        <view class="risk-metric-value">{{latestRiskSummary.volatilityText}}</view>
+      </view>
+    </view>
+
+    <view class="risk-confidence" wx:if="{{latestRiskSummary}}">{{latestRiskSummary.confidenceText}}</view>
+
+    <view class="risk-pulse" wx:if="{{latestRiskSummary}}">
+      <view class="risk-pulse-badge risk-pulse-{{latestRiskSummary.pulseTone}}">风险状态 {{latestRiskSummary.pulseLabel}}</view>
+      <view class="risk-pulse-text">{{latestRiskSummary.pulseText}}</view>
+      <view class="risk-pulse-metrics">
+        <view class="risk-pulse-metric">
+          <view class="risk-pulse-label">历史最大回撤</view>
+          <view class="risk-pulse-value">{{latestRiskSummary.maxDrawdownText}}</view>
+        </view>
+        <view class="risk-pulse-metric">
+          <view class="risk-pulse-label">样本可信度</view>
+          <view class="risk-pulse-value">{{latestRiskSummary.confidenceText}}</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="risk-signal-list" wx:if="{{latestRiskSummary && latestRiskSummary.signals.length > 0}}">
+      <view class="risk-signal-item" wx:for="{{latestRiskSummary.signals}}" wx:key="*this">{{item}}</view>
+    </view>
+
+    <view class="risk-focus-banner" wx:if="{{selectedRiskFocusCode}}">
+      <view class="risk-focus-title">当前联动聚焦 {{selectedRiskFocusCode}}</view>
+      <view class="risk-focus-desc">已高亮相关汇率、提醒规则和风险贡献项，便于快速处理该币种风险。</view>
+      <view class="risk-suggestion-box" wx:if="{{riskFocusSuggestion}}">
+        <view class="risk-mode-tabs">
+          <view class="risk-mode-tab {{selectedRiskSuggestionMode === item.key ? 'risk-mode-tab-active' : ''}}" wx:for="{{riskSuggestionModes}}" wx:key="key" data-mode="{{item.key}}" bindtap="selectRiskSuggestionMode">{{item.label}}</view>
+        </view>
+        <view class="risk-suggestion-line">当前汇率：1 {{riskFocusSuggestion.code}} = ¥{{riskFocusSuggestion.currentRateText}}</view>
+        <view class="risk-suggestion-line">{{riskFocusSuggestion.modeLabel}}策略：建议提醒 {{riskFocusSuggestion.directionText}} {{riskFocusSuggestion.thresholdText}}，缓冲带 {{riskFocusSuggestion.bufferText}}</view>
+        <view class="risk-suggestion-line" wx:if="{{riskFocusSuggestion.existingCount > 0}}">该币种已有 {{riskFocusSuggestion.existingCount}} 条提醒，执行后会更新专用风险守护线。</view>
+        <button class="risk-suggestion-btn" bindtap="applyRiskFocusSuggestion">{{riskFocusSuggestion.actionText}}</button>
+        <view class="risk-suggestion-line risk-suggestion-footnote">保存后会立即执行一次提醒检查，并写入检查历史。</view>
+      </view>
+      <text class="risk-focus-clear" bindtap="clearRiskFocus">清除聚焦</text>
+    </view>
+
+    <view class="risk-chart-block" wx:if="{{latestRiskSummary && latestRiskSummary.portfolioSeries.values.length > 1}}">
+      <view class="risk-chart-head">
+        <view>
+          <view class="risk-chart-title">组合风险趋势</view>
+          <view class="risk-chart-subtitle">使用历史汇率样本回放近期组合估值轨迹</view>
+        </view>
+        <view class="risk-window-tabs">
+          <view class="risk-window-tab {{selectedRiskWindow === item ? 'risk-window-tab-active' : ''}}" wx:for="{{riskWindowOptions}}" wx:key="*this" data-window="{{item}}" bindtap="selectRiskWindow">{{item}}天</view>
+        </view>
+      </view>
+      <block wx:if="{{!privacyMode}}">
+        <view class="risk-chart-canvas">
+          <ec-canvas id="risk-trend-chart" canvas-id="risk-trend-chart-canvas" ec="{{ ecRiskTrend }}" type="2d"></ec-canvas>
+        </view>
+      </block>
+      <view class="risk-chart-placeholder" wx:else>隐私模式下已隐藏趋势图</view>
+    </view>
+
+    <view class="risk-chart-block" wx:if="{{latestRiskSummary && latestRiskSummary.riskContributions.length > 0}}">
+      <view class="risk-chart-title">风险贡献拆分</view>
+      <view class="risk-chart-subtitle">按敞口权重与单币种波动率估算风险贡献占比</view>
+      <block wx:if="{{!privacyMode}}">
+        <view class="risk-chart-canvas risk-chart-canvas-bar">
+          <ec-canvas id="risk-contribution-chart" canvas-id="risk-contribution-chart-canvas" ec="{{ ecRiskContribution }}" type="2d"></ec-canvas>
+        </view>
+      </block>
+      <view class="risk-chart-placeholder" wx:else>隐私模式下已隐藏贡献图</view>
+    </view>
+
+    <view class="risk-exposure-list" wx:if="{{latestRiskSummary && latestRiskSummary.topExposures.length > 0}}">
+      <view class="risk-exposure-item" wx:for="{{latestRiskSummary.topExposures}}" wx:key="code">
+        <text class="u-code">{{item.code}}</text>
+        <text>{{privacyMode ? '***' : item.cnyText}}</text>
+      </view>
+    </view>
+
+    <view class="risk-contribution-list" wx:if="{{latestRiskSummary && latestRiskSummary.riskContributions.length > 0}}">
+      <view class="risk-contribution-item {{selectedRiskFocusCode && selectedRiskFocusCode === item.code ? 'linked-highlight' : ''}}" wx:for="{{latestRiskSummary.riskContributions}}" wx:key="code" data-code="{{item.code}}" bindtap="onRiskContributionTap">
+        <view>
+          <view class="alert-rule-name">{{item.code}}</view>
+          <view class="alert-rule-meta">敞口占比 {{item.weightText}} · 风险贡献 {{item.contributionText}}</view>
+        </view>
+        <view class="risk-contribution-side">{{privacyMode ? '***' : item.cnyText}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="insight-card card" id="alert-section" wx:if="{{alertRules.length > 0 || ratesLoaded}}">
+    <view class="insight-head">
+      <view>
+        <view class="card-title">汇率提醒</view>
+        <view class="insight-subtitle">支持阈值配置，并可由云端定时检查</view>
+        <view class="alert-last-check" wx:if="{{lastAlertCheckAt}}">最近检查：{{lastAlertCheckAt}}</view>
+      </view>
+      <view class="alert-actions">
+        <text class="stress-head-link" bindtap="openAlertEditor">新建</text>
+        <text class="stress-head-link" bindtap="checkAlertsNow">检查</text>
+      </view>
+    </view>
+
+    <view class="alert-empty" wx:if="{{alertRules.length === 0}}">还没有提醒规则，建议先为主要敞口配置阈值。</view>
+    <view class="alert-rule-item {{selectedRiskFocusCode && selectedRiskFocusCode === item.code ? 'linked-highlight' : ''}} {{highlightedAlertRuleId === item.id ? 'alert-rule-emphasis' : ''}}" wx:for="{{alertRules}}" wx:key="id">
+      <view>
+        <view class="alert-rule-name">{{item.note}}</view>
+        <view class="alert-rule-meta">当前规则：{{item.code}} {{item.directionText}} {{item.thresholdText}} · {{item.enabled ? '已启用' : '已暂停'}}</view>
+      </view>
+      <view class="alert-rule-side">
+        <text class="saved-action" bindtap="toggleAlertRuleEnabled" data-id="{{item.id}}">{{item.enabled ? '暂停' : '启用'}}</text>
+        <text class="saved-action" bindtap="openAlertEditor" data-id="{{item.id}}">编辑</text>
+        <text class="saved-action danger" bindtap="deleteAlertRule" data-id="{{item.id}}">删除</text>
+      </view>
+    </view>
+
+    <view class="alert-history" wx:if="{{alertHistory.length > 0}}">
+      <view class="alert-history-head">
+        <view class="saved-title">检查历史</view>
+        <text class="saved-action danger" bindtap="clearAlertHistory">清空</text>
+      </view>
+      <view class="alert-history-item" wx:for="{{alertHistory}}" wx:key="id">
+        <view class="alert-history-top">
+          <text class="alert-history-time">{{item.checkedAt}}</text>
+          <text class="alert-history-badge">{{item.sourceText}} · {{item.matchedCount}} 条</text>
+        </view>
+        <view class="alert-history-summary">{{item.summary}}</view>
+        <view class="alert-history-triggers" wx:if="{{item.triggers.length > 0}}">
+          <view class="alert-history-trigger" wx:for="{{item.triggers}}" wx:key="code">
+            <text class="u-code">{{item.code}}</text>
+            <text>{{item.directionText}} {{item.threshold}}</text>
           </view>
         </view>
-        <view class="delete-btn" bindtap="deleteCard" data-cardid="{{cardItem.id}}">删除</view>
       </view>
-    </block>
+    </view>
   </view>
+
+  <view class="insight-card card" wx:if="{{latestAdvice}}">
+    <view class="insight-head">
+      <view>
+        <view class="card-title">AI 组合建议</view>
+        <view class="insight-subtitle">结合敞口、压力测试和风险估算生成</view>
+      </view>
+      <view class="advice-time">{{latestAdvice.generatedAt}}</view>
+    </view>
+    <view class="advice-headline">{{latestAdvice.headline}}</view>
+    <view class="advice-summary">{{latestAdvice.summary}}</view>
+    <view class="advice-block" wx:if="{{latestAdvice.insights.length > 0}}">
+      <view class="advice-block-title">洞察</view>
+      <view class="advice-line" wx:for="{{latestAdvice.insights}}" wx:key="*this">{{item}}</view>
+    </view>
+    <view class="advice-block" wx:if="{{latestAdvice.actions.length > 0}}">
+      <view class="advice-block-title">建议动作</view>
+      <view class="advice-line" wx:for="{{latestAdvice.actions}}" wx:key="*this">{{item}}</view>
+    </view>
+  </view>
+
+
 
   <view class="empty-tip" wx:else>
     暂无银行卡数据，请点击「添加银行卡」录入
+  </view>
+
+  <view class="stress-editor-mask" wx:if="{{showStressEditor}}" catchtap="closeStressEditor">
+    <view class="stress-editor-panel" catchtap="noop">
+      <view class="stress-editor-head">
+        <view>
+          <view class="stress-editor-title">结构化压力场景</view>
+          <view class="stress-editor-tip">逐行设置币种与冲击幅度，保存后可在首页快速复用</view>
+        </view>
+        <text class="stress-editor-close" bindtap="closeStressEditor">关闭</text>
+      </view>
+
+      <view class="stress-editor-field">
+        <view class="stress-editor-label">场景名称</view>
+        <input class="stress-editor-input" placeholder="例如：美元走强组合" value="{{stressEditorName}}" bindinput="onStressEditorNameInput" />
+      </view>
+
+      <view class="stress-editor-rows">
+        <view class="stress-editor-row" wx:for="{{stressEditorRows}}" wx:key="id">
+          <picker class="stress-picker-wrap" mode="selector" range="{{stressCurrencyOptions}}" range-key="name" value="{{item.optionIndex}}" bindchange="onStressEditorCodeChange" data-index="{{index}}">
+            <view class="stress-picker">{{stressCurrencyOptions[item.optionIndex].name}}</view>
+          </picker>
+          <input class="stress-pct-input" type="digit" placeholder="+2 或 -1.5" value="{{item.pct}}" bindinput="onStressEditorPctInput" data-index="{{index}}" />
+          <text class="stress-row-remove" bindtap="removeStressEditorRow" data-index="{{index}}">删除</text>
+        </view>
+      </view>
+
+      <view class="stress-editor-add" bindtap="addStressEditorRow">+ 添加一行冲击</view>
+
+      <view class="stress-editor-actions">
+        <button class="stress-editor-btn secondary" bindtap="runStressEditorScenario">先试算</button>
+        <button class="stress-editor-btn primary" bindtap="saveStressEditorScenario">保存场景</button>
+      </view>
+    </view>
+  </view>
+
+  <view class="stress-editor-mask" wx:if="{{showAlertEditor}}" catchtap="closeAlertEditor">
+    <view class="stress-editor-panel alert-editor-panel" catchtap="noop">
+      <view class="stress-editor-head">
+        <view>
+          <view class="stress-editor-title">汇率提醒编辑器</view>
+          <view class="stress-editor-tip">配置币种、方向和阈值，云端可定时检查命中状态</view>
+        </view>
+        <text class="stress-editor-close" bindtap="closeAlertEditor">关闭</text>
+      </view>
+
+      <view class="stress-editor-field">
+        <view class="stress-editor-label">币种</view>
+        <picker class="stress-picker-wrap" mode="selector" range="{{alertCurrencyOptions}}" range-key="name" value="{{alertEditorCodeIndex}}" bindchange="onAlertEditorCodeChange">
+          <view class="stress-picker">{{alertCurrencyOptions[alertEditorCodeIndex].name}}</view>
+        </picker>
+      </view>
+
+      <view class="stress-editor-field">
+        <view class="stress-editor-label">提醒方向</view>
+        <picker class="stress-picker-wrap" mode="selector" range="{{alertDirectionLabels}}" value="{{alertEditorDirectionIndex}}" bindchange="onAlertEditorDirectionChange">
+          <view class="stress-picker">{{alertEditorDirectionIndex === 1 ? '低于阈值' : '高于阈值'}}</view>
+        </picker>
+      </view>
+
+      <view class="stress-editor-field">
+        <view class="stress-editor-label">阈值</view>
+        <input class="stress-editor-input" type="digit" placeholder="例如 7.1500" value="{{alertEditorThreshold}}" bindinput="onAlertEditorThresholdInput" />
+      </view>
+
+      <view class="stress-editor-field">
+        <view class="stress-editor-label">备注</view>
+        <input class="stress-editor-input" placeholder="例如：美元突破关键位" value="{{alertEditorNote}}" bindinput="onAlertEditorNoteInput" />
+      </view>
+
+      <view class="stress-editor-actions">
+        <button class="stress-editor-btn secondary" bindtap="closeAlertEditor">取消</button>
+        <button class="stress-editor-btn primary" bindtap="saveAlertRule">保存提醒</button>
+      </view>
+    </view>
   </view>
 </view>

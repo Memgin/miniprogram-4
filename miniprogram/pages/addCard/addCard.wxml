@@ -1,5 +1,4 @@
 <view class="container">
-  <!-- 顶部卡片：银行卡信息 -->
   <view class="card card-main">
     <view class="card-title">{{mode === 'add' ? '新增银行卡' : '编辑银行卡'}}</view>
     <view class="form-item">
@@ -13,44 +12,66 @@
     </view>
   </view>
 
-  <!-- 币种余额卡片 -->
   <view class="card card-currency">
     <view class="card-title">币种余额</view>
+    
     <view class="currency-item" wx:for="{{currencyList}}" wx:key="index">
       <view class="currency-left">
         <text class="currency-name">{{item.name}}</text>
-        <text class="currency-amount">{{item.amount}}</text>
+        <text class="currency-amount">{{item.amount}} {{item.codeUpper}}</text>
       </view>
       <view class="currency-right">
-        <button class="edit-btn" bindtap="editCurrency" data-index="{{index}}">编辑</button>
-        <button class="del-btn" bindtap="delCurrency" data-index="{{index}}">删除</button>
+        <view class="del-icon" bindtap="delCurrency" data-index="{{index}}">×</view>
       </view>
     </view>
 
-    <!-- 快速添加区域 -->
-    <view class="add-currency-area">
-      <picker bindchange="onCurrencyChange" value="{{currIndex}}" range="{{currencyNameList}}">
-        <view class="picker">{{currencyNameList[currIndex]}}</view>
-      </picker>
-      <input 
-        class="input-amount" 
-        type="digit" 
-        placeholder="输入金额" 
-        value="{{currAmount}}" 
-        bindinput="onAmountInput"
-      />
-      <button class="add-btn" bindtap="addCurrency">+</button>
+    <view class="add-currency-trigger" bindtap="showAddCurrencyModal">
+      <text class="plus">+</text>
+      <text>添加/修改币种金额</text>
     </view>
   </view>
 
-  <!-- 确认创建 / 保存 -->
   <button class="save-btn" bindtap="saveCard">
     {{mode === 'add' ? '确认创建' : '保存修改'}}
   </button>
 </view>
 
-<!-- 自定义合并成功弹窗（核心新增） -->
-<!-- 自定义合并成功弹窗（替换后版，兼容所有库） -->
+<view class="modal-mask" wx:if="{{showAddModal}}" bindtap="hideAddModal">
+  <view class="modal-content" catchtap="stopPropagation">
+    <view class="modal-header">选择币种</view>
+    
+    <view class="currency-grid">
+      <view 
+        wx:for="{{allCurrencyList}}" 
+        wx:key="code" 
+        class="grid-item {{selectedAddCode === item.code ? 'active' : ''}}"
+        bindtap="selectAddCurrency" 
+        data-code="{{item.code}}" 
+        data-name="{{item.name}}"
+      >
+        {{item.name}}
+      </view>
+    </view>
+
+    <view class="modal-input-box">
+      <text class="modal-label">金额</text>
+      <input 
+        type="digit" 
+        class="modal-input" 
+        placeholder="请输入金额" 
+        value="{{addAmount}}" 
+        bindinput="bindAddAmount"
+        focus="{{showAddModal}}"
+      />
+    </view>
+
+    <view class="modal-btn-group">
+      <button class="modal-cancel" bindtap="hideAddModal">取消</button>
+      <button class="modal-confirm" bindtap="confirmAddCurrency">确定</button>
+    </view>
+  </view>
+</view>
+
 <view class="custom-toast-mask" wx:if="{{showMergeToast}}" bindtap="hideMergeToast">
   <view class="custom-toast" animation="{{toastAni}}">
     <view class="toast-icon">✓</view>

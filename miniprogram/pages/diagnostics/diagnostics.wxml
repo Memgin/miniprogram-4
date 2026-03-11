@@ -1,0 +1,43 @@
+<view class="container">
+  <view class="page-head card">
+    <view class="page-title">云函数诊断</view>
+    <view class="page-subtitle">在小程序内直接验证读取、同步、风险分析、提醒和导入链路。</view>
+    <view class="hero-actions">
+      <button class="hero-btn hero-btn-primary" bindtap="runAllDiagnostics" loading="{{isRunning && runningKey === 'all'}}" disabled="{{isRunning}}">批量运行安全项</button>
+      <button class="hero-btn" bindtap="copyLastResult" disabled="{{!lastResult}}">复制最近结果</button>
+    </view>
+  </view>
+
+  <view class="tips card">批量运行会跳过 Tushare 导入，避免误写历史汇率数据；需要导入时请单独执行。</view>
+
+  <view class="diagnostic-card card" wx:for="{{diagnostics}}" wx:key="key">
+    <view class="card-head">
+      <view>
+        <view class="diagnostic-title">{{item.title}}</view>
+        <view class="diagnostic-desc">{{item.desc}}</view>
+      </view>
+      <view class="status-badge status-{{item.status}}">{{item.statusText}}</view>
+    </view>
+
+    <view class="card-summary">{{item.summary}}</view>
+    <view wx:if="{{item.checkedAt}}" class="card-meta">最近执行：{{item.checkedAt}}</view>
+
+    <view class="tushare-form" wx:if="{{item.key === 'tushareImport'}}">
+      <input class="diagnostic-input" password="{{true}}" placeholder="Tushare token" value="{{tushareToken}}" bindinput="onTokenInput" />
+      <input class="diagnostic-input" placeholder="开始日期，例如 20240101" value="{{tushareStartDate}}" bindinput="onStartDateInput" />
+      <input class="diagnostic-input" placeholder="结束日期，例如 20241231" value="{{tushareEndDate}}" bindinput="onEndDateInput" />
+    </view>
+
+    <button class="run-btn" data-key="{{item.key}}" bindtap="runDiagnostic" loading="{{isRunning && runningKey === item.key}}" disabled="{{isRunning}}">运行诊断</button>
+  </view>
+
+  <view class="result-card card">
+    <view class="result-head">
+      <view class="result-title">最近结果</view>
+      <view wx:if="{{lastRunTitle}}" class="result-tag">{{lastRunTitle}}</view>
+    </view>
+    <scroll-view scroll-y="true" class="result-scroll">
+      <text selectable="true" class="result-text">{{lastResult || '执行后将在这里展示完整 JSON 结果。'}}</text>
+    </scroll-view>
+  </view>
+</view>

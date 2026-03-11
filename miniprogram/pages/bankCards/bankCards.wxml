@@ -1,0 +1,244 @@
+<view class="page">
+  <view class="hero hero-{{dashboardTone}}">
+    <view class="hero-main">
+      <view class="hero-main-left">
+        <view class="hero-title">银行卡账户</view>
+        <view class="hero-meta-row">
+          <text class="hero-meta-item">{{cardCount}} 张卡</text>
+          <text class="hero-meta-dot">·</text>
+          <text class="hero-meta-item">{{currencyAccountCount}} 个账户</text>
+        </view>
+      </view>
+      <view class="hero-total-wrap">
+        <view class="hero-total-label">总资产</view>
+        <view class="hero-total-value">{{privacyMode ? '***' : '¥' + totalCny}}</view>
+      </view>
+    </view>
+
+    <view class="hero-insight-strip" wx:if="{{cardCount > 0}}">
+      <view class="hero-insight-box">
+        <view class="hero-insight-label">头部银行卡</view>
+        <view class="hero-insight-value">{{topCardName}}</view>
+        <view class="hero-insight-note">{{privacyMode ? '金额已隐藏' : topCardValueText}}</view>
+      </view>
+      <view class="hero-insight-divider"></view>
+      <view class="hero-insight-box">
+        <view class="hero-insight-label">平均单卡资产</view>
+        <view class="hero-insight-value">{{privacyMode ? '***' : averageAssetText}}</view>
+        <view class="hero-insight-note">{{cardCount}} 张卡参与统计</view>
+      </view>
+    </view>
+
+    <view class="hero-actions">
+      <button class="hero-btn hero-btn-primary" bindtap="gotoAddCard">新增银行卡</button>
+      <button class="hero-btn hero-btn-ghost" bindtap="togglePrivacyMode">{{privacyMode ? '显示金额' : '隐藏金额'}}</button>
+    </view>
+  </view>
+
+  <view class="summary-grid">
+    <view class="summary-box card summary-box-strong">
+      <view class="summary-label">银行卡数量</view>
+      <view class="summary-value">{{cardCount}}</view>
+    </view>
+    <view class="summary-box card">
+      <view class="summary-label">币种账户数</view>
+      <view class="summary-value">{{currencyAccountCount}}</view>
+    </view>
+    <view class="summary-box card">
+      <view class="summary-label">覆盖币种</view>
+      <view class="summary-value">{{uniqueCurrencyCount}}</view>
+    </view>
+    <view class="summary-box card">
+      <view class="summary-label">人民币总计</view>
+      <view class="summary-value">{{privacyMode ? '***' : '¥' + totalCny}}</view>
+    </view>
+  </view>
+
+  <view class="insight card" wx:if="{{cardCount > 0}}">
+    <view class="insight-title">最大外币敞口</view>
+    <view class="insight-text">{{privacyMode ? '金额已隐藏' : topCurrencyExposureText}}</view>
+  </view>
+
+  <view class="risk-band-card card" wx:if="{{cardCount > 0}}">
+    <view class="section-head compact-head">
+      <view class="section-title">风险预警带</view>
+      <view class="risk-band-badge risk-band-badge-{{dashboardTone}}">{{riskBandLabel}}</view>
+    </view>
+    <view class="risk-band-track">
+      <view class="risk-band-segment risk-band-safe"></view>
+      <view class="risk-band-segment risk-band-watch"></view>
+      <view class="risk-band-segment risk-band-alert"></view>
+      <view class="risk-band-marker" style="left: {{riskBandLeft}};"></view>
+    </view>
+    <view class="risk-band-meta">
+      <text>安全</text>
+      <text>关注</text>
+      <text>高风险</text>
+    </view>
+    <view class="risk-band-summary">{{riskBandSummary}}</view>
+    <view class="risk-driver-list">
+      <view class="risk-driver-pill" wx:for="{{riskBandDrivers}}" wx:key="*this">{{item}}</view>
+    </view>
+  </view>
+
+  <view class="currency-card card" wx:if="{{currencySummary.length > 0}}">
+    <view class="section-head currency-section-head">
+      <view class="section-title">各币种总余额</view>
+      <view class="section-pill">{{currencySummary.length}} 项</view>
+    </view>
+    <view class="currency-list">
+      <view class="currency-row" wx:for="{{currencySummary}}" wx:key="code">
+        <view class="currency-code">{{item.code}}</view>
+        <view class="currency-amount">{{privacyMode ? '***' : (item.code + ': ' + item.totalAmount)}}</view>
+        <view class="currency-cny">{{privacyMode ? '***' : ('≈ ¥' + item.cnyAmount)}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="visual-card card" wx:if="{{cardCount > 0}}">
+    <view class="section-head compact-head">
+      <view class="section-title">资产热力矩阵</view>
+      <view class="section-pill">卡 x 币种</view>
+    </view>
+    <view class="visual-subtitle">颜色越深，表示该银行卡在该币种上的人民币敞口越大。</view>
+    <view class="visual-placeholder" wx:if="{{privacyMode}}">隐私模式下已隐藏资产热力矩阵</view>
+    <scroll-view wx:else scroll-x class="heatmap-scroll">
+      <view class="heatmap-board">
+        <view class="heatmap-header-row">
+          <view class="heatmap-side-head">币种</view>
+          <view class="heatmap-card-head" wx:for="{{heatmapXAxis}}" wx:key="*this">{{item}}</view>
+        </view>
+        <view class="heatmap-data-row" wx:for="{{heatmapRows}}" wx:key="code">
+          <view class="heatmap-side-code">{{item.code}}</view>
+          <view class="heatmap-cell" wx:for="{{item.cells}}" wx:key="cardId" style="{{item.style}}">{{item.value > 0 ? item.valueText : '-'}}</view>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <view class="visual-card card" wx:if="{{cardCount > 0}}">
+    <view class="section-head compact-head">
+      <view class="section-title">资金流向图</view>
+      <view class="section-pill">总资产 → 银行卡 → 币种</view>
+    </view>
+    <view class="visual-subtitle">看清人民币总资产是如何分解到各张卡和各类外币上的。</view>
+    <view class="visual-placeholder" wx:if="{{privacyMode}}">隐私模式下已隐藏资金流向图</view>
+    <view wx:else class="flow-board">
+      <view class="flow-column">
+        <view class="flow-column-title">总资产流向银行卡</view>
+        <view class="flow-row" wx:for="{{fundsFlowCards}}" wx:key="id">
+          <view class="flow-topline">
+            <text class="flow-name">{{item.name}}</text>
+            <text class="flow-value">{{item.valueText}}</text>
+          </view>
+          <view class="flow-bar-track">
+            <view class="flow-bar-fill" style="width: {{item.width}};"></view>
+          </view>
+        </view>
+      </view>
+      <view class="flow-divider-arrow">→</view>
+      <view class="flow-column">
+        <view class="flow-column-title">银行卡流向币种</view>
+        <view class="flow-row" wx:for="{{fundsFlowCurrencies}}" wx:key="code">
+          <view class="flow-topline">
+            <text class="flow-name">{{item.code}}</text>
+            <text class="flow-value">{{item.valueText}}</text>
+          </view>
+          <view class="flow-bar-track flow-bar-track-currency">
+            <view class="flow-bar-fill flow-bar-fill-currency" style="width: {{item.width}};"></view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="shock-card card" wx:if="{{shockCurrencyOptions.length > 0}}">
+    <view class="section-head compact-head">
+      <view class="section-title">汇率冲击沙盘</view>
+      <view class="section-pill">实时预演</view>
+    </view>
+    <view class="shock-toolbar">
+      <picker class="shock-picker-wrap" mode="selector" range="{{shockCurrencyLabels}}" value="{{shockCodeIndex}}" bindchange="onShockCurrencyChange">
+        <view class="shock-picker">{{shockCurrencyLabels[shockCodeIndex]}}</view>
+      </picker>
+      <view class="shock-badge">{{shockPctText}}</view>
+    </view>
+    <slider min="-15" max="15" step="1" value="{{shockPct}}" activeColor="#2563eb" backgroundColor="#dbeafe" bindchanging="onShockSliderChange" bindchange="onShockSliderChange" />
+    <view class="shock-tip">模拟所选币种相对人民币发生汇率冲击后的资产变化。</view>
+
+    <view class="shock-summary" wx:if="{{shockImpactSummary}}">
+      <view class="shock-summary-box">
+        <view class="shock-summary-label">币种冲击</view>
+        <view class="shock-summary-value">{{shockImpactSummary.code}} {{shockImpactSummary.pctText}}</view>
+      </view>
+      <view class="shock-summary-box">
+        <view class="shock-summary-label">组合变化</view>
+        <view class="shock-summary-value">{{privacyMode ? '***' : shockImpactSummary.deltaText}}</view>
+      </view>
+      <view class="shock-summary-box">
+        <view class="shock-summary-label">冲击后总资产</view>
+        <view class="shock-summary-value">{{privacyMode ? '***' : shockImpactSummary.nextTotalText}}</view>
+      </view>
+    </view>
+
+    <view class="shock-impact-list" wx:if="{{shockImpactedCards.length > 0}}">
+      <view class="shock-impact-item" wx:for="{{shockImpactedCards}}" wx:key="id">
+        <view class="shock-impact-top">
+          <text class="shock-impact-name">{{item.name}}</text>
+          <text class="shock-impact-delta shock-impact-{{item.tone}}">{{privacyMode ? '***' : item.deltaText}}</text>
+        </view>
+        <view class="shock-impact-bar">
+          <view class="shock-impact-fill shock-impact-fill-{{item.tone}}" style="width: {{item.barWidth}};"></view>
+        </view>
+        <view class="shock-impact-meta">基准敞口 {{privacyMode ? '***' : item.exposureText}} · 冲击后 {{privacyMode ? '***' : item.nextValueText}}</view>
+      </view>
+    </view>
+
+    <view class="shock-alert-box" wx:if="{{shockAlertHits.length > 0}}">
+      <view class="shock-alert-title">可能受影响的提醒</view>
+      <view class="shock-alert-line" wx:for="{{shockAlertHits}}" wx:key="id">{{item.note}} · {{item.directionText}} {{item.thresholdText}}</view>
+    </view>
+  </view>
+
+  <view class="empty" wx:if="{{cardCount === 0}}">
+    <view class="empty-title">还没有银行卡账户</view>
+    <view class="empty-text">先添加银行卡，首页的人民币总览、风险雷达和压力测试才会真正有数据。</view>
+    <button class="empty-btn" bindtap="gotoAddCard">立即添加</button>
+  </view>
+
+  <view class="card-list" wx:else>
+    <view class="section-head">
+      <view class="section-title">账户清单</view>
+      <view class="section-pill">{{cardCount}} 张</view>
+    </view>
+
+    <view class="bank-card card" wx:for="{{bankCards}}" wx:key="id">
+      <view class="bank-card-shell"></view>
+      <view class="bank-card-top" bindtap="gotoAccountDetail" data-cardid="{{item.id}}">
+        <view class="bank-card-title-wrap">
+          <view class="bank-card-rank">#{{index + 1}}</view>
+          <view>
+            <view class="bank-card-name">{{item.name}}</view>
+            <view class="bank-card-meta">{{item.currencyCount}} 个币种账户</view>
+          </view>
+        </view>
+        <view class="bank-card-total-wrap">
+          <view class="bank-card-total-label">折合人民币</view>
+          <view class="bank-card-total">{{privacyMode ? '***' : '¥' + item.totalCny}}</view>
+        </view>
+      </view>
+
+      <view class="bank-card-currencies">
+        <view class="bank-card-chip" wx:for="{{item.previewCurrencies}}" wx:key="code">
+          <text class="bank-card-chip-code">{{item.code}}</text>
+          <text>{{privacyMode ? '***' : item.amount}}</text>
+        </view>
+      </view>
+
+      <view class="bank-card-actions">
+        <text class="bank-card-link" bindtap="gotoAccountDetail" data-cardid="{{item.id}}">查看详情</text>
+        <text class="bank-card-link danger" bindtap="deleteCard" data-cardid="{{item.id}}">删除</text>
+      </view>
+    </view>
+  </view>
+</view>

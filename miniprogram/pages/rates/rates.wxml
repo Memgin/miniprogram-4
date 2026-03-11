@@ -17,7 +17,17 @@
         bind:tap="onTapItem"
       >
         <view class="rate-info">
-          <text class="currency-code">{{item.code}}</text>
+          <view style="display: flex; align-items: center; margin-bottom: 4rpx;">
+            <text class="currency-code">{{item.code}}</text>
+            <view 
+              class="ai-monitor-tag" 
+              catchtap="runAIMonitor" 
+              data-code="{{item.code}}"
+            >
+              <text class="ai-icon">🧠</text>
+              <text>AI监测</text>
+            </view>
+          </view>
           <text class="rate-value">1 {{item.code}} = ¥{{item.rate}}</text>
         </view>
         <text class="check-icon">✓</text>
