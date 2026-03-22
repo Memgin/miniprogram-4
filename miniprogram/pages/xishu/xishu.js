@@ -1,8 +1,16 @@
+const app = getApp();
+const exchangeRateUtil = require('../../utils/exchangeRate.js');
+
 const STORAGE_KEY = 'XISHU_ASSETS_V1';
 const LEGACY_STORAGE_KEY = 'YOUSHU_ASSETS_V3';
 const LOCAL_AI_KEY_STORAGE = 'SILICONFLOW_API_KEY';
 const RECENT_ICON_STORAGE_KEY = 'XISHU_RECENT_ICONS_V1';
+const GET_XISHU_ASSETS_FN = 'getXishuAssets';
+const SYNC_XISHU_ASSETS_FN = 'syncXishuAssets';
 const TEMP_FALLBACK_AI_KEY = 'sk-mawvwwscqojwzibuscyhkyooyitszaxfvykfeuodpmzmliwm';
+const PULL_DOWN_LOADING_TEXT = '全量同步中...';
+const PULL_DOWN_SUCCESS_TEXT = '同步成功';
+const PULL_DOWN_FAIL_TEXT = '刷新延迟';
 
 Page({
   data: {
@@ -79,6 +87,33 @@ Page({
       note: '',
       relatedItems: ''
     },
+    showPriceCurrencyModal: false,
+    selectedPriceCurrencyCode: 'CNY',
+    selectedPriceCurrencyName: '人民币',
+    allCurrencyList: [
+      { code: 'CNY', name: '人民币' },
+      { code: 'USD', name: '美元' },
+      { code: 'HKD', name: '港币' },
+      { code: 'EUR', name: '欧元' },
+      { code: 'JPY', name: '日元' },
+      { code: 'GBP', name: '英镑' },
+      { code: 'CAD', name: '加拿大元' },
+      { code: 'AUD', name: '澳大利亚元' },
+      { code: 'NZD', name: '新西兰元' },
+      { code: 'CHF', name: '瑞士法郎' },
+      { code: 'SGD', name: '新加坡元' },
+      { code: 'THB', name: '泰铢' },
+      { code: 'RM', name: '林吉特' },
+      { code: 'KRW', name: '韩元' }
+    ],
+    exchangeRates: { cny: 1 },
+    priceRateText: '实时汇率：1 CNY = ¥1.0000',
+    priceCnyPreviewText: '折合人民币：¥0.00',
+    showRelatedCurrencyModal: false,
+    selectedRelatedCurrencyCode: 'CNY',
+    selectedRelatedCurrencyName: '人民币',
+    relatedRateText: '实时汇率：1 CNY = ¥1.0000',
+    relatedCnyPreviewText: '折合人民币：¥0.00',
     relatedDraft: {
       name: '',
       price: '',
@@ -97,6 +132,8 @@ Page({
     overviewBadge: '0/0',
     totalAssetText: '¥0.00',
     avgDailyCostText: '¥0.00',
+    cloudSyncState: 'idle',
+    cloudSyncText: '云端未同步',
     statusSummary: [
       { id: 'serving', text: '服役中', count: 0, progress: 0 },
       { id: 'retired', text: '已退役', count: 0, progress: 0 },
@@ -107,6 +144,23 @@ Page({
   onLoad() {
     this.loadAssets();
     this.loadRecentIcons();
+    this.ensureExchangeRates(false);
+    this.syncAssetsFromCloud();
+  },
+
+  async onPullDownRefresh() {
+    wx.showLoading({ title: PULL_DOWN_LOADING_TEXT, mask: true });
+    try {
+      await this.ensureExchangeRates(true);
+      await this.syncAssetsFromCloud();
+      wx.showToast({ title: PULL_DOWN_SUCCESS_TEXT, icon: 'success' });
+    } catch (error) {
+      console.warn('下拉刷新失败', error);
+      wx.showToast({ title: PULL_DOWN_FAIL_TEXT, icon: 'none' });
+    } finally {
+      wx.stopPullDownRefresh();
+      wx.hideLoading();
+    }
   },
 
   loadRecentIcons() {
@@ -143,9 +197,19 @@ Page({
   },
 
   onUnload() {
+    if (this.data.editorVisible && this.data.editorMode === 'edit' && this.data.editingId) {
+      this.onSubmitEditor();
+      return;
+    }
     wx.showTabBar({
       animation: false
     });
+  },
+
+  onHide() {
+    if (this.data.editorVisible && this.data.editorMode === 'edit' && this.data.editingId) {
+      this.onSubmitEditor();
+    }
   },
 
   parseNumber(value) {
@@ -159,6 +223,72 @@ Page({
   formatMoney(value) {
     const number = this.parseNumber(value);
     return `¥${number.toFixed(2)}`;
+  },
+
+  async ensureExchangeRates(force = false) {
+    const cached = app.globalData.exchangeRates || wx.getStorageSync('exchangeRates') || { cny: 1 };
+    const hasEnoughRates = cached && Object.keys(cached).length > 4;
+
+    if (!force && hasEnoughRates) {
+      this.setData({ exchangeRates: cached });
+      this.updatePriceCnyPreview();
+      return cached;
+    }
+
+    try {
+      const latest = await exchangeRateUtil.getSinaRealTimeRates();
+      if (latest && Object.keys(latest).length > 4) {
+        app.globalData.exchangeRates = latest;
+        wx.setStorageSync('exchangeRates', latest);
+        this.setData({ exchangeRates: latest });
+        this.updatePriceCnyPreview();
+        return latest;
+      }
+    } catch (error) {
+      console.warn('汇率拉取失败，使用缓存汇率', error);
+    }
+
+    this.setData({ exchangeRates: cached || { cny: 1 } });
+    this.updatePriceCnyPreview();
+    return cached || { cny: 1 };
+  },
+
+  getRateByCode(code, rates = this.data.exchangeRates) {
+    const upperCode = String(code || 'CNY').toUpperCase();
+    if (upperCode === 'CNY') return 1;
+
+    const table = rates || {};
+    if (upperCode === 'RM') {
+      const myrRate = this.parseNumber(table.MYR || table.myr);
+      return myrRate > 0 ? myrRate : 1;
+    }
+
+    const rate = this.parseNumber(table[upperCode] || table[upperCode.toLowerCase()]);
+    return rate > 0 ? rate : 1;
+  },
+
+  updatePriceCnyPreview() {
+    const amount = this.parseNumber(this.data.formModel.price);
+    const code = String(this.data.selectedPriceCurrencyCode || 'CNY').toUpperCase();
+    const rate = this.getRateByCode(code);
+    const cnyAmount = amount * rate;
+
+    this.setData({
+      priceRateText: `实时汇率：1 ${code} = ¥${rate.toFixed(4)}`,
+      priceCnyPreviewText: `折合人民币：${this.formatMoney(cnyAmount)}`
+    });
+  },
+
+  updateRelatedCnyPreview() {
+    const amount = this.parseNumber(this.data.relatedDraft.price);
+    const code = String(this.data.selectedRelatedCurrencyCode || 'CNY').toUpperCase();
+    const rate = this.getRateByCode(code);
+    const cnyAmount = amount * rate;
+
+    this.setData({
+      relatedRateText: `实时汇率：1 ${code} = ¥${rate.toFixed(4)}`,
+      relatedCnyPreviewText: `折合人民币：${this.formatMoney(cnyAmount)}`
+    });
   },
 
   normalizeRelatedItems(input) {
@@ -218,6 +348,11 @@ Page({
   normalizeAssets(rawAssets) {
     return rawAssets.map((item) => {
       const price = this.parseNumber(item.price);
+      const priceCurrencyCode = String(item.priceCurrencyCode || 'CNY').toUpperCase();
+      const priceRate = this.parseNumber(item.priceRate) || 1;
+      const originalPrice = (item.originalPrice !== undefined && item.originalPrice !== null && item.originalPrice !== '')
+        ? this.parseNumber(item.originalPrice)
+        : (priceCurrencyCode === 'CNY' ? price : (priceRate > 0 ? (price / priceRate) : price));
       const relatedList = this.normalizeRelatedItems(item.relatedList);
       const relatedTotal = relatedList.reduce((sum, rel) => sum + rel.amount, 0);
       const effectivePrice = price + relatedTotal;
@@ -231,6 +366,10 @@ Page({
         type: item.type || 'asset',
         name: item.name,
         price,
+        originalPrice,
+        priceCurrencyCode,
+        priceCurrencyName: item.priceCurrencyName || priceCurrencyCode,
+        priceRate,
         date: item.date,
         note: item.note || '',
         noteImagePath: item.noteImagePath || '',
@@ -274,9 +413,7 @@ Page({
     }, 0);
 
     const dailyRows = visibleAssets.filter((item) => !item.excludeDaily);
-    const avgDaily = dailyRows.length
-      ? dailyRows.reduce((sum, item) => sum + item.dailyCost, 0) / dailyRows.length
-      : 0;
+    const avgDaily = dailyRows.reduce((sum, item) => sum + item.dailyCost, 0);
 
     const toProgress = (count) => {
       if (!total) return 0;
@@ -342,12 +479,16 @@ Page({
     this.rebuildViewAssets();
   },
 
-  persistAssets(assets) {
-    const raw = assets.map((item) => ({
+  buildRawAssets(assets) {
+    return (assets || []).map((item) => ({
       id: item.id,
       type: item.type,
       name: item.name,
       price: item.price,
+      originalPrice: item.originalPrice,
+      priceCurrencyCode: String(item.priceCurrencyCode || 'CNY').toUpperCase(),
+      priceCurrencyName: item.priceCurrencyName || '人民币',
+      priceRate: item.priceRate || 1,
       date: item.date,
       note: item.note,
       noteImagePath: item.noteImagePath || '',
@@ -360,6 +501,10 @@ Page({
         id: rel.id,
         name: rel.name,
         price: rel.price,
+        originalPrice: rel.originalPrice,
+        currencyCode: rel.currencyCode,
+        currencyName: rel.currencyName,
+        rate: rel.rate,
         qty: rel.qty
       })),
       resalePrice: item.resalePrice,
@@ -368,7 +513,75 @@ Page({
       excludeAsset: !!item.excludeAsset,
       excludeDaily: !!item.excludeDaily
     }));
+  },
+
+  persistAssets(assets) {
+    const raw = this.buildRawAssets(assets);
     wx.setStorageSync(STORAGE_KEY, raw);
+  },
+
+  setCloudSyncHint(state, text) {
+    this.setData({
+      cloudSyncState: state,
+      cloudSyncText: text
+    });
+  },
+
+  async syncAssetsFromCloud() {
+    this.setCloudSyncHint('syncing', '正在同步云端...');
+    try {
+      const res = await wx.cloud.callFunction({ name: GET_XISHU_ASSETS_FN });
+      const cloudAssets = Array.isArray(res.result && res.result.data) ? res.result.data : [];
+
+      if (cloudAssets.length) {
+        wx.setStorageSync(STORAGE_KEY, cloudAssets);
+        const assets = this.normalizeAssets(cloudAssets);
+        this.setData({ assets }, () => {
+          this.computeOverview(assets);
+          this.rebuildViewAssets();
+        });
+        this.setCloudSyncHint('synced', '已从云端同步');
+        return;
+      }
+
+      const localAssets = wx.getStorageSync(STORAGE_KEY) || [];
+      if (Array.isArray(localAssets) && localAssets.length) {
+        this.setCloudSyncHint('syncing', '本地数据正在上传...');
+        this.syncAssetsToCloud(localAssets, false);
+      } else {
+        this.setCloudSyncHint('synced', '云端已就绪');
+      }
+    } catch (error) {
+      this.setCloudSyncHint('failed', '云端连接失败，使用本地数据');
+      console.warn('悉数云端拉取失败，使用本地数据', error);
+    }
+  },
+
+  async syncAssetsToCloud(rawAssets, showToast = false) {
+    this.setCloudSyncHint('syncing', '正在同步云端...');
+    try {
+      const safeRaw = Array.isArray(rawAssets) ? rawAssets : [];
+      const res = await wx.cloud.callFunction({
+        name: SYNC_XISHU_ASSETS_FN,
+        data: {
+          xishuAssets: safeRaw
+        }
+      });
+
+      if (res.result && res.result.success) {
+        this.setCloudSyncHint('synced', '已同步到云端');
+        if (showToast) {
+          wx.showToast({ title: '已同步云端', icon: 'success' });
+        }
+        return;
+      }
+
+      this.setCloudSyncHint('failed', '云端同步失败，仅保存在本地');
+      console.warn('悉数云端同步失败', res.result);
+    } catch (error) {
+      this.setCloudSyncHint('failed', '云端同步失败，仅保存在本地');
+      console.warn('悉数云端同步异常', error);
+    }
   },
 
   onFilterTap(event) {
@@ -527,6 +740,8 @@ Page({
               'formModel.date': normalizedDate,
               noteImagePath: parseImagePath,
               'formModel.note': rawPreview ? `【AI原图识别导入】${rawPreview}` : '【AI原图识别导入】'
+            }, () => {
+              this.updatePriceCnyPreview();
             });
           } else {
             // 如果云端 API 没配置好或解析失败，使用保底提示
@@ -565,6 +780,10 @@ Page({
   },
 
   onCloseEditor() {
+    if (this.data.editorMode === 'edit' && this.data.editingId) {
+      this.onSubmitEditor();
+      return;
+    }
     wx.showTabBar({
       animation: false
     });
@@ -608,12 +827,14 @@ Page({
       statusSwitches,
       formModel: {
         name: found.name || '',
-        price: `${found.price || 0}`,
+        price: `${found.originalPrice || found.price || 0}`,
         date: found.date || '',
         resalePrice: `${found.resalePrice || 0}`,
         note: found.note || '',
         relatedItems: ''
       },
+      selectedPriceCurrencyCode: String(found.priceCurrencyCode || 'CNY').toUpperCase(),
+      selectedPriceCurrencyName: found.priceCurrencyName || '人民币',
       formIconType: found.iconType || 'emoji',
       formIconEmoji: found.iconEmoji || this.getDefaultIconByType(found.type || 'asset'),
       formIconImagePath: found.iconImagePath || '',
@@ -625,6 +846,9 @@ Page({
         price: '',
         qty: '1'
       },
+      showRelatedCurrencyModal: false,
+      selectedRelatedCurrencyCode: 'CNY',
+      selectedRelatedCurrencyName: '人民币',
       toggles: {
         pinned: !!found.pinned,
         excludeAsset: !!found.excludeAsset,
@@ -632,6 +856,8 @@ Page({
       }
     }, () => {
       this.updateRelatedTotal(this.data.relatedList);
+      this.updatePriceCnyPreview();
+      this.updateRelatedCnyPreview();
     });
   },
 
@@ -664,11 +890,92 @@ Page({
   },
 
   onRemoveNoteImage() {
-    this.setData({ noteImagePath: '' });
+    wx.showModal({
+      title: '删除确认',
+      content: '确定删除这张备注图片吗？',
+      confirmText: '删除',
+      confirmColor: '#d84444',
+      success: ({ confirm }) => {
+        if (!confirm) return;
+        this.setData({ noteImagePath: '' });
+      }
+    });
   },
 
   onCategoryChange(event) {
     this.setData({ categoryIndex: Number(event.detail.value) || 0 });
+  },
+
+  onOpenPriceCurrencyModal() {
+    this.ensureExchangeRates(false);
+    this.setData({ showPriceCurrencyModal: true });
+  },
+
+  onClosePriceCurrencyModal() {
+    this.setData({ showPriceCurrencyModal: false });
+  },
+
+  onSelectPriceCurrency(event) {
+    const code = String(event.currentTarget.dataset.code || 'CNY').toUpperCase();
+    const name = String(event.currentTarget.dataset.name || code);
+    this.setData({
+      selectedPriceCurrencyCode: code,
+      selectedPriceCurrencyName: name
+    }, () => {
+      this.updatePriceCnyPreview();
+    });
+  },
+
+  onConfirmPriceCurrency() {
+    this.setData({ showPriceCurrencyModal: false }, () => {
+      this.updatePriceCnyPreview();
+    });
+  },
+
+  onOpenRelatedCurrencyModal() {
+    this.ensureExchangeRates(false);
+    this.setData({ showRelatedCurrencyModal: true }, () => {
+      this.updateRelatedCnyPreview();
+    });
+  },
+
+  onCloseRelatedCurrencyModal() {
+    this.setData({ showRelatedCurrencyModal: false });
+  },
+
+  onSelectRelatedCurrency(event) {
+    const code = String(event.currentTarget.dataset.code || 'CNY').toUpperCase();
+    const name = String(event.currentTarget.dataset.name || code);
+    this.setData({
+      selectedRelatedCurrencyCode: code,
+      selectedRelatedCurrencyName: name
+    }, () => {
+      this.updateRelatedCnyPreview();
+    });
+  },
+
+  onRelatedPriceInput(event) {
+    const value = (event.detail.value || '').replace(/[^0-9.]/g, '');
+    this.setData({ 'relatedDraft.price': value }, () => {
+      this.updateRelatedCnyPreview();
+    });
+  },
+
+  onConfirmRelatedCurrency() {
+    const trimmedName = `${this.data.relatedDraft.name || ''}`.trim();
+    const unitOriginalPrice = this.parseNumber(this.data.relatedDraft.price);
+    if (!trimmedName) {
+      wx.showToast({ title: '请输入附加物品名称', icon: 'none' });
+      return;
+    }
+    if (!(unitOriginalPrice > 0)) {
+      wx.showToast({ title: '请输入附加物品单价', icon: 'none' });
+      return;
+    }
+
+    this.setData({ showRelatedCurrencyModal: false }, () => {
+      this.onAddRelatedItem();
+    });
   },
 
   onPickIconEmoji(event) {
@@ -989,6 +1296,13 @@ Page({
     this.setData({ [`formModel.${field}`]: event.detail.value });
   },
 
+  onPriceInput(event) {
+    const value = (event.detail.value || '').replace(/[^0-9.]/g, '');
+    this.setData({ 'formModel.price': value }, () => {
+      this.updatePriceCnyPreview();
+    });
+  },
+
   onRelatedInput(event) {
     const { field } = event.currentTarget.dataset;
     this.setData({ [`relatedDraft.${field}`]: event.detail.value });
@@ -997,7 +1311,11 @@ Page({
   onAddRelatedItem() {
     const { name, price, qty } = this.data.relatedDraft;
     const trimmedName = `${name || ''}`.trim();
-    const unitPrice = this.parseNumber(price);
+    const unitOriginalPrice = this.parseNumber(price);
+    const currencyCode = String(this.data.selectedRelatedCurrencyCode || 'CNY').toUpperCase();
+    const currencyName = this.data.selectedRelatedCurrencyName || currencyCode;
+    const unitRate = this.getRateByCode(currencyCode);
+    const unitPrice = unitOriginalPrice * unitRate;
     const quantity = Math.max(1, Math.floor(this.parseNumber(qty) || 1));
 
     if (!trimmedName) {
@@ -1009,6 +1327,10 @@ Page({
       id: `rel_${Date.now()}_${Math.random().toString(16).slice(2, 8)}`,
       name: trimmedName,
       price: unitPrice,
+      originalPrice: unitOriginalPrice,
+      currencyCode,
+      currencyName,
+      rate: unitRate,
       qty: quantity,
       amount: unitPrice * quantity,
       priceText: this.formatMoney(unitPrice),
@@ -1022,16 +1344,28 @@ Page({
         name: '',
         price: '',
         qty: '1'
-      }
+      },
+      selectedRelatedCurrencyCode: 'CNY',
+      selectedRelatedCurrencyName: '人民币'
     });
     this.updateRelatedTotal(next);
+    this.updateRelatedCnyPreview();
   },
 
   onRemoveRelatedItem(event) {
     const { id } = event.currentTarget.dataset;
-    const next = this.data.relatedList.filter((item) => item.id !== id);
-    this.setData({ relatedList: next });
-    this.updateRelatedTotal(next);
+    wx.showModal({
+      title: '删除确认',
+      content: '确定删除该附加物品吗？',
+      confirmText: '删除',
+      confirmColor: '#d84444',
+      success: ({ confirm }) => {
+        if (!confirm) return;
+        const next = this.data.relatedList.filter((item) => item.id !== id);
+        this.setData({ relatedList: next });
+        this.updateRelatedTotal(next);
+      }
+    });
   },
 
   onFormDateChange(event) {
@@ -1056,6 +1390,9 @@ Page({
         note: '',
         relatedItems: ''
       },
+      showPriceCurrencyModal: false,
+      selectedPriceCurrencyCode: 'CNY',
+      selectedPriceCurrencyName: '人民币',
       formIconType: 'emoji',
       formIconEmoji: this.getDefaultIconByType('asset'),
       formIconImagePath: '',
@@ -1065,6 +1402,9 @@ Page({
         price: '',
         qty: '1'
       },
+      showRelatedCurrencyModal: false,
+      selectedRelatedCurrencyCode: 'CNY',
+      selectedRelatedCurrencyName: '人民币',
       relatedList: [],
       relatedTotalText: '¥0.00',
       toggles: {
@@ -1072,6 +1412,9 @@ Page({
         excludeAsset: false,
         excludeDaily: false
       }
+    }, () => {
+      this.updatePriceCnyPreview();
+      this.updateRelatedCnyPreview();
     });
   },
 
@@ -1089,6 +1432,11 @@ Page({
       relatedList
     } = this.data;
     const { name, price, date, resalePrice, note } = formModel;
+    const priceCurrencyCode = String(this.data.selectedPriceCurrencyCode || 'CNY').toUpperCase();
+    const priceCurrencyName = this.data.selectedPriceCurrencyName || priceCurrencyCode;
+    const originalPrice = this.parseNumber(price);
+    const priceRate = this.getRateByCode(priceCurrencyCode);
+    const priceInCny = originalPrice * priceRate;
 
     if (editorTab === 'asset') {
       if (!name || !price || !date) {
@@ -1104,7 +1452,11 @@ Page({
       id: editorMode === 'edit' ? editingId : `asset_${Date.now()}`,
       type: editorTab,
       name,
-      price: this.parseNumber(price),
+      price: priceInCny,
+      originalPrice,
+      priceCurrencyCode,
+      priceCurrencyName,
+      priceRate,
       date,
       note,
       noteImagePath: this.data.noteImagePath,
@@ -1117,6 +1469,10 @@ Page({
         id: item.id,
         name: item.name,
         price: item.price,
+        originalPrice: item.originalPrice,
+        currencyCode: item.currencyCode,
+        currencyName: item.currencyName,
+        rate: item.rate,
         qty: item.qty
       })),
       resalePrice: this.parseNumber(resalePrice),
@@ -1130,7 +1486,9 @@ Page({
       ? assets.map((item) => (item.id === editingId ? { ...item, ...payload } : item))
       : [payload, ...assets];
 
+    const rawNext = this.buildRawAssets(next);
     this.persistAssets(next);
+    this.syncAssetsToCloud(rawNext, false);
     this.loadAssets();
     wx.showTabBar({
       animation: false
@@ -1149,9 +1507,20 @@ Page({
 
   onDeleteAsset(event) {
     const { id } = event.currentTarget.dataset;
-    const left = this.data.assets.filter((item) => item.id !== id);
-    this.persistAssets(left);
-    this.loadAssets();
-    wx.showToast({ title: '已删除', icon: 'none' });
+    wx.showModal({
+      title: '删除确认',
+      content: '确定删除这条资产记录吗？',
+      confirmText: '删除',
+      confirmColor: '#d84444',
+      success: ({ confirm }) => {
+        if (!confirm) return;
+        const left = this.data.assets.filter((item) => item.id !== id);
+        const rawLeft = this.buildRawAssets(left);
+        this.persistAssets(left);
+        this.syncAssetsToCloud(rawLeft, false);
+        this.loadAssets();
+        wx.showToast({ title: '已删除', icon: 'none' });
+      }
+    });
   }
 });

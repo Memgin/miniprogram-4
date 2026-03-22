@@ -61,6 +61,10 @@
     <input class="search-input" placeholder="搜索名称或备注" value="{{searchKeyword}}" focus="{{searchFocus}}" bindinput="onSearchInput" bindblur="onSearchBlur" />
   </view>
 
+  <view class="sync-tip {{cloudSyncState}}">
+    <text>{{cloudSyncText}}</text>
+  </view>
+
   <view class="asset-list" wx:if="{{viewAssets.length}}">
     <view class="asset-item" wx:for="{{viewAssets}}" wx:key="id" data-id="{{item.id}}" bindtap="onTapAssetCard">
       <view class="asset-icon-wrap">
@@ -72,7 +76,7 @@
       </view>
       <text class="asset-name">{{item.name}}</text>
       <view class="asset-line">
-        <text>{{item.priceText}} | 已使用{{item.holdText}}</text>
+        <text>{{item.effectivePriceText}} | 已使用{{item.holdText}}</text>
       </view>
       <view class="asset-bottom">
         <text class="asset-daily">{{item.dailyCostText}}/天</text>
@@ -131,10 +135,12 @@
         </view>
         <input class="editor-name" placeholder="{{editorTab === 'asset' ? '请输入物品名称' : '请输入心愿名称'}}" value="{{formModel.name}}" data-field="name" bindinput="onFormInput" />
 
-        <view class="editor-card single-line">
+        <view class="editor-card">
           <view class="editor-cell">
             <text class="cell-left">价格</text>
-            <input class="cell-right-input" placeholder="请输入物品价格" type="digit" value="{{formModel.price}}" data-field="price" bindinput="onFormInput" />
+            <view class="cell-right price-value-trigger" bindtap="onOpenPriceCurrencyModal">
+              {{formModel.price || '请输入金额'}} {{selectedPriceCurrencyCode}} ›
+            </view>
           </view>
         </view>
 
@@ -188,9 +194,10 @@
           <view class="related-draft-row">
             <input class="related-input name" placeholder="名称" value="{{relatedDraft.name}}" data-field="name" bindinput="onRelatedInput" />
             <input class="related-input qty" type="number" placeholder="数量" value="{{relatedDraft.qty}}" data-field="qty" bindinput="onRelatedInput" />
-            <input class="related-input price" type="digit" placeholder="单价" value="{{relatedDraft.price}}" data-field="price" bindinput="onRelatedInput" />
+            <view class="related-input price related-price-trigger" bindtap="onOpenRelatedCurrencyModal">
+              {{relatedDraft.price || '单价'}} {{selectedRelatedCurrencyCode}} ›
+            </view>
           </view>
-          <view class="add-related" bindtap="onAddRelatedItem">+ 添加物品</view>
           <view class="related-list" wx:if="{{relatedList.length}}">
             <view class="related-item" wx:for="{{relatedList}}" wx:key="id">
               <text class="related-name">{{item.name}} ×{{item.qty}}</text>
@@ -259,6 +266,53 @@
     </scroll-view>
 
     <view class="icon-library-mask" wx:if="{{iconLibraryVisible}}" bindtap="onCloseIconLibraryPanel"></view>
+    <view class="price-currency-mask" wx:if="{{showPriceCurrencyModal}}" bindtap="onClosePriceCurrencyModal"></view>
+    <view class="price-currency-panel" wx:if="{{showPriceCurrencyModal}}">
+      <view class="price-currency-title">选择币种</view>
+      <view class="price-currency-grid">
+        <view
+          class="price-currency-item {{selectedPriceCurrencyCode === item.code ? 'active' : ''}}"
+          wx:for="{{allCurrencyList}}"
+          wx:key="code"
+          data-code="{{item.code}}"
+          data-name="{{item.name}}"
+          bindtap="onSelectPriceCurrency"
+        >{{item.code}}</view>
+      </view>
+
+      <view class="price-currency-input-wrap">
+        <input class="price-currency-input" type="digit" placeholder="请输入金额" value="{{formModel.price}}" bindinput="onPriceInput" focus="{{showPriceCurrencyModal}}" />
+      </view>
+
+      <view class="price-currency-actions">
+        <view class="price-currency-cancel" bindtap="onClosePriceCurrencyModal">取消</view>
+        <view class="price-currency-confirm" bindtap="onConfirmPriceCurrency">确认添加</view>
+      </view>
+    </view>
+
+    <view class="price-currency-mask" wx:if="{{showRelatedCurrencyModal}}" bindtap="onCloseRelatedCurrencyModal"></view>
+    <view class="price-currency-panel" wx:if="{{showRelatedCurrencyModal}}">
+      <view class="price-currency-title">选择附加物品币种</view>
+      <view class="price-currency-grid">
+        <view
+          class="price-currency-item {{selectedRelatedCurrencyCode === item.code ? 'active' : ''}}"
+          wx:for="{{allCurrencyList}}"
+          wx:key="code"
+          data-code="{{item.code}}"
+          data-name="{{item.name}}"
+          bindtap="onSelectRelatedCurrency"
+        >{{item.code}}</view>
+      </view>
+
+      <view class="price-currency-input-wrap">
+        <input class="price-currency-input" type="digit" placeholder="请输入单价" value="{{relatedDraft.price}}" bindinput="onRelatedPriceInput" focus="{{showRelatedCurrencyModal}}" />
+      </view>
+
+      <view class="price-currency-actions">
+        <view class="price-currency-cancel" bindtap="onCloseRelatedCurrencyModal">取消</view>
+        <view class="price-currency-confirm" bindtap="onConfirmRelatedCurrency">确认添加</view>
+      </view>
+    </view>
     <view class="icon-library-panel" wx:if="{{iconLibraryVisible}}">
       <view class="icon-library-head compact">
         <text class="icon-head-action" bindtap="onCloseIconLibraryPanel">取消</text>

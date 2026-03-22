@@ -1,4 +1,6 @@
 {
   "navigationBarTitleText": "悉数",
-  "navigationStyle": "default"
+  "navigationStyle": "default",
+  "enablePullDownRefresh": true,
+  "backgroundTextStyle": "dark"
 }
