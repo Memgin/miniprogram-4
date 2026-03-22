@@ -31,12 +31,19 @@
 
     <view class="hero-actions">
       <button class="hero-btn hero-btn-primary" bindtap="gotoAddCard">新增银行卡</button>
+      <button class="hero-btn hero-btn-ghost" bindtap="gotoDiagnostics">诊断中心</button>
       <view class="hero-eye-toggle" bindtap="togglePrivacyMode" aria-label="切换金额显示">
         <view class="hero-eye hero-eye-{{privacyMode ? 'off' : 'on'}}">
           <view class="hero-eye-pupil"></view>
           <view class="hero-eye-strike" wx:if="{{privacyMode}}"></view>
         </view>
       </view>
+    </view>
+
+    <view class="hero-shortcuts" wx:if="{{cardCount > 0}}">
+      <view class="hero-shortcut-pill" bindtap="gotoExport">导出资产</view>
+      <view class="hero-shortcut-pill" bindtap="copyBankSummary">复制摘要</view>
+      <view class="hero-shortcut-pill hero-shortcut-pill-{{biometricEnabled ? 'active' : 'idle'}}" bindtap="toggleBiometricEnabled">{{biometricEnabled ? 'Bio On' : 'Bio Off'}}</view>
     </view>
   </view>
 
@@ -205,10 +212,263 @@
     </view>
   </view>
 
+  <view class="planner-card card" wx:if="{{rebalanceSummary}}">
+    <view class="section-head compact-head">
+      <view class="section-title">智能调仓建议</view>
+      <view class="section-pill">{{rebalanceSummary.modeLabel}}</view>
+    </view>
+    <view class="planner-subtitle">{{rebalanceSummary.headline}}</view>
+    <view class="planner-highlight">目标结构：{{rebalanceSummary.targetMixText}}</view>
+    <view class="planner-tip">{{rebalanceSummary.bufferText}}</view>
+    <view class="rebalance-list">
+      <view class="rebalance-item" wx:for="{{rebalanceActions}}" wx:key="code">
+        <view class="rebalance-top">
+          <view class="rebalance-code">{{item.code}}</view>
+          <view class="rebalance-delta rebalance-delta-{{item.tone}}">{{item.deltaText}}</view>
+        </view>
+        <view class="rebalance-meta">当前 {{item.currentWeightText}} → 目标 {{item.targetWeightText}}</view>
+        <view class="rebalance-amount">{{item.amountText}}</view>
+        <view class="rebalance-reason">{{item.reason}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="planner-card card">
+    <view class="section-head compact-head">
+      <view class="section-title">条件单与分批换汇</view>
+      <view class="section-link" bindtap="openFxOrderEditor">新增计划</view>
+    </view>
+    <view class="planner-subtitle">把提醒升级为执行计划，按目标汇率自动拆分为多笔操作。</view>
+
+    <view class="planner-empty" wx:if="{{fxOrderPlans.length === 0}}">还没有换汇计划，先添加一条目标汇率和预算。</view>
+    <view class="order-list" wx:else>
+      <view class="order-item" wx:for="{{fxOrderPlans}}" wx:key="id">
+        <view class="order-top">
+          <view>
+            <view class="order-title">{{item.code}} · {{item.directionText}}</view>
+            <view class="order-meta">当前 {{item.currentRateText}} · 目标 {{item.targetRateText}} · 总预算 {{item.totalBudgetText}}</view>
+          </view>
+          <view class="order-side">
+            <view class="order-status">{{item.planStatus}}</view>
+            <text class="order-delete" bindtap="deleteFxOrderPlan" data-id="{{item.id}}">删除</text>
+          </view>
+        </view>
+        <view class="order-note" wx:if="{{item.note}}">{{item.note}}</view>
+        <view class="order-stage" wx:for="{{item.stages}}" wx:key="label">
+          <text>{{item.label}}</text>
+          <text>目标 {{item.rateText}}</text>
+          <text>{{item.budgetText}}</text>
+          <text class="order-stage-status {{item.triggered ? 'order-stage-hit' : ''}}">{{item.statusText}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="editor-panel" wx:if="{{showFxOrderEditor}}">
+      <view class="editor-grid">
+        <view class="editor-field">
+          <view class="editor-label">币种</view>
+          <picker mode="selector" range="{{plannerCurrencyLabels}}" bindchange="onFxOrderCodeChange">
+            <view class="editor-picker">{{fxOrderForm.code}}</view>
+          </picker>
+        </view>
+        <view class="editor-field">
+          <view class="editor-label">方向</view>
+          <picker mode="selector" range="{{fxDirectionLabels}}" bindchange="onFxOrderDirectionChange">
+            <view class="editor-picker">{{fxOrderForm.direction === 'above' ? '高于目标分批止盈' : '低于目标分批买入'}}</view>
+          </picker>
+        </view>
+        <view class="editor-field">
+          <view class="editor-label">目标汇率</view>
+          <input class="editor-input" type="digit" value="{{fxOrderForm.targetRate}}" data-field="targetRate" bindinput="onFxOrderFieldInput" placeholder="例如 7.1800" />
+        </view>
+        <view class="editor-field">
+          <view class="editor-label">总预算 CNY</view>
+          <input class="editor-input" type="digit" value="{{fxOrderForm.totalBudgetCny}}" data-field="totalBudgetCny" bindinput="onFxOrderFieldInput" placeholder="例如 10000" />
+        </view>
+        <view class="editor-field">
+          <view class="editor-label">分批笔数</view>
+          <input class="editor-input" type="number" value="{{fxOrderForm.trancheCount}}" data-field="trancheCount" bindinput="onFxOrderFieldInput" placeholder="1-5" />
+        </view>
+        <view class="editor-field">
+          <view class="editor-label">阶梯间距 %</view>
+          <input class="editor-input" type="digit" value="{{fxOrderForm.stepPct}}" data-field="stepPct" bindinput="onFxOrderFieldInput" placeholder="例如 0.6" />
+        </view>
+      </view>
+      <view class="editor-field editor-field-full">
+        <view class="editor-label">备注</view>
+        <input class="editor-input" value="{{fxOrderForm.note}}" data-field="note" bindinput="onFxOrderFieldInput" placeholder="例如 学费换汇 / 差旅备用" />
+      </view>
+      <view class="editor-actions">
+        <view class="editor-btn editor-btn-ghost" bindtap="closeFxOrderEditor">取消</view>
+        <view class="editor-btn" bindtap="saveFxOrderPlan">保存计划</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="planner-card card">
+    <view class="section-head compact-head">
+      <view class="section-title">现金流与到期预测</view>
+      <view class="range-tabs">
+        <view class="range-tab {{forecastRangeIndex === index ? 'range-tab-active' : ''}}" wx:for="{{forecastRangeOptions}}" wx:key="*this" data-index="{{index}}" bindtap="selectForecastRange">{{item}}天</view>
+      </view>
+    </view>
+    <view class="planner-subtitle">统一看未来现金流、定存到期回款和预测后的资产位置。</view>
+
+    <view class="forecast-grid" wx:if="{{forecastSummary}}">
+      <view class="forecast-box">
+        <view class="forecast-label">期间流入</view>
+        <view class="forecast-value">{{privacyMode ? '***' : forecastSummary.inflowText}}</view>
+      </view>
+      <view class="forecast-box">
+        <view class="forecast-label">期间流出</view>
+        <view class="forecast-value">{{privacyMode ? '***' : forecastSummary.outflowText}}</view>
+      </view>
+      <view class="forecast-box">
+        <view class="forecast-label">净变化</view>
+        <view class="forecast-value">{{privacyMode ? '***' : forecastSummary.netText}}</view>
+      </view>
+      <view class="forecast-box forecast-box-strong">
+        <view class="forecast-label">预测资产</view>
+        <view class="forecast-value">{{privacyMode ? '***' : forecastSummary.projectedText}}</view>
+      </view>
+    </view>
+
+    <view class="planner-highlight" wx:if="{{forecastSummary}}">最近到期：{{privacyMode ? '***' : forecastSummary.nextMaturityText}}</view>
+
+    <view class="planner-actions-row">
+      <view class="section-link" bindtap="openCashflowEditor">新增现金流</view>
+      <view class="section-link" bindtap="openMaturityEditor">新增到期计划</view>
+    </view>
+
+    <view class="timeline-list" wx:if="{{forecastTimeline.length > 0}}">
+      <view class="timeline-item" wx:for="{{forecastTimeline}}" wx:key="id">
+        <view>
+          <view class="timeline-title">{{item.title}} · {{item.date}}</view>
+          <view class="timeline-meta">{{item.typeText}} · {{item.note}}</view>
+        </view>
+        <view class="timeline-value timeline-value-{{item.tone}}">{{privacyMode ? '***' : item.valueText}}</view>
+      </view>
+    </view>
+    <view class="planner-empty" wx:else>当前预测窗口内还没有现金流或到期事件。</view>
+
+    <view class="maturity-box" wx:if="{{maturityHighlights.length > 0}}">
+      <view class="maturity-title">到期高亮</view>
+      <view class="maturity-line" wx:for="{{maturityHighlights}}" wx:key="id">{{item.date}} · {{item.title}} · {{privacyMode ? '***' : item.valueText}}</view>
+    </view>
+
+    <view class="planner-list-block" wx:if="{{cashflowPlans.length > 0}}">
+      <view class="planner-list-title">现金流计划</view>
+      <view class="planner-row" wx:for="{{cashflowPlans}}" wx:key="id">
+        <view>
+          <view class="planner-row-title">{{item.name}}</view>
+          <view class="planner-row-meta">{{item.typeText}} · {{item.amountText}} · {{item.dueDate}} · {{item.frequencyText}}</view>
+        </view>
+        <text class="order-delete" bindtap="deleteCashflowPlan" data-id="{{item.id}}">删除</text>
+      </view>
+    </view>
+
+    <view class="planner-list-block" wx:if="{{maturityPlans.length > 0}}">
+      <view class="planner-list-title">到期计划</view>
+      <view class="planner-row" wx:for="{{maturityPlans}}" wx:key="id">
+        <view>
+          <view class="planner-row-title">{{item.name}}</view>
+          <view class="planner-row-meta">{{item.principalText}} · {{item.maturityDate}} · {{item.aprText}}</view>
+        </view>
+        <text class="order-delete" bindtap="deleteMaturityPlan" data-id="{{item.id}}">删除</text>
+      </view>
+    </view>
+
+    <view class="editor-panel" wx:if="{{showCashflowEditor}}">
+      <view class="editor-grid">
+        <view class="editor-field">
+          <view class="editor-label">名称</view>
+          <input class="editor-input" value="{{cashflowForm.name}}" data-field="name" bindinput="onCashflowFieldInput" placeholder="例如 每月工资 / 房租" />
+        </view>
+        <view class="editor-field">
+          <view class="editor-label">类型</view>
+          <picker mode="selector" range="{{cashflowTypeLabels}}" bindchange="onCashflowTypeChange">
+            <view class="editor-picker">{{cashflowForm.type === 'outflow' ? '流出' : '流入'}}</view>
+          </picker>
+        </view>
+        <view class="editor-field">
+          <view class="editor-label">币种</view>
+          <picker mode="selector" range="{{plannerCurrencyLabels}}" bindchange="onCashflowCodeChange">
+            <view class="editor-picker">{{cashflowForm.code}}</view>
+          </picker>
+        </view>
+        <view class="editor-field">
+          <view class="editor-label">金额</view>
+          <input class="editor-input" type="digit" value="{{cashflowForm.amount}}" data-field="amount" bindinput="onCashflowFieldInput" placeholder="例如 3000" />
+        </view>
+        <view class="editor-field">
+          <view class="editor-label">日期</view>
+          <picker mode="date" value="{{cashflowForm.dueDate}}" bindchange="onCashflowDateChange">
+            <view class="editor-picker">{{cashflowForm.dueDate}}</view>
+          </picker>
+        </view>
+        <view class="editor-field">
+          <view class="editor-label">频率</view>
+          <picker mode="selector" range="{{cashflowFrequencyLabels}}" bindchange="onCashflowFrequencyChange">
+            <view class="editor-picker">{{cashflowForm.frequency === 'monthly' ? '每月' : '一次性'}}</view>
+          </picker>
+        </view>
+      </view>
+      <view class="editor-field editor-field-full">
+        <view class="editor-label">备注</view>
+        <input class="editor-input" value="{{cashflowForm.note}}" data-field="note" bindinput="onCashflowFieldInput" placeholder="可选" />
+      </view>
+      <view class="editor-actions">
+        <view class="editor-btn editor-btn-ghost" bindtap="closeCashflowEditor">取消</view>
+        <view class="editor-btn" bindtap="saveCashflowPlan">保存现金流</view>
+      </view>
+    </view>
+
+    <view class="editor-panel" wx:if="{{showMaturityEditor}}">
+      <view class="editor-grid">
+        <view class="editor-field">
+          <view class="editor-label">名称</view>
+          <input class="editor-input" value="{{maturityForm.name}}" data-field="name" bindinput="onMaturityFieldInput" placeholder="例如 美元定存" />
+        </view>
+        <view class="editor-field">
+          <view class="editor-label">币种</view>
+          <picker mode="selector" range="{{plannerCurrencyLabels}}" bindchange="onMaturityCodeChange">
+            <view class="editor-picker">{{maturityForm.code}}</view>
+          </picker>
+        </view>
+        <view class="editor-field">
+          <view class="editor-label">本金</view>
+          <input class="editor-input" type="digit" value="{{maturityForm.principal}}" data-field="principal" bindinput="onMaturityFieldInput" placeholder="例如 5000" />
+        </view>
+        <view class="editor-field">
+          <view class="editor-label">到期日</view>
+          <picker mode="date" value="{{maturityForm.maturityDate}}" bindchange="onMaturityDateChange">
+            <view class="editor-picker">{{maturityForm.maturityDate}}</view>
+          </picker>
+        </view>
+        <view class="editor-field">
+          <view class="editor-label">年化利率 %</view>
+          <input class="editor-input" type="digit" value="{{maturityForm.apr}}" data-field="apr" bindinput="onMaturityFieldInput" placeholder="例如 2.8" />
+        </view>
+      </view>
+      <view class="editor-field editor-field-full">
+        <view class="editor-label">备注</view>
+        <input class="editor-input" value="{{maturityForm.note}}" data-field="note" bindinput="onMaturityFieldInput" placeholder="可选" />
+      </view>
+      <view class="editor-actions">
+        <view class="editor-btn editor-btn-ghost" bindtap="closeMaturityEditor">取消</view>
+        <view class="editor-btn" bindtap="saveMaturityPlan">保存到期计划</view>
+      </view>
+    </view>
+  </view>
+
   <view class="empty" wx:if="{{cardCount === 0}}">
+    <view class="empty-badge">资产工作台</view>
     <view class="empty-title">还没有银行卡账户</view>
-    <view class="empty-text">先添加银行卡，首页的人民币总览、风险雷达和压力测试才会真正有数据。</view>
-    <button class="empty-btn" bindtap="gotoAddCard">立即添加</button>
+    <view class="empty-text">先补齐第一张银行卡，后面的人民币总览、风险雷达、调仓建议和现金流预测才会真正开始运转。</view>
+    <view class="empty-actions">
+      <button class="empty-btn" bindtap="gotoAddCard">立即添加</button>
+      <view class="empty-link" bindtap="gotoDiagnostics">先检查环境</view>
+    </view>
   </view>
 
   <view class="card-list" wx:else>

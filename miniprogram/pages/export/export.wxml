@@ -1,18 +1,63 @@
 <view class="container">
-  <!-- 导出为文本 -->
-  <view class="export-item card" bindtap="exportText">
-    <view class="item-icon">📝</view>
-    <view class="item-text">导出为文本</view>
-    <view class="item-arrow">→</view>
+  <view class="export-hero card" wx:if="{{exportPreview}}">
+    <view class="export-hero-title">导出中心</view>
+    <view class="export-hero-subtitle">导出当前汇总的实时汇率、币种余额和人民币总计，可直接复制文本、复制摘要或生成图片。</view>
+    <view class="export-hero-grid">
+      <view class="export-hero-box">
+        <view class="export-hero-label">人民币总计</view>
+        <view class="export-hero-value">{{exportPreview.totalCnyText}}</view>
+      </view>
+      <view class="export-hero-box">
+        <view class="export-hero-label">汇率条目</view>
+        <view class="export-hero-value">{{exportPreview.rateCount}}</view>
+      </view>
+      <view class="export-hero-box">
+        <view class="export-hero-label">币种条目</view>
+        <view class="export-hero-value">{{exportPreview.currencyCount}}</view>
+      </view>
+      <view class="export-hero-box">
+        <view class="export-hero-label">头部币种</view>
+        <view class="export-hero-value export-hero-value-small">{{exportPreview.topCurrencyText}}</view>
+      </view>
+    </view>
+    <view class="export-hero-actions">
+      <button class="export-hero-btn export-hero-btn-primary" bindtap="exportText">复制完整文本</button>
+      <button class="export-hero-btn" bindtap="copySummarySnapshot">复制摘要</button>
+      <button class="export-hero-btn" bindtap="exportImage">生成图片</button>
+    </view>
   </view>
 
-  <!-- 导出为图片 -->
-  <view class="export-item card" bindtap="exportImage">
-    <view class="item-icon">🖼️</view>
-    <view class="item-text">导出为图片</view>
-    <view class="item-arrow">→</view>
+  <view class="export-status card" wx:if="{{exportPreview}}">
+    <view class="export-status-title">导出检查</view>
+    <view class="export-status-line">汇率、币种余额与人民币总计已准备完成。</view>
+    <view class="export-status-line">图片导出会请求相册权限，文本导出会直接写入剪贴板。</view>
   </view>
 
-  <!-- 隐藏的canvas（用于生成图片） -->
+  <view class="preview-card card" wx:if="{{exportPreview}}">
+    <view class="preview-title">导出预览</view>
+    <view class="preview-subtitle">以下内容会被纳入文本或图片导出。</view>
+
+    <view class="preview-block">
+      <view class="preview-block-title">汇率预览</view>
+      <view class="preview-row" wx:for="{{exportPreview.previewRates}}" wx:key="code">
+        <text>{{item.code}}</text>
+        <text>1 {{item.code}} = ¥{{item.rateText}}</text>
+      </view>
+    </view>
+
+    <view class="preview-block">
+      <view class="preview-block-title">币种余额预览</view>
+      <view class="preview-row" wx:for="{{exportPreview.previewCurrencies}}" wx:key="code">
+        <text>{{item.name}}</text>
+        <text>{{item.symbol}}{{item.totalAmountText}} / ¥{{item.cnyAmountText}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="export-empty card" wx:else>
+    <view class="export-empty-title">还没有可导出的资产汇总</view>
+    <view class="export-empty-text">请先从首页或银行卡工作台进入，带着实时汇率和余额数据打开导出中心。</view>
+  </view>
+
   <canvas canvas-id="exportCanvas" class="canvas-hidden"></canvas>
 </view>

@@ -1,0 +1,339 @@
+<view class="ys-page">
+  <view class="hero-bg">
+    <view class="overview-card">
+      <view class="overview-header">
+        <text class="overview-title">资产总览</text>
+        <text class="overview-badge">{{overviewBadge}}</text>
+      </view>
+
+      <view class="overview-main">
+        <view class="overview-cell">
+          <text class="overview-label">总资产</text>
+          <text class="overview-value">{{totalAssetText}}</text>
+        </view>
+        <view class="overview-cell right">
+          <text class="overview-label">日均成本</text>
+          <text class="overview-value">{{avgDailyCostText}}</text>
+        </view>
+      </view>
+
+      <view class="overview-divider"></view>
+
+      <view class="status-row">
+        <view class="status-item" wx:for="{{statusSummary}}" wx:key="id">
+          <text class="status-text">{{item.text}} {{item.count}}</text>
+          <view class="status-track">
+            <view class="status-fill" style="width: {{item.progress}}%;"></view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="filter-row">
+    <view class="type-switch">
+      <view class="type-chip {{listType === 'asset' ? 'active' : ''}}" data-type="asset" bindtap="onSwitchListType">资产</view>
+      <view class="type-chip {{listType === 'wish' ? 'active' : ''}}" data-type="wish" bindtap="onSwitchListType">心愿</view>
+    </view>
+    <scroll-view class="filter-scroll" scroll-x="true" enhanced="true" show-scrollbar="false">
+      <view class="filter-scroll-inner">
+        <view
+          class="filter-chip {{activeFilter === item.id ? 'active' : ''}}"
+          wx:for="{{filters}}"
+          wx:key="id"
+          data-id="{{item.id}}"
+          bindtap="onFilterTap"
+        >
+          {{item.text}}
+        </view>
+      </view>
+    </scroll-view>
+    <view class="filter-icons">
+      <text class="small-icon" data-action="focus-search" bindtap="onToolbarAction">⌕</text>
+      <text class="small-icon {{showOnlyPinned ? 'active' : ''}}" data-action="toggle-pinned" bindtap="onToolbarAction">◈</text>
+      <text class="small-icon" bindtap="onToggleSort">⇅</text>
+      <text class="small-icon" data-action="switch-list" bindtap="onToolbarAction">⎚</text>
+      <text class="small-icon" data-action="reset" bindtap="onToolbarAction">☑</text>
+    </view>
+  </view>
+
+  <view class="search-row">
+    <input class="search-input" placeholder="搜索名称或备注" value="{{searchKeyword}}" focus="{{searchFocus}}" bindinput="onSearchInput" bindblur="onSearchBlur" />
+  </view>
+
+  <view class="asset-list" wx:if="{{viewAssets.length}}">
+    <view class="asset-item" wx:for="{{viewAssets}}" wx:key="id" data-id="{{item.id}}" bindtap="onTapAssetCard">
+      <view class="asset-icon-wrap">
+        <view class="asset-icon-box">
+          <image class="asset-icon-image" wx:if="{{item.iconType === 'image' && item.iconImagePath}}" src="{{item.iconImagePath}}" mode="aspectFill" />
+          <text class="asset-icon" wx:else>{{item.iconEmoji || (item.type === 'wish' ? '🎯' : '📦')}}</text>
+        </view>
+        <text class="asset-badge">● {{item.statusText}}</text>
+      </view>
+      <text class="asset-name">{{item.name}}</text>
+      <view class="asset-line">
+        <text>{{item.priceText}} | 已使用{{item.holdText}}</text>
+      </view>
+      <view class="asset-bottom">
+        <text class="asset-daily">{{item.dailyCostText}}/天</text>
+        <view class="asset-delete" data-id="{{item.id}}" bindtap="onDeleteAsset">删除</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="empty-area" wx:if="{{!viewAssets.length}}">
+    <view class="empty-icon">📦</view>
+    <text class="empty-title">空空如也</text>
+    <text class="empty-desc">点击 + 添加{{listType === 'asset' ? '资产' : '心愿'}}</text>
+  </view>
+
+  <view class="bottom-dock">
+    <view class="dock-plus" bindtap="onOpenEditor">+</view>
+  </view>
+
+  <view class="editor-page" wx:if="{{editorVisible}}">
+    <view class="editor-top">
+      <view class="editor-close" bindtap="onCloseEditor">✕</view>
+      <view class="editor-tabs {{editorTab === 'asset' ? 'asset-active' : 'wish-active'}}">
+        <view
+          class="editor-tab {{editorTab === item.id ? 'active' : ''}}"
+          wx:for="{{editorTabs}}"
+          wx:key="id"
+          data-id="{{item.id}}"
+          bindtap="onEditorTabChange"
+        >
+          {{item.text}}
+        </view>
+      </view>
+    </view>
+
+    <scroll-view class="editor-scroll" scroll-y="true" enhanced="true" enable-flex="true" show-scrollbar="false">
+      <view class="editor-scroll-inner">
+        <!-- AI OCR Card -->
+        <view class="ocr-card" bindtap="onTapOcrImport" wx:if="{{editorMode === 'create'}}">
+          <view class="ocr-left">
+            <view class="ocr-icon">✨</view>
+            <view class="ocr-text">
+              <view class="ocr-title">截图/照片 智能识别</view>
+              <view class="ocr-desc">一键提取商品、金额与时间</view>
+            </view>
+          </view>
+          <view class="ocr-right">
+            <text class="ocr-btn">AI 添加</text>
+          </view>
+        </view>
+        <view class="editor-avatar-wrap">
+          <view class="editor-avatar">
+            <image class="editor-avatar-image" wx:if="{{formIconType === 'image' && formIconImagePath}}" src="{{formIconImagePath}}" mode="aspectFill" />
+            <text wx:else>{{formIconEmoji || (editorTab === 'asset' ? '📦' : '🎯')}}</text>
+          </view>
+          <view class="icon-edit-fab" bindtap="onTapIconEdit">✎</view>
+        </view>
+        <input class="editor-name" placeholder="{{editorTab === 'asset' ? '请输入物品名称' : '请输入心愿名称'}}" value="{{formModel.name}}" data-field="name" bindinput="onFormInput" />
+
+        <view class="editor-card single-line">
+          <view class="editor-cell">
+            <text class="cell-left">价格</text>
+            <input class="cell-right-input" placeholder="请输入物品价格" type="digit" value="{{formModel.price}}" data-field="price" bindinput="onFormInput" />
+          </view>
+        </view>
+
+        <view class="editor-card" wx:if="{{editorTab === 'asset'}}">
+          <view class="editor-cell">
+            <text class="cell-left">购买日期</text>
+            <picker mode="date" value="{{formModel.date}}" bindchange="onFormDateChange">
+              <view class="cell-right">{{formModel.date || '请选择'}} ›</view>
+            </picker>
+          </view>
+          <view class="editor-cell">
+            <text class="cell-left">类别</text>
+            <picker mode="selector" range="{{categoryOptions}}" value="{{categoryIndex}}" bindchange="onCategoryChange">
+              <view class="cell-right">{{categoryOptions[categoryIndex]}} ›</view>
+            </picker>
+          </view>
+          <view class="editor-cell last">
+            <text class="cell-left">标签</text>
+            <view class="cell-right">未设置 ›</view>
+          </view>
+        </view>
+
+        <view class="editor-card" wx:if="{{editorTab === 'asset'}}">
+          <view class="editor-title">目标成本</view>
+          <view class="cost-mode-wrap">
+            <view
+              class="cost-chip {{activeCostMode === item.id ? 'active' : ''}}"
+              wx:for="{{costModes}}"
+              wx:key="id"
+              data-id="{{item.id}}"
+              bindtap="onCostModeChange"
+            >
+              {{item.text}}
+            </view>
+          </view>
+        </view>
+
+        <view class="editor-card">
+          <input class="note-input" placeholder="输入备注" value="{{formModel.note}}" data-field="note" bindinput="onFormInput" />
+          <view class="note-media-row">
+            <view class="note-media-slot" bindtap="onChooseNoteImage">🖼</view>
+            <view class="note-media-preview" wx:if="{{noteImagePath}}">
+              <image class="note-media-image" src="{{noteImagePath}}" mode="aspectFill" bindtap="onPreviewNoteImage" />
+              <view class="note-media-remove" bindtap="onRemoveNoteImage">×</view>
+            </view>
+          </view>
+        </view>
+
+        <view class="editor-card">
+          <view class="editor-title">附加物品</view>
+          <view class="related-draft-row">
+            <input class="related-input name" placeholder="名称" value="{{relatedDraft.name}}" data-field="name" bindinput="onRelatedInput" />
+            <input class="related-input qty" type="number" placeholder="数量" value="{{relatedDraft.qty}}" data-field="qty" bindinput="onRelatedInput" />
+            <input class="related-input price" type="digit" placeholder="单价" value="{{relatedDraft.price}}" data-field="price" bindinput="onRelatedInput" />
+          </view>
+          <view class="add-related" bindtap="onAddRelatedItem">+ 添加物品</view>
+          <view class="related-list" wx:if="{{relatedList.length}}">
+            <view class="related-item" wx:for="{{relatedList}}" wx:key="id">
+              <text class="related-name">{{item.name}} ×{{item.qty}}</text>
+              <view class="related-right">
+                <text class="related-amount">{{item.amountText}}</text>
+                <text class="related-remove" data-id="{{item.id}}" bindtap="onRemoveRelatedItem">删除</text>
+              </view>
+            </view>
+            <view class="related-total">附加总计 {{relatedTotalText}}</view>
+          </view>
+        </view>
+
+        <view class="editor-card" wx:if="{{editorTab === 'asset'}}">
+          <view class="toggle-row">
+            <view class="toggle-label">
+              <text class="row-icon">📦</text>
+              <text>已退役</text>
+            </view>
+            <switch checked="{{statusSwitches.retired}}" color="#11131d" data-key="retired" bindchange="onFormStatusChange" />
+          </view>
+          <view class="toggle-row">
+            <view class="toggle-label">
+              <text class="row-icon">📤</text>
+              <text>卖出的</text>
+            </view>
+            <switch checked="{{statusSwitches.sold}}" color="#11131d" data-key="sold" bindchange="onFormStatusChange" />
+          </view>
+        </view>
+
+        <view class="editor-card" wx:if="{{editorTab === 'asset' && statusSwitches.sold}}">
+          <view class="editor-cell">
+            <text class="cell-left">卖出价格</text>
+            <input class="cell-right-input" placeholder="请输入卖出价格" type="digit" value="{{formModel.resalePrice}}" data-field="resalePrice" bindinput="onFormInput" />
+          </view>
+        </view>
+
+        <view class="editor-card" wx:if="{{editorTab === 'asset'}}">
+          <view class="toggle-row">
+            <view class="toggle-label">
+              <text class="row-icon">⌃</text>
+              <text>置顶</text>
+              <text class="row-badge">✓</text>
+            </view>
+            <switch checked="{{toggles.pinned}}" color="#11131d" data-key="pinned" bindchange="onToggleSetting" />
+          </view>
+          <view class="toggle-row">
+            <view class="toggle-label">
+              <text class="row-icon">💰</text>
+              <text>不计入总资产</text>
+              <text class="row-badge">✓</text>
+            </view>
+            <switch checked="{{toggles.excludeAsset}}" color="#11131d" data-key="excludeAsset" bindchange="onToggleSetting" />
+          </view>
+          <view class="toggle-row">
+            <view class="toggle-label">
+              <text class="row-icon">☰</text>
+              <text>不计入日均</text>
+              <text class="row-badge">✓</text>
+            </view>
+            <switch checked="{{toggles.excludeDaily}}" color="#11131d" data-key="excludeDaily" bindchange="onToggleSetting" />
+          </view>
+        </view>
+
+        <view class="save-btn" bindtap="onSubmitEditor">{{editorMode === 'edit' ? '更新' : '保存'}}</view>
+      </view>
+    </scroll-view>
+
+    <view class="icon-library-mask" wx:if="{{iconLibraryVisible}}" bindtap="onCloseIconLibraryPanel"></view>
+    <view class="icon-library-panel" wx:if="{{iconLibraryVisible}}">
+      <view class="icon-library-head compact">
+        <text class="icon-head-action" bindtap="onCloseIconLibraryPanel">取消</text>
+        <view class="icon-mode-tabs">
+          <view class="icon-mode-tab {{iconPickerTab === 'album' ? 'active' : ''}}" data-tab="album" bindtap="onIconPickerTabTap">相册</view>
+          <view class="icon-mode-tab {{iconPickerTab === 'emoji' ? 'active' : ''}}" data-tab="emoji" bindtap="onIconPickerTabTap">Emoji</view>
+          <view class="icon-mode-tab {{iconPickerTab === 'library' ? 'active' : ''}}" data-tab="library" bindtap="onIconPickerTabTap">图标</view>
+        </view>
+        <text class="icon-head-action strong" bindtap="onConfirmIconLibraryPanel">确定</text>
+      </view>
+
+      <view class="icon-selected-preview">
+        <view class="icon-selected-thumb-wrap">
+          <image class="icon-selected-thumb" wx:if="{{iconPickerDraftType === 'image' && iconPickerDraftImagePath}}" src="{{iconPickerDraftImagePath}}" mode="aspectFit" />
+          <text class="icon-selected-emoji" wx:else>{{iconPickerDraftEmoji}}</text>
+        </view>
+      </view>
+
+      <view class="emoji-grid-wrap" wx:if="{{iconPickerTab === 'emoji'}}">
+        <view class="emoji-grid">
+          <view
+            class="emoji-grid-item {{iconPickerDraftType === 'emoji' && iconPickerDraftEmoji === item ? 'active' : ''}}"
+            wx:for="{{iconPresets}}"
+            wx:key="*this"
+            data-emoji="{{item}}"
+            bindtap="onPickIconEmoji"
+          >{{item}}</view>
+        </view>
+      </view>
+
+      <view class="icon-album-wrap" wx:if="{{iconPickerTab === 'album'}}">
+        <view class="icon-album-btn" bindtap="onChooseIconImage">从相册选择图片</view>
+      </view>
+
+      <scroll-view class="icon-category-scroll" scroll-x="true" enhanced="true" show-scrollbar="false" wx:if="{{iconPickerTab === 'library'}}">
+        <view class="icon-category-row">
+          <view
+            class="icon-category-chip {{iconLibraryActiveCategory === item ? 'active' : ''}}"
+            wx:for="{{iconLibraryCategories}}"
+            wx:key="*this"
+            data-category="{{item}}"
+            bindtap="onIconLibraryCategoryTap"
+          >{{item}}</view>
+        </view>
+      </scroll-view>
+
+      <view class="icon-library-search-row" wx:if="{{iconPickerTab === 'library'}}">
+        <input class="icon-library-search-input" placeholder="搜索图标名称/分类" value="{{iconLibraryKeyword}}" bindinput="onIconLibrarySearchInput" />
+      </view>
+
+      <view class="icon-library-loading" wx:if="{{iconPickerTab === 'library' && iconLibraryLoading}}">加载中...</view>
+
+      <scroll-view class="icon-grid-scroll" scroll-y="true" enhanced="true" show-scrollbar="false" bindscrolltolower="onIconLibraryScrollToLower" wx:if="{{iconPickerTab === 'library' && !iconLibraryLoading}}">
+        <view class="icon-grid">
+          <view
+            class="icon-grid-item"
+            wx:for="{{iconLibraryDisplayedItems}}"
+            wx:key="id"
+            data-path="{{item.path}}"
+            data-name="{{item.name}}"
+            data-id="{{item.id}}"
+            data-category="{{item.category}}"
+            data-source="{{item.source}}"
+            bindtap="onPickLibraryIcon"
+          >
+            <view class="icon-grid-thumb-wrap">
+              <image class="icon-grid-thumb" src="{{item.path}}" mode="aspectFit" binderror="onIconGridImageError" data-index="{{index}}" />
+            </view>
+            <text class="icon-grid-name">{{item.name}}</text>
+          </view>
+        </view>
+        <view class="icon-grid-footer" wx:if="{{iconLibraryDisplayedItems.length && iconLibraryHasMore}}">上拉加载更多...</view>
+        <view class="icon-grid-footer" wx:if="{{iconLibraryDisplayedItems.length && !iconLibraryHasMore}}">已加载全部</view>
+        <view class="icon-grid-empty" wx:if="{{!iconLibraryDisplayedItems.length}}">未找到匹配图标</view>
+      </scroll-view>
+    </view>
+  </view>
+</view>

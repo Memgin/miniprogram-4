@@ -1,8 +1,24 @@
 <view class="container {{lockScroll ? 'lock-scroll' : ''}}">
+  <view class="hero-card">
+    <view class="hero-title-row">
+      <view>
+        <view class="hero-title">主页汇率工作台</view>
+        <view class="hero-subtitle">决定首页显示哪些实时汇率，并支持拖拽排序和 AI 波动监测。</view>
+      </view>
+      <view class="hero-badge">{{showingRates.length}} 项展示中</view>
+    </view>
+    <view class="hero-actions">
+      <button class="hero-action-btn hero-action-primary" bindtap="initAllRates">刷新实时汇率</button>
+      <button class="hero-action-btn" bindtap="resetDefaultRates">恢复默认</button>
+    </view>
+    <view class="hero-tip">长按卡片后上下拖动可调整首页展示顺序，轻点卡片可移出首页。</view>
+  </view>
+
   <view class="top-bar"></view>
 
   <view class="section">
     <view class="section-title">当前主页展示的汇率</view>
+    <view class="section-subtitle">这些币种会直接出现在首页实时汇率卡片中。</view>
     <view class="card-list">
       <view 
         class="rate-card {{item.dragging ? 'dragging' : ''}}"
@@ -37,6 +53,7 @@
 
   <view class="section">
     <view class="section-title optional-title">可选添加至主页的汇率</view>
+    <view class="section-subtitle">点击即可加入首页展示，不会影响实时汇率数据源。</view>
     <view class="card-list">
       <view 
         class="rate-card"

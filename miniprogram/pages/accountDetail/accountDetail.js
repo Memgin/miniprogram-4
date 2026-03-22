@@ -19,6 +19,10 @@ Page({
     cardInfo: {},
     currencyList: [],
     totalCny: '0.00',
+    heroAccountCount: 0,
+    heroTopExposureCode: '',
+    heroTopExposureText: '',
+    heroLastSnapshotText: '',
     ec: { lazyLoad: true },
     ecTrend: { lazyLoad: true },
     ecForecast: { lazyLoad: true },
@@ -130,12 +134,27 @@ Page({
     app.globalData.exchangeRates = rates;
     wx.setStorageSync('exchangeRates', rates);
     var totalCny = this.calcCardCnyTotal(currencyList, rates);
+    var exposures = currencyList.map(item => {
+      var code = String(item.code || '').toUpperCase();
+      var rate = (code === 'CNY') ? 1 : (rates[code] || rates[code.toLowerCase()] || 0);
+      return {
+        code: code,
+        cnyValue: Number(((parseFloat(item.amount) || 0) * rate).toFixed(2))
+      };
+    }).sort((left, right) => right.cnyValue - left.cnyValue);
+    var topExposure = exposures[0] || null;
+    var history = Array.isArray(targetCard.history) ? targetCard.history : [];
+    var latestSnapshot = history.length ? String(history[history.length - 1].date || '') : '';
 
     return new Promise((resolve) => {
       this.setData({
         cardInfo: targetCard,
         currencyList: currencyList,
-        totalCny: totalCny.toFixed(2)
+        totalCny: totalCny.toFixed(2),
+        heroAccountCount: currencyList.length,
+        heroTopExposureCode: topExposure ? topExposure.code : '',
+        heroTopExposureText: topExposure ? ('¥' + topExposure.cnyValue.toFixed(2)) : '暂无敞口',
+        heroLastSnapshotText: latestSnapshot || '暂无历史快照'
       }, () => { resolve(); });
     });
   },
@@ -912,6 +931,25 @@ Page({
     app.globalData.biometricEnabled = !this.data.biometricEnabled;
     if (app.sync) app.sync();
     this.syncSecurityStateFromGlobal();
+  },
+
+  copyCardSummary: function() {
+    var cardName = String((this.data.cardInfo && this.data.cardInfo.name) || '未命名银行卡');
+    var lines = [
+      '=== 单卡资产摘要 ===',
+      '账户：' + cardName,
+      '人民币总计：¥' + String(this.data.totalCny || '0.00'),
+      '币种账户数：' + String((this.data.currencyList || []).length)
+    ];
+    (this.data.currencyList || []).forEach((item) => {
+      lines.push((this.data.currencyMap[item.code] || String(item.code || '').toUpperCase()) + '：' + String(item.amount || '0.00'));
+    });
+    wx.setClipboardData({
+      data: lines.join('\n'),
+      success: function() {
+        wx.showToast({ title: '摘要已复制', icon: 'success' });
+      }
+    });
   },
 
   _updateAndSync: async function(newBankCards, successMsg) {

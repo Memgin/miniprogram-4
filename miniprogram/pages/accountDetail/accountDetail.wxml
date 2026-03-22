@@ -1,24 +1,47 @@
 <view class="container">
-  <view class="header" bindtap="showEditNameModal">
-    <view class="card-name-title">{{cardInfo.name}}</view>
-  </view>
-
-  <view class="detail-security-bar">
-    <view class="detail-security-copy">
-      <view class="detail-security-title">金额隐私</view>
-      <view class="detail-security-subtitle">{{privacyMode ? '当前为隐藏模式' : '当前为显示模式'}}</view>
-    </view>
-    <view class="detail-eye-toggle" bindtap="togglePrivacyMode" aria-label="切换金额显示">
-      <view class="detail-eye detail-eye-{{privacyMode ? 'off' : 'on'}}">
-        <view class="detail-eye-pupil"></view>
-        <view class="detail-eye-strike" wx:if="{{privacyMode}}"></view>
+  <view class="detail-hero card">
+    <view class="detail-hero-top">
+      <view class="detail-hero-main" bindtap="showEditNameModal">
+        <view class="detail-hero-title">{{cardInfo.name}}</view>
+        <view class="detail-hero-subtitle">单卡视图会同步展示这张卡的总资产、风险雷达、趋势和未来敏感度预测。</view>
+      </view>
+      <view class="detail-eye-toggle" bindtap="togglePrivacyMode" aria-label="切换金额显示">
+        <view class="detail-eye detail-eye-{{privacyMode ? 'off' : 'on'}}">
+          <view class="detail-eye-pupil"></view>
+          <view class="detail-eye-strike" wx:if="{{privacyMode}}"></view>
+        </view>
       </view>
     </view>
-  </view>
 
-  <view class="total-card card" wx:if="{{totalCny > 0}}">
-    <view class="card-title">该卡人民币总计</view>
-    <view class="total-amount" style="color: #e53935;">{{privacyMode ? '***' : '¥' + totalCny}}</view>
+    <view class="detail-hero-metrics">
+      <view class="detail-hero-metric">
+        <view class="detail-hero-label">人民币总计</view>
+        <view class="detail-hero-value">{{privacyMode ? '***' : '¥' + totalCny}}</view>
+      </view>
+      <view class="detail-hero-metric">
+        <view class="detail-hero-label">币种账户</view>
+        <view class="detail-hero-value">{{heroAccountCount}} 项</view>
+      </view>
+      <view class="detail-hero-metric">
+        <view class="detail-hero-label">头部敞口</view>
+        <view class="detail-hero-value">{{heroTopExposureCode || '暂无'}}</view>
+        <view class="detail-hero-note">{{privacyMode ? '金额已隐藏' : heroTopExposureText}}</view>
+      </view>
+    </view>
+
+    <view class="detail-hero-actions">
+      <button class="detail-hero-btn detail-hero-btn-primary" bindtap="showAddCurrencyModal">新增币种</button>
+      <button class="detail-hero-btn" bindtap="showEditNameModal">修改名称</button>
+      <button class="detail-hero-btn" bindtap="copyCardSummary">复制摘要</button>
+    </view>
+
+    <view class="detail-hero-foot">
+      <view class="detail-security-copy">
+        <view class="detail-security-title">金额隐私</view>
+        <view class="detail-security-subtitle">{{privacyMode ? '当前为隐藏模式' : '当前为显示模式'}} · 最近快照 {{heroLastSnapshotText}}</view>
+      </view>
+      <view class="detail-security-mini {{biometricEnabled ? 'detail-security-mini-active' : ''}}" bindtap="toggleBiometricEnabled">{{biometricEnabled ? 'Bio On' : 'Bio Off'}}</view>
+    </view>
   </view>
 
   <view class="card" wx:if="{{cardRiskSummary || isCardRiskLoading}}">

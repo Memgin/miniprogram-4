@@ -12,7 +12,8 @@ Page({
     currentIndex: -1,
     startY: 0,
     lockScroll: false,
-    isAnalyzing: false // 新增：防止重复点击
+    isAnalyzing: false, // 新增：防止重复点击
+    defaultRateCodes: ['USD', 'HKD', 'EUR', 'JPY']
   },
 
   onLoad() {
@@ -210,6 +211,20 @@ Page({
     const newOptionalRates = this.data.optionalRates.filter(item => item.code !== code);
     this.setData({ showingRates: newShowingRates, optionalRates: newOptionalRates });
     this.updateSelectedStorage(newShowingRates);
+  },
+
+  resetDefaultRates() {
+    const defaultCodes = this.data.defaultRateCodes || ['USD', 'HKD', 'EUR', 'JPY'];
+    const currentPool = [...this.data.showingRates, ...this.data.optionalRates];
+    const map = currentPool.reduce((acc, item) => {
+      acc[item.code] = item;
+      return acc;
+    }, {});
+    const showingRates = defaultCodes.map(code => map[code]).filter(Boolean);
+    const optionalRates = currentPool.filter(item => !defaultCodes.includes(item.code));
+    this.setData({ showingRates, optionalRates, lockScroll: false, isDragging: false, currentIndex: -1 });
+    this.updateSelectedStorage(showingRates);
+    this.showToast('已恢复默认展示');
   },
 
   /**

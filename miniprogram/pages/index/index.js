@@ -3,6 +3,68 @@ import * as echarts from '../../components/ec-canvas/echarts';
 const app = getApp();
 const exchangeRateUtil = require('../../utils/exchangeRate.js');
 
+const GOAL_RISK_OPTIONS = [
+  { value: 'steady', label: '稳健' },
+  { value: 'balanced', label: '平衡' },
+  { value: 'growth', label: '进取' }
+];
+
+function createGoalBucketId() {
+  return `goal_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function addMonths(date, months) {
+  const next = new Date(date.getTime());
+  next.setMonth(next.getMonth() + months);
+  return next;
+}
+
+function formatDateInput(date) {
+  if (!(date instanceof Date) || Number.isNaN(date.getTime())) return '';
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
+
+function normalizeGoalBucket(goal, index = 0) {
+  const targetAmount = Number(goal && goal.targetAmount);
+  const preferredCodes = Array.isArray(goal && goal.preferredCodes)
+    ? goal.preferredCodes.map(code => String(code || '').toUpperCase()).filter(Boolean)
+    : [];
+  return {
+    id: String((goal && goal.id) || createGoalBucketId()),
+    name: String((goal && goal.name) || `目标${index + 1}`),
+    targetAmount: targetAmount > 0 ? Number(targetAmount.toFixed(2)) : 0,
+    targetDate: String((goal && goal.targetDate) || formatDateInput(addMonths(new Date(), 12))),
+    riskLevel: String((goal && goal.riskLevel) || 'balanced'),
+    preferredCodes: Array.from(new Set(preferredCodes)).slice(0, 4)
+  };
+}
+
+function deriveGoalBuckets(goalBuckets, depositTarget) {
+  const normalized = (Array.isArray(goalBuckets) ? goalBuckets : [])
+    .map((goal, index) => normalizeGoalBucket(goal, index))
+    .filter(goal => goal.targetAmount > 0);
+  if (normalized.length) return normalized;
+  const legacyAmount = Number(depositTarget || 0);
+  if (!(legacyAmount > 0)) return [];
+  return [normalizeGoalBucket({
+    id: 'legacy_goal_bucket',
+    name: '综合储备目标',
+    targetAmount: legacyAmount,
+    targetDate: formatDateInput(addMonths(new Date(), 12)),
+    riskLevel: 'balanced',
+    preferredCodes: ['CNY', 'USD']
+  })];
+}
+
+function sortGoalBuckets(goalBuckets) {
+  return [...goalBuckets].sort((left, right) => {
+    const leftTime = left.targetDate ? new Date(left.targetDate).getTime() : Number.MAX_SAFE_INTEGER;
+    const rightTime = right.targetDate ? new Date(right.targetDate).getTime() : Number.MAX_SAFE_INTEGER;
+    if (leftTime !== rightTime) return leftTime - rightTime;
+    return String(left.name || '').localeCompare(String(right.name || ''));
+  });
+}
+
 function initChart(canvas, width, height, dpr) {
   const chart = echarts.init(canvas, null, {
     width,
@@ -24,10 +86,17 @@ Page({
     totalCny: '0.00',
     updateTime: '',
     depositTarget: '',
-    targetProgress: 0,
-    targetDiff: 0,
-    safeProgress: 0,
-    progressStyle: 'width: 0%;',
+    goalBuckets: [],
+    goalOverview: null,
+    showGoalEditor: false,
+    editingGoalId: '',
+    goalEditorName: '',
+    goalEditorAmount: '',
+    goalEditorDate: formatDateInput(addMonths(new Date(), 12)),
+    goalEditorRiskIndex: 1,
+    goalEditorSelectedCodes: [],
+    goalRiskOptions: GOAL_RISK_OPTIONS,
+    goalCurrencyOptions: [],
     moveDiff: 0,
     isLoading: false,
     isAnalyzing: false,
@@ -96,6 +165,7 @@ Page({
 
   onLoad() {
     this.setData({
+      goalCurrencyOptions: this.buildGoalCurrencyOptions(),
       stressCurrencyOptions: this.buildStressCurrencyOptions(),
       alertCurrencyOptions: this.getAlertCurrencyOptions(),
       stressEditorRows: [this.createStressEditorRow()]
@@ -339,23 +409,118 @@ Page({
    * 5. 存款目标与进度
    */
   calculateTargetProgress() {
-    const { depositTarget, totalCny } = this.data;
-    const total = parseFloat(totalCny) || 0;
-    const target = parseFloat(depositTarget) || 0;
-    
-    if (target <= 0) {
-      this.setData({ targetProgress: 0, progressStyle: 'width: 0%;', targetDiff: 0 });
+    const total = parseFloat(this.data.totalCny) || 0;
+    const goalBuckets = deriveGoalBuckets(app.globalData.goalBuckets, app.globalData.depositTarget);
+    const totalTarget = goalBuckets.reduce((sum, goal) => sum + Number(goal.targetAmount || 0), 0);
+
+    if (!goalBuckets.length || totalTarget <= 0) {
+      this.setData({
+        depositTarget: '',
+        goalBuckets: [],
+        goalOverview: null
+      });
       return;
     }
-    
-    const progress = (total / target) * 100;
-    const safeProgress = Math.min(Math.max(progress, 0), 100);
-    
+
+    const riskWeightMap = { steady: 1.18, balanced: 1, growth: 0.88 };
+    const currencyHoldings = (this.data.currencySummary || []).reduce((acc, item) => {
+      acc[String(item.code || '').toUpperCase()] = Number(item.cny || 0);
+      return acc;
+    }, {});
+    const rawScores = goalBuckets.map((goal) => {
+      const daysLeft = goal.targetDate
+        ? Math.max(1, Math.ceil((new Date(goal.targetDate).getTime() - Date.now()) / (24 * 60 * 60 * 1000)))
+        : 365;
+      const urgencyWeight = daysLeft <= 90 ? 1.35 : daysLeft <= 180 ? 1.18 : daysLeft <= 365 ? 1.05 : 0.92;
+      const preferredCoverage = (goal.preferredCodes || []).reduce((sum, code) => sum + Number(currencyHoldings[code] || 0), 0);
+      const coverageBoost = preferredCoverage > 0 ? 1.08 : 0.96;
+      const score = Number(goal.targetAmount || 0) * urgencyWeight * (riskWeightMap[goal.riskLevel] || 1) * coverageBoost;
+      return score > 0 ? score : Number(goal.targetAmount || 0);
+    });
+
+    const allocations = new Array(goalBuckets.length).fill(0);
+    let remaining = total;
+    let activeIndexes = goalBuckets.map((_, index) => index);
+
+    while (remaining > 0.01 && activeIndexes.length) {
+      const scoreSum = activeIndexes.reduce((sum, index) => sum + rawScores[index], 0) || activeIndexes.length;
+      const nextActive = [];
+      activeIndexes.forEach((index) => {
+        const goal = goalBuckets[index];
+        const capacity = Number(goal.targetAmount || 0) - allocations[index];
+        if (capacity <= 0.01) return;
+        const share = remaining * ((rawScores[index] || 1) / scoreSum);
+        const applied = Math.min(capacity, share);
+        if (applied > 0) {
+          allocations[index] += applied;
+          remaining -= applied;
+        }
+        if ((Number(goal.targetAmount || 0) - allocations[index]) > 0.01) {
+          nextActive.push(index);
+        }
+      });
+      if (nextActive.length === activeIndexes.length) break;
+      activeIndexes = nextActive;
+    }
+
+    if (remaining > 0.01 && goalBuckets.length) {
+      const leadIndex = rawScores.indexOf(Math.max(...rawScores));
+      allocations[Math.max(0, leadIndex)] += remaining;
+    }
+
+    const decoratedGoals = sortGoalBuckets(goalBuckets.map((goal, index) => {
+      const allocatedAmount = Number((allocations[index] || 0).toFixed(2));
+      const progress = goal.targetAmount > 0 ? (allocatedAmount / goal.targetAmount) * 100 : 0;
+      const safeProgress = Math.max(0, Math.min(progress, 100));
+      const diff = Number((goal.targetAmount - allocatedAmount).toFixed(2));
+      const daysLeft = goal.targetDate
+        ? Math.ceil((new Date(goal.targetDate).getTime() - Date.now()) / (24 * 60 * 60 * 1000))
+        : null;
+      const monthlyNeed = diff > 0 && daysLeft && daysLeft > 0 ? diff / Math.max(1, daysLeft / 30) : 0;
+      const preferredText = goal.preferredCodes && goal.preferredCodes.length ? goal.preferredCodes.join(' / ') : '未限定币种';
+      const riskMeta = GOAL_RISK_OPTIONS.find(item => item.value === goal.riskLevel) || GOAL_RISK_OPTIONS[1];
+      return {
+        ...goal,
+        targetAmountText: goal.targetAmount.toFixed(2),
+        allocatedAmount,
+        allocatedAmountText: allocatedAmount.toFixed(2),
+        progressText: progress.toFixed(1),
+        safeProgress,
+        progressStyle: `width: ${safeProgress}%;`,
+        diff,
+        diffText: Math.abs(diff).toFixed(2),
+        monthlyNeedText: monthlyNeed > 0 ? monthlyNeed.toFixed(2) : '0.00',
+        preferredText,
+        riskLabel: riskMeta.label,
+        daysLeft,
+        deadlineText: daysLeft == null ? '未设置日期' : daysLeft < 0 ? `已逾期 ${Math.abs(daysLeft)} 天` : daysLeft === 0 ? '今天到期' : `${daysLeft} 天后`,
+        tone: diff <= 0 ? 'done' : daysLeft != null && daysLeft < 0 ? 'late' : safeProgress >= 65 ? 'near' : 'active'
+      };
+    }));
+
+    const completedCount = decoratedGoals.filter(item => Number(item.diff) <= 0).length;
+    const coveredAmount = decoratedGoals.reduce((sum, goal) => {
+      return sum + Math.min(Number(goal.allocatedAmount || 0), Number(goal.targetAmount || 0));
+    }, 0);
+    const completionPct = totalTarget > 0 ? (coveredAmount / totalTarget) * 100 : 0;
+    const nextDueGoal = decoratedGoals.find(item => Number(item.diff) > 0) || decoratedGoals[0];
+
     this.setData({
-      targetProgress: progress.toFixed(1),
-      targetDiff: (target - total).toFixed(2),
-      safeProgress,
-      progressStyle: `width: ${safeProgress}%;`
+      depositTarget: totalTarget.toFixed(2),
+      goalBuckets: decoratedGoals,
+      goalOverview: {
+        totalTarget: totalTarget.toFixed(2),
+        coveredAmount: coveredAmount.toFixed(2),
+        totalSurplus: Math.max(0, total - totalTarget).toFixed(2),
+        completionText: completionPct.toFixed(1),
+        completedCount,
+        totalCount: decoratedGoals.length,
+        nextDueName: nextDueGoal ? nextDueGoal.name : '未设置',
+        nextDueHint: nextDueGoal ? `${nextDueGoal.deadlineText}，月度缺口 ¥${nextDueGoal.monthlyNeedText}` : '新增目标后可自动拆解优先级',
+        strategyText: decoratedGoals.length > 1
+          ? `当前资产按期限、风险和币种偏好拆分到 ${decoratedGoals.length} 个目标桶。`
+          : '当前为单目标模式，新增更多目标后会自动生成分层进度。'
+      }
     });
   },
 
@@ -376,6 +541,18 @@ Page({
     }));
     options.unshift({ code: 'ALL', name: 'ALL · 全部币种' });
     return options;
+  },
+
+  buildGoalCurrencyOptions(selectedCodes = []) {
+    const selectedSet = new Set((selectedCodes || []).map(code => String(code || '').toUpperCase()));
+    return Object.keys(this.data.currencyConfig || {}).map(code => {
+      const upperCode = String(code || '').toUpperCase();
+      return {
+        code: upperCode,
+        name: this.data.currencyConfig[code].name,
+        selected: selectedSet.has(upperCode)
+      };
+    });
   },
 
   createStressEditorRow(code = 'USD', pct = '') {
@@ -861,8 +1038,10 @@ Page({
   },
 
   syncStressStateFromGlobal() {
+    const goalBuckets = deriveGoalBuckets(app.globalData.goalBuckets, app.globalData.depositTarget);
     this.setData({
       depositTarget: app.globalData.depositTarget,
+      goalBuckets,
       savedStressScenarios: this.normalizeSavedStressScenarios(app.globalData.savedStressScenarios),
       stressResult: this.normalizeStressResult(app.globalData.latestStressResult),
       stressCurrencyOptions: this.buildStressCurrencyOptions(),
@@ -875,6 +1054,7 @@ Page({
       privacyMode: !!app.globalData.privacyMode,
       biometricEnabled: !!app.globalData.biometricEnabled
     }, () => {
+      this.calculateTargetProgress();
       this.updateRiskFocusSuggestion();
       this.refreshRiskCharts();
     });
@@ -1480,6 +1660,135 @@ Page({
 
   noop() {},
 
+  openGoalEditor(e) {
+    const goalId = e && e.currentTarget ? String(e.currentTarget.dataset.id || '') : '';
+    const goalBuckets = deriveGoalBuckets(app.globalData.goalBuckets, app.globalData.depositTarget);
+    const currentGoal = goalBuckets.find(item => item.id === goalId);
+    const defaultGoal = normalizeGoalBucket({
+      name: '',
+      targetAmount: '',
+      targetDate: formatDateInput(addMonths(new Date(), 12)),
+      riskLevel: 'balanced',
+      preferredCodes: ['CNY']
+    }, goalBuckets.length);
+    const editingGoal = currentGoal || defaultGoal;
+    const goalEditorRiskIndex = Math.max(0, GOAL_RISK_OPTIONS.findIndex(item => item.value === editingGoal.riskLevel));
+    const goalEditorSelectedCodes = currentGoal && currentGoal.preferredCodes.length ? currentGoal.preferredCodes : ['CNY'];
+    this.setData({
+      showGoalEditor: true,
+      editingGoalId: currentGoal ? currentGoal.id : '',
+      goalEditorName: currentGoal ? currentGoal.name : '',
+      goalEditorAmount: currentGoal ? String(currentGoal.targetAmount) : '',
+      goalEditorDate: editingGoal.targetDate,
+      goalEditorRiskIndex,
+      goalEditorSelectedCodes,
+      goalCurrencyOptions: this.buildGoalCurrencyOptions(goalEditorSelectedCodes)
+    });
+  },
+
+  closeGoalEditor() {
+    this.setData({
+      showGoalEditor: false,
+      editingGoalId: '',
+      goalEditorName: '',
+      goalEditorAmount: '',
+      goalEditorDate: formatDateInput(addMonths(new Date(), 12)),
+      goalEditorRiskIndex: 1,
+      goalEditorSelectedCodes: [],
+      goalCurrencyOptions: this.buildGoalCurrencyOptions([])
+    });
+  },
+
+  onGoalEditorNameInput(e) {
+    this.setData({ goalEditorName: e.detail.value });
+  },
+
+  onGoalEditorAmountInput(e) {
+    this.setData({ goalEditorAmount: e.detail.value });
+  },
+
+  onGoalEditorDateChange(e) {
+    this.setData({ goalEditorDate: e.detail.value });
+  },
+
+  onGoalEditorRiskChange(e) {
+    this.setData({ goalEditorRiskIndex: Number(e.detail.value || 0) });
+  },
+
+  toggleGoalEditorCurrency(e) {
+    const code = String(e.currentTarget.dataset.code || '').toUpperCase();
+    if (!code) return;
+    const selected = new Set(this.data.goalEditorSelectedCodes || []);
+    if (selected.has(code)) {
+      selected.delete(code);
+    } else if (selected.size < 4) {
+      selected.add(code);
+    }
+    const nextSelected = Array.from(selected);
+    this.setData({
+      goalEditorSelectedCodes: nextSelected,
+      goalCurrencyOptions: this.buildGoalCurrencyOptions(nextSelected)
+    });
+  },
+
+  persistGoalBuckets(goalBuckets, successTitle) {
+    const nextGoals = sortGoalBuckets(goalBuckets.map((goal, index) => normalizeGoalBucket(goal, index)).filter(goal => goal.targetAmount > 0));
+    app.globalData.goalBuckets = nextGoals;
+    app.globalData.depositTarget = nextGoals.reduce((sum, goal) => sum + Number(goal.targetAmount || 0), 0).toFixed(2);
+    app.sync();
+    this.calculateTargetProgress();
+    if (successTitle) {
+      wx.showToast({ title: successTitle, icon: 'success' });
+    }
+  },
+
+  saveGoalBucket() {
+    const name = String(this.data.goalEditorName || '').trim();
+    const targetAmount = Number(this.data.goalEditorAmount || 0);
+    if (!name) {
+      wx.showToast({ title: '请输入目标名称', icon: 'none' });
+      return;
+    }
+    if (!(targetAmount > 0)) {
+      wx.showToast({ title: '请输入有效目标金额', icon: 'none' });
+      return;
+    }
+    const riskMeta = GOAL_RISK_OPTIONS[Number(this.data.goalEditorRiskIndex || 0)] || GOAL_RISK_OPTIONS[1];
+    const goalBuckets = deriveGoalBuckets(app.globalData.goalBuckets, app.globalData.depositTarget);
+    const nextGoal = normalizeGoalBucket({
+      id: this.data.editingGoalId || createGoalBucketId(),
+      name,
+      targetAmount,
+      targetDate: this.data.goalEditorDate || formatDateInput(addMonths(new Date(), 12)),
+      riskLevel: riskMeta.value,
+      preferredCodes: this.data.goalEditorSelectedCodes || []
+    }, goalBuckets.length);
+    const existingIndex = goalBuckets.findIndex(item => item.id === nextGoal.id);
+    const nextGoals = existingIndex >= 0
+      ? goalBuckets.map(item => item.id === nextGoal.id ? nextGoal : item)
+      : [...goalBuckets, nextGoal];
+    this.persistGoalBuckets(nextGoals, existingIndex >= 0 ? '目标已更新' : '目标已新增');
+    this.closeGoalEditor();
+  },
+
+  deleteGoalBucket(e) {
+    const goalId = String(e.currentTarget.dataset.id || this.data.editingGoalId || '');
+    if (!goalId) return;
+    const goalBuckets = deriveGoalBuckets(app.globalData.goalBuckets, app.globalData.depositTarget);
+    const currentGoal = goalBuckets.find(item => item.id === goalId);
+    if (!currentGoal) return;
+    wx.showModal({
+      title: '删除目标桶',
+      content: `确认删除“${currentGoal.name}”吗？`,
+      success: (res) => {
+        if (!res.confirm) return;
+        const nextGoals = goalBuckets.filter(item => item.id !== goalId);
+        this.persistGoalBuckets(nextGoals, '目标已删除');
+        this.closeGoalEditor();
+      }
+    });
+  },
+
   buildStressResultPayload(scenario, baseTotal, stressedTotal, deltaTotal, pnlPct, impactByCurrency) {
     const roundedBaseTotal = Number(baseTotal.toFixed(2));
     const roundedStressedTotal = Number(stressedTotal.toFixed(2));
@@ -1562,21 +1871,7 @@ Page({
   },
 
   setDepositTarget() {
-    wx.showModal({
-      title: '设置目标金额',
-      editable: true,
-      placeholderText: this.data.depositTarget || '请输入目标金额',
-      success: (res) => {
-        if (res.confirm && res.content) {
-          const val = parseFloat(res.content);
-          if (isNaN(val)) return;
-          app.globalData.depositTarget = val.toFixed(2);
-          app.sync(); 
-          this.setData({ depositTarget: val.toFixed(2) });
-          this.calculateTargetProgress();
-        }
-      }
-    });
+    this.openGoalEditor();
   },
 
   /**

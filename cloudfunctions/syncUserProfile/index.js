@@ -9,6 +9,7 @@ exports.main = async (event, context) => {
   const {
     bankCards,
     depositTarget,
+    goalBuckets,
     selectedRateCodes,
     savedStressScenarios,
     latestStressResult,
@@ -17,6 +18,9 @@ exports.main = async (event, context) => {
     lastAlertCheckAt,
     latestRiskSummary,
     latestAdvice,
+    fxOrderPlans,
+    cashflowPlans,
+    maturityPlans,
     privacyMode,
     biometricEnabled
   } = event 
@@ -29,6 +33,7 @@ exports.main = async (event, context) => {
         // 确保数据为数组/字符串，防止 null 导致前端崩溃
         bankCards: bankCards || [],
         depositTarget: depositTarget || '',
+        goalBuckets: Array.isArray(goalBuckets) ? goalBuckets : [],
         // 首页和详情页统一按小写币种代码处理，避免不同页面大小写混用
         selectedRateCodes: (selectedRateCodes || ['usd', 'hkd']).map(c => String(c || '').toLowerCase()),
         savedStressScenarios: Array.isArray(savedStressScenarios) ? savedStressScenarios : [],
@@ -38,6 +43,9 @@ exports.main = async (event, context) => {
         lastAlertCheckAt: lastAlertCheckAt || '',
         latestRiskSummary: latestRiskSummary || null,
         latestAdvice: latestAdvice || null,
+        fxOrderPlans: Array.isArray(fxOrderPlans) ? fxOrderPlans : [],
+        cashflowPlans: Array.isArray(cashflowPlans) ? cashflowPlans : [],
+        maturityPlans: Array.isArray(maturityPlans) ? maturityPlans : [],
         privacyMode: !!privacyMode,
         biometricEnabled: !!biometricEnabled,
         updateTime: db.serverDate() // 使用服务器时间戳

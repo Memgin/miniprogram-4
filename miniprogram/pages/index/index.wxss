@@ -1,12 +1,10 @@
-/* 全局容器：更柔和的背景，统一视觉基调 */
 .container {
   padding: 30rpx;
   min-height: 100vh;
-  background-color: #f5f7fa; /* 替代刺眼的#f8f8f8 */
+  background-color: #f5f7fa;
   font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
 }
 
-/* 操作栏：渐变按钮+细腻阴影+按压动效 */
 .operate-bar {
   display: flex;
   gap: 20rpx;
@@ -140,7 +138,6 @@
   box-shadow: 0 2rpx 8rpx rgba(250, 173, 20, 0.15);
 }
 
-/* 通用卡片：全页面统一质感（汇率/汇总/总计） */
 .rate-card, .summary-card {
   padding: 32rpx;
   margin-bottom: 24rpx;
@@ -150,7 +147,6 @@
   border: 1px solid rgba(255, 255, 255, 0.9);
   position: relative;
 }
-/* 总计卡片单独强化：突出核心数据 */
 .total-card {
   padding: 40rpx 36rpx 0rpx;
   margin-bottom: 24rpx;
@@ -166,13 +162,165 @@
   cursor: pointer;
 }
 
+.total-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20rpx;
+}
+
+.total-card-copy {
+  flex: 1;
+  min-width: 0;
+}
+
+.total-card-title {
+  margin-bottom: 10rpx;
+}
+
+.total-card-subtitle {
+  font-size: 24rpx;
+  line-height: 1.6;
+  color: #64748b;
+}
+
+.total-card-security {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  flex-shrink: 0;
+}
+
+.total-card-metrics {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18rpx;
+  margin-top: 28rpx;
+}
+
+.total-card-metric {
+  padding: 24rpx 26rpx;
+  border-radius: 20rpx;
+  background: rgba(241, 245, 249, 0.9);
+}
+
+.total-card-metric-primary {
+  background: linear-gradient(135deg, #f8fafc, #eef6ff);
+}
+
+.total-card-metric-clickable {
+  cursor: pointer;
+}
+
+.total-card-metric-clickable:active {
+  transform: translateY(2rpx);
+}
+
+.total-card-metric-label {
+  font-size: 22rpx;
+  color: #64748b;
+}
+
+.total-card-metric-value {
+  margin-top: 10rpx;
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.total-card-metric-note {
+  margin-top: 8rpx;
+  font-size: 22rpx;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+.total-card-progress {
+  margin-top: 18rpx;
+  padding-top: 18rpx;
+  border-top: 1rpx solid rgba(148, 163, 184, 0.18);
+}
+
+.total-card-progress-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+}
+
+.total-card-progress-label {
+  font-size: 22rpx;
+  color: #64748b;
+}
+
+.total-card-progress-value {
+  margin-top: 8rpx;
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.total-card-progress-body {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16rpx;
+  margin-top: 8rpx;
+}
+
+.total-card-progress-side {
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.total-card-progress-note {
+  margin-top: 0;
+  line-height: 1.4;
+}
+
+.total-card-actions {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 24rpx;
+}
+
+.top-action-btn {
+  flex: 1;
+  height: 78rpx;
+  line-height: 78rpx;
+  border-radius: 18rpx;
+  background: #e8f0fb;
+  color: #12314c;
+  font-size: 24rpx;
+  font-weight: 600;
+  border: 1rpx solid #d8e4f3;
+}
+
+.top-action-btn::after {
+  border: none;
+}
+
+.total-card-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 22rpx;
+  margin-top: 20rpx;
+}
+
+.total-card-links-inline {
+  margin-top: 20rpx;
+}
+
+.total-card-link {
+  font-size: 24rpx;
+  color: #175cd3;
+}
+
 .total-card-entry {
   margin-top: 6rpx;
-  text-align: center;
   font-size: 24rpx;
   color: #64748b;
 }
-/* 总计卡片左侧装饰条：提升层次感 */
 .total-card::before {
   content: "";
   position: absolute;
@@ -185,7 +333,6 @@
   border-bottom-left-radius: 20rpx;
 }
 
-/* 卡片标题：统一字体/间距/颜色 */
 .card-title {
   font-size: 32rpx;
   font-weight: 600;
@@ -195,7 +342,20 @@
   line-height: 1.3;
 }
 
-/* 汇率/汇总列表：更精致的排版和分割线 */
+@media (max-width: 680rpx) {
+  .total-card-top,
+  .total-card-actions,
+  .total-card-security,
+  .empty-workspace-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .total-card-metrics {
+    grid-template-columns: 1fr;
+  }
+}
+
 .rate-item, .summary-item {
   display: flex;
   justify-content: space-between;
@@ -351,6 +511,76 @@
   color: #94a3b8;
   font-size: 28rpx;
   line-height: 1.5;
+}
+
+.empty-workspace {
+  margin-top: 28rpx;
+  padding: 42rpx 32rpx;
+  text-align: center;
+  background:
+    radial-gradient(circle at top right, rgba(37, 99, 235, 0.12), transparent 28%),
+    rgba(255, 255, 255, 0.94);
+}
+
+.empty-workspace-badge {
+  display: inline-flex;
+  padding: 10rpx 18rpx;
+  border-radius: 999rpx;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 22rpx;
+  font-weight: 700;
+}
+
+.empty-workspace-title {
+  margin-top: 20rpx;
+  font-size: 34rpx;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.empty-workspace-text {
+  margin-top: 14rpx;
+  font-size: 24rpx;
+  line-height: 1.7;
+  color: #64748b;
+}
+
+.empty-workspace-actions {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 26rpx;
+}
+
+.empty-workspace-btn {
+  flex: 1;
+  height: 78rpx;
+  line-height: 78rpx;
+  border-radius: 18rpx;
+  background: #e8f0fb;
+  color: #12314c;
+  font-size: 24rpx;
+  font-weight: 600;
+  border: 1rpx solid #d8e4f3;
+}
+
+.empty-workspace-btn-primary {
+  background: linear-gradient(135deg, #12314c, #175cd3);
+  color: #ffffff;
+  border: none;
+}
+
+.empty-workspace-links {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 24rpx;
+  margin-top: 20rpx;
+}
+
+.empty-workspace-link {
+  font-size: 24rpx;
+  color: #175cd3;
 }
 
 /* 刷新按钮：和其他按钮统一圆角/动效 */
@@ -645,6 +875,7 @@
   border-top-right-radius: 28rpx;
   padding: 28rpx 28rpx 36rpx;
   box-sizing: border-box;
+  overflow-y: auto;
 }
 
 .alert-editor-panel {
@@ -672,8 +903,23 @@
 }
 
 .stress-editor-close {
+  flex-shrink: 0;
+  min-width: 108rpx;
+  padding: 12rpx 18rpx;
+  border-radius: 999rpx;
+  background: #f8fafc;
+  border: 1rpx solid #dbe3ee;
   font-size: 24rpx;
-  color: #64748b;
+  font-weight: 600;
+  line-height: 1;
+  color: #475569;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.stress-editor-close:active {
+  opacity: 0.8;
+  transform: translateY(2rpx);
 }
 
 .stress-editor-field {
@@ -821,6 +1067,32 @@ button::after {
   padding: 16rpx 0 24rpx; /* 上16，下24，减少顶部留白 */
   margin-top: 16rpx;      /* 原来的24rpx，现在减少和上面金额的距离 */
   border-top: 1px dashed #e2e8f0;
+}
+.target-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20rpx;
+}
+.target-head-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #0f172a;
+}
+.target-head-subtitle {
+  margin-top: 8rpx;
+  font-size: 23rpx;
+  line-height: 1.6;
+  color: #64748b;
+}
+.target-head-action {
+  flex-shrink: 0;
+  padding: 10rpx 18rpx;
+  border-radius: 999rpx;
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1rpx solid #bfdbfe;
+  font-size: 24rpx;
 }
 .target-empty {
   font-size: 28rpx;
@@ -1343,13 +1615,103 @@ button::after {
 .target-content {
   margin-top: 12rpx;
 }
-.target-title {
+.goal-overview-card {
+  padding: 22rpx;
+  border-radius: 16rpx;
+  background: linear-gradient(135deg, #fffdf5, #f8fbff);
+  border: 1rpx solid #e5e7eb;
+}
+.goal-overview-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14rpx;
+}
+.goal-overview-item {
+  padding: 16rpx;
+  border-radius: 14rpx;
+  background: rgba(255, 255, 255, 0.82);
+}
+.goal-overview-label {
+  font-size: 22rpx;
+  color: #64748b;
+}
+.goal-overview-value {
+  margin-top: 10rpx;
   font-size: 28rpx;
-  margin-bottom: 20rpx;
-  color: #334155;
+  font-weight: 600;
+  color: #0f172a;
+}
+.goal-overview-note,
+.goal-overview-next {
+  margin-top: 14rpx;
+  font-size: 23rpx;
+  line-height: 1.7;
+  color: #475569;
+}
+.goal-list {
+  margin-top: 18rpx;
   display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+.goal-item {
+  padding: 22rpx;
+  border-radius: 16rpx;
+  background: #f8fafc;
+  border: 1rpx solid #e2e8f0;
+}
+.goal-item-done {
+  background: linear-gradient(135deg, #ecfdf5, #f0fdf4);
+  border-color: #86efac;
+}
+.goal-item-late {
+  background: linear-gradient(135deg, #fff7ed, #fff1f2);
+  border-color: #fdba74;
+}
+.goal-item-near {
+  background: linear-gradient(135deg, #eff6ff, #f8fafc);
+  border-color: #93c5fd;
+}
+.goal-item-top,
+.goal-item-bottom,
+.goal-item-amounts {
+  display: flex;
+  justify-content: space-between;
+  gap: 16rpx;
   align-items: center;
-  gap: 8rpx;
+}
+.goal-item-name {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #0f172a;
+}
+.goal-item-meta {
+  margin-top: 8rpx;
+  font-size: 22rpx;
+  color: #64748b;
+}
+.goal-item-actions {
+  display: flex;
+  gap: 18rpx;
+  flex-shrink: 0;
+}
+.goal-item-link {
+  font-size: 24rpx;
+  color: #2563eb;
+}
+.goal-item-link.danger {
+  color: #dc2626;
+}
+.goal-item-amounts {
+  margin-top: 16rpx;
+  font-size: 24rpx;
+  color: #334155;
+}
+.goal-item-bottom {
+  margin-top: 14rpx;
+  flex-wrap: wrap;
+  font-size: 23rpx;
+  color: #64748b;
 }
 /* 进度条：细+渐变+发光+丝滑动画 */
 .progress-bar {
@@ -1394,6 +1756,64 @@ button::after {
 .edit-target-btn:active {
   background: #e2e8f0;
   transform: scale(0.96);
+}
+.goal-editor-panel {
+  max-height: 85vh;
+}
+
+.goal-editor-selected-count {
+  margin-bottom: 12rpx;
+  font-size: 22rpx;
+  color: #64748b;
+}
+
+.goal-currency-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+.goal-currency-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+  min-width: 110rpx;
+  padding: 12rpx 16rpx;
+  border-radius: 999rpx;
+  background: #ffffff;
+  border: 1rpx solid #d7dee8;
+  text-align: center;
+  font-size: 23rpx;
+  color: #64748b;
+  transition: transform 160ms ease, background 160ms ease, border-color 160ms ease, color 160ms ease;
+}
+
+.goal-currency-chip:active {
+  transform: translateY(2rpx);
+}
+
+.goal-currency-chip-active {
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  border-color: #2563eb;
+  color: #ffffff;
+  box-shadow: 0 8rpx 16rpx rgba(37, 99, 235, 0.18);
+}
+
+.goal-currency-chip-check {
+  font-size: 20rpx;
+  font-weight: 700;
+}
+.goal-editor-hint {
+  margin-top: 12rpx;
+  font-size: 22rpx;
+  line-height: 1.6;
+  color: #94a3b8;
+}
+.goal-editor-delete {
+  margin-top: 20rpx;
+  text-align: center;
+  font-size: 24rpx;
+  color: #dc2626;
 }
 /* 强制转换币种代码为大写，不影响 JS 原始数据 */
 .u-code {

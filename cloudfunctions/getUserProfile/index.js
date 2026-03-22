@@ -15,6 +15,7 @@ exports.main = async (event, context) => {
       data: {
         bankCards: [],
         depositTarget: '',
+        goalBuckets: [],
         selectedRateCodes: ['usd', 'hkd'],
         savedStressScenarios: [],
         latestStressResult: null,
@@ -23,6 +24,9 @@ exports.main = async (event, context) => {
         lastAlertCheckAt: '',
         latestRiskSummary: null,
         latestAdvice: null,
+        fxOrderPlans: [],
+        cashflowPlans: [],
+        maturityPlans: [],
         privacyMode: false,
         biometricEnabled: false
       }

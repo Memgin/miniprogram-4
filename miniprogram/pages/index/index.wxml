@@ -1,42 +1,113 @@
 <view class="container">
-  <!-- <view class="operate-bar">
-    <button class="add-btn" bindtap="gotoAddCard">+ 添加银行卡</button>
-    <button class="export-btn" bindtap="gotoExport" wx:if="{{currencySummary.length > 0}}">导出数据</button>
-  </view> -->
-
-  <view class="security-toolbar card">
-    <view class="security-toolbar-main">
-      <view class="security-eye-btn" bindtap="togglePrivacyMode" aria-label="切换金额显示">
-        <view class="security-eye security-eye-{{privacyMode ? 'off' : 'on'}}">
-          <view class="security-eye-pupil"></view>
-          <view class="security-eye-strike" wx:if="{{privacyMode}}"></view>
-        </view>
+  <view class="total-card card" wx:if="{{totalCny > 0}}">
+    <view class="total-card-top">
+      <view class="total-card-copy">
+        <view class="card-title total-card-title">资产总览</view>
       </view>
-      <view class="security-toolbar-copy">
-        <view class="security-toolbar-title">金额隐私</view>
-        <view class="security-toolbar-subtitle">{{privacyMode ? '已隐藏所有敏感金额' : '当前显示金额明细'}}</view>
+      <view class="total-card-security">
+        <view class="security-eye-btn" bindtap="togglePrivacyMode" aria-label="切换金额显示">
+          <view class="security-eye security-eye-{{privacyMode ? 'off' : 'on'}}">
+            <view class="security-eye-pupil"></view>
+            <view class="security-eye-strike" wx:if="{{privacyMode}}"></view>
+          </view>
+        </view>
+        <view class="security-compact-toggle {{biometricEnabled ? 'security-compact-toggle-active' : ''}}" bindtap="toggleBiometricEnabled">{{biometricEnabled ? 'Bio On' : 'Bio Off'}}</view>
       </view>
     </view>
-    <view class="security-compact-toggle {{biometricEnabled ? 'security-compact-toggle-active' : ''}}" bindtap="toggleBiometricEnabled">{{biometricEnabled ? 'Bio On' : 'Bio Off'}}</view>
-  </view>
 
-  <view class="total-card card total-card-clickable" wx:if="{{totalCny > 0}}" bindtap="gotoBankCardsPage">
-    <view class="card-title">人民币总计</view>
-    <view class="total-amount">{{privacyMode ? '***' : '¥' + totalCny}}</view>
-    <view class="total-card-entry">点击查看已添加银行卡与账户明细</view>
-    
-    <view class="target-container">
-      <view wx:if="{{!depositTarget}}" class="target-empty" catchtap="setDepositTarget">
-        📝 点击设置存款目标
-      </view>
-      <view wx:else class="target-content">
-        <view class="target-title">🎯 存款目标：{{privacyMode ? '***' : '¥' + depositTarget}}  进度：{{targetProgress}}%</view>
-        <view class="progress-bar">
-          <view class="progress-fill" style="{{progressStyle}}"></view>
+    <view class="total-card-links total-card-links-inline">
+      <text class="total-card-link" bindtap="gotoDiagnostics">诊断中心</text>
+      <text class="total-card-link" bindtap="runStressTest">压力测试</text>
+    </view>
+
+    <view class="total-card-metrics">
+      <view class="total-card-metric total-card-metric-primary total-card-metric-clickable" bindtap="gotoBankCardsPage">
+        <view class="total-card-metric-label">人民币总计</view>
+        <view class="total-amount">{{privacyMode ? '***' : '¥' + totalCny}}</view>
+        <view class="total-card-entry">点击进入银行卡工作台，查看账户明细和资产结构</view>
+        <view class="total-card-progress" wx:if="{{goalOverview}}">
+          <view class="total-card-progress-head">
+            <view class="total-card-progress-label">目标进度</view>
+            <text class="total-card-link" catchtap="openGoalEditor">编辑目标</text>
+          </view>
+          <view class="total-card-progress-body">
+            <view class="total-card-progress-value">{{goalOverview.completionText}}%</view>
+            <view class="total-card-progress-side">
+              <view class="total-card-metric-note total-card-progress-note">{{goalOverview.completedCount}} / {{goalOverview.totalCount}} 个目标桶已达成</view>
+            </view>
+          </view>
         </view>
-        <view class="target-diff {{targetDiff >= 0 ? 'diff-deficit' : 'diff-surplus'}}">
-          <text>{{privacyMode ? '金额已隐藏' : (targetDiff >= 0 ? '还差¥' + targetDiff + ' 达成目标' : '超额¥' + (-targetDiff) + ' 🎉')}}</text>
-          <button class="edit-target-btn" catchtap="setDepositTarget">✏️ 修改</button>
+      </view>
+    </view>
+
+    <view class="total-card-actions">
+      <button class="top-action-btn" bindtap="gotoRatesPage">汇率工作台</button>
+      <button class="top-action-btn" bindtap="gotoExport" wx:if="{{currencySummary.length > 0}}">导出数据</button>
+    </view>
+    
+    <view class="target-container" catchtap="noop">
+      <view class="target-head">
+        <view>
+          <view class="target-head-title">目标体系</view>
+          <view class="target-head-subtitle">多目标桶会按期限、风险和币种偏好自动分配当前资产</view>
+        </view>
+        <view class="target-head-action" catchtap="openGoalEditor">+ 新增</view>
+      </view>
+
+      <view wx:if="{{!goalBuckets.length}}" class="target-empty" catchtap="openGoalEditor">
+        + 新建第一个目标桶
+      </view>
+
+      <view wx:else class="target-content">
+        <view class="goal-overview-card">
+          <view class="goal-overview-grid">
+            <view class="goal-overview-item">
+              <view class="goal-overview-label">目标总额</view>
+              <view class="goal-overview-value">{{privacyMode ? '***' : '¥' + goalOverview.totalTarget}}</view>
+            </view>
+            <view class="goal-overview-item">
+              <view class="goal-overview-label">已覆盖</view>
+              <view class="goal-overview-value">{{privacyMode ? '***' : '¥' + goalOverview.coveredAmount}}</view>
+            </view>
+            <view class="goal-overview-item">
+              <view class="goal-overview-label">整体进度</view>
+              <view class="goal-overview-value">{{goalOverview.completionText}}%</view>
+            </view>
+            <view class="goal-overview-item">
+              <view class="goal-overview-label">完成情况</view>
+              <view class="goal-overview-value">{{goalOverview.completedCount}} / {{goalOverview.totalCount}}</view>
+            </view>
+          </view>
+          <view class="goal-overview-note">{{goalOverview.strategyText}}</view>
+          <view class="goal-overview-next">优先关注：{{goalOverview.nextDueName}}，{{goalOverview.nextDueHint}}</view>
+        </view>
+
+        <view class="goal-list">
+          <view class="goal-item goal-item-{{item.tone}}" wx:for="{{goalBuckets}}" wx:key="id">
+            <view class="goal-item-top">
+              <view>
+                <view class="goal-item-name">{{item.name}}</view>
+                <view class="goal-item-meta">{{item.riskLabel}} · {{item.deadlineText}} · {{item.preferredText}}</view>
+              </view>
+              <view class="goal-item-actions">
+                <text class="goal-item-link" catchtap="openGoalEditor" data-id="{{item.id}}">编辑</text>
+                <text class="goal-item-link danger" catchtap="deleteGoalBucket" data-id="{{item.id}}">删除</text>
+              </view>
+            </view>
+            <view class="goal-item-amounts">
+              <text>目标 {{privacyMode ? '***' : '¥' + item.targetAmountText}}</text>
+              <text>已覆盖 {{privacyMode ? '***' : '¥' + item.allocatedAmountText}}</text>
+            </view>
+            <view class="progress-bar">
+              <view class="progress-fill" style="{{item.progressStyle}}"></view>
+            </view>
+            <view class="goal-item-bottom">
+              <text>{{item.progressText}}%</text>
+              <text wx:if="{{privacyMode}}">金额已隐藏</text>
+              <text wx:else>{{item.diff > 0 ? '还差 ¥' + item.diffText : '已超额完成'}}</text>
+              <text wx:if="{{!privacyMode && item.diff > 0}}">月均需补 ¥{{item.monthlyNeedText}}</text>
+            </view>
+          </view>
         </view>
       </view>
     </view>
@@ -224,13 +295,6 @@
       <view class="risk-chart-placeholder" wx:else>隐私模式下已隐藏贡献图</view>
     </view>
 
-    <view class="risk-exposure-list" wx:if="{{latestRiskSummary && latestRiskSummary.topExposures.length > 0}}">
-      <view class="risk-exposure-item" wx:for="{{latestRiskSummary.topExposures}}" wx:key="code">
-        <text class="u-code">{{item.code}}</text>
-        <text>{{privacyMode ? '***' : item.cnyText}}</text>
-      </view>
-    </view>
-
     <view class="risk-contribution-list" wx:if="{{latestRiskSummary && latestRiskSummary.riskContributions.length > 0}}">
       <view class="risk-contribution-item {{selectedRiskFocusCode && selectedRiskFocusCode === item.code ? 'linked-highlight' : ''}}" wx:for="{{latestRiskSummary.riskContributions}}" wx:key="code" data-code="{{item.code}}" bindtap="onRiskContributionTap">
         <view>
@@ -311,8 +375,18 @@
 
 
 
-  <view class="empty-tip" wx:else>
-    暂无银行卡数据，请点击「添加银行卡」录入
+  <view class="empty-workspace card" wx:else>
+    <view class="empty-workspace-badge">首页工作区</view>
+    <view class="empty-workspace-title">先建立第一笔真实资产</view>
+    <view class="empty-workspace-text">录入银行卡后，这里会自动接入实时汇率、目标体系、风险雷达、压力测试和 AI 建议。</view>
+    <view class="empty-workspace-actions">
+      <button class="empty-workspace-btn empty-workspace-btn-primary" bindtap="gotoAddCard">添加银行卡</button>
+      <button class="empty-workspace-btn" bindtap="gotoRatesPage">先看汇率</button>
+    </view>
+    <view class="empty-workspace-links">
+      <text class="empty-workspace-link" bindtap="gotoDiagnostics">诊断中心</text>
+      <text class="empty-workspace-link" bindtap="openGoalEditor">先设目标</text>
+    </view>
   </view>
 
   <view class="stress-editor-mask" wx:if="{{showStressEditor}}" catchtap="closeStressEditor">
@@ -387,6 +461,61 @@
         <button class="stress-editor-btn secondary" bindtap="closeAlertEditor">取消</button>
         <button class="stress-editor-btn primary" bindtap="saveAlertRule">保存提醒</button>
       </view>
+    </view>
+  </view>
+
+  <view class="stress-editor-mask" wx:if="{{showGoalEditor}}" catchtap="closeGoalEditor">
+    <view class="stress-editor-panel goal-editor-panel" catchtap="noop">
+      <view class="stress-editor-head">
+        <view>
+          <view class="stress-editor-title">{{editingGoalId ? '编辑目标桶' : '新增目标桶'}}</view>
+          <view class="stress-editor-tip">一个目标桶代表一类资金用途，可同时设置期限、风险风格和偏好币种</view>
+        </view>
+        <text class="stress-editor-close" bindtap="closeGoalEditor">关闭</text>
+      </view>
+
+      <view class="stress-editor-field">
+        <view class="stress-editor-label">目标名称</view>
+        <input class="stress-editor-input" placeholder="例如：海外留学储备" value="{{goalEditorName}}" bindinput="onGoalEditorNameInput" />
+      </view>
+
+      <view class="stress-editor-field">
+        <view class="stress-editor-label">目标金额</view>
+        <input class="stress-editor-input" type="digit" placeholder="请输入人民币目标金额" value="{{goalEditorAmount}}" bindinput="onGoalEditorAmountInput" />
+      </view>
+
+      <view class="stress-editor-field">
+        <view class="stress-editor-label">目标日期</view>
+        <picker class="stress-picker-wrap" mode="date" value="{{goalEditorDate}}" bindchange="onGoalEditorDateChange">
+          <view class="stress-picker">{{goalEditorDate}}</view>
+        </picker>
+      </view>
+
+      <view class="stress-editor-field">
+        <view class="stress-editor-label">目标风格</view>
+        <picker class="stress-picker-wrap" mode="selector" range="{{goalRiskOptions}}" range-key="label" value="{{goalEditorRiskIndex}}" bindchange="onGoalEditorRiskChange">
+          <view class="stress-picker">{{goalRiskOptions[goalEditorRiskIndex].label}}</view>
+        </picker>
+      </view>
+
+      <view class="stress-editor-field">
+        <view class="stress-editor-label">偏好币种</view>
+        <view class="goal-editor-selected-count">已选择 {{goalEditorSelectedCodes.length}} / 4</view>
+        <view class="goal-currency-grid">
+          <view class="goal-currency-chip {{item.selected ? 'goal-currency-chip-active' : ''}}" wx:for="{{goalCurrencyOptions}}" wx:key="code" bindtap="toggleGoalEditorCurrency" data-code="{{item.code}}">
+            <text>{{item.code}}</text>
+            <text class="goal-currency-chip-check" wx:if="{{item.selected}}">✓</text>
+          </view>
+        </view>
+        <view class="goal-editor-hint">最多可选 4 个，用于估算该目标更适合由哪些币种资产承接</view>
+      </view>
+
+      <view class="stress-editor-actions">
+        <button class="stress-editor-btn secondary" bindtap="closeGoalEditor">取消</button>
+        <button class="stress-editor-btn primary" bindtap="saveGoalBucket">保存目标</button>
+      </view>
+
+      <view class="goal-editor-delete" wx:if="{{editingGoalId}}" bindtap="deleteGoalBucket" data-id="{{editingGoalId}}">删除当前目标桶</view>
     </view>
   </view>
 </view>

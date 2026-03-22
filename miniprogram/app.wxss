@@ -1,15 +1,59 @@
 page {
   font-size: 28rpx;
-  color: #333;
-  background-color: #f5f5f5;
+  color: #0f172a;
+  background:
+    radial-gradient(circle at top left, rgba(59, 130, 246, 0.08), transparent 22%),
+    linear-gradient(180deg, #f6f9fc 0%, #eef4fb 100%);
 }
+
+view,
+text,
+button,
+input,
+picker,
+scroll-view,
+swiper,
+swiper-item {
+  box-sizing: border-box;
+}
+
 .card {
-  background-color: #fff;
-  border-radius: 16rpx;
-  box-shadow: 0 2rpx 10rpx rgba(0,0,0,0.05);
+  background-color: rgba(255, 255, 255, 0.94);
+  border-radius: 24rpx;
+  box-shadow: 0 12rpx 28rpx rgba(15, 23, 42, 0.06);
+  backdrop-filter: blur(6px);
+  animation: card-fade-up 320ms ease both;
 }
+
 .btn {
-  border-radius: 8rpx;
+  border-radius: 999rpx;
   font-size: 28rpx;
   padding: 20rpx 0;
+}
+
+button {
+  border: none;
+  transition: transform 160ms ease, opacity 160ms ease, box-shadow 160ms ease, filter 160ms ease;
+}
+
+button::after {
+  border: none;
+}
+
+button:active {
+  transform: translateY(2rpx) scale(0.985);
+  opacity: 0.94;
+  filter: saturate(0.96);
+}
+
+@keyframes card-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(18rpx);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

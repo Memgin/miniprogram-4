@@ -8,6 +8,25 @@
     </view>
   </view>
 
+  <view class="summary-strip card" wx:if="{{diagnosticsSummary}}">
+    <view class="summary-box">
+      <view class="summary-label">诊断项</view>
+      <view class="summary-value">{{diagnosticsSummary.totalCount}}</view>
+    </view>
+    <view class="summary-box">
+      <view class="summary-label">成功</view>
+      <view class="summary-value success">{{diagnosticsSummary.successCount}}</view>
+    </view>
+    <view class="summary-box">
+      <view class="summary-label">失败</view>
+      <view class="summary-value error">{{diagnosticsSummary.errorCount}}</view>
+    </view>
+    <view class="summary-box">
+      <view class="summary-label">最近执行</view>
+      <view class="summary-value small">{{diagnosticsSummary.latestCheckedAt || '尚未执行'}}</view>
+    </view>
+  </view>
+
   <view class="tips card">批量运行会跳过 Tushare 导入，避免误写历史汇率数据；需要导入时请单独执行。</view>
 
   <view class="diagnostic-card card" wx:for="{{diagnostics}}" wx:key="key">

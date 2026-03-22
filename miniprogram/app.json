@@ -1,6 +1,7 @@
 {
   "pages": [
     "pages/index/index",
+    "pages/xishu/xishu",
     "pages/bankCards/bankCards",
     "pages/addCard/addCard",
     "pages/rates/rates",
@@ -10,9 +11,30 @@
   ],
   "window": {
     "backgroundTextStyle": "light",
-    "navigationBarBackgroundColor": "#fff",
+    "backgroundColor": "#eef4fb",
+    "navigationBarBackgroundColor": "#0f172a",
     "navigationBarTitleText": "银行卡管理",
-    "navigationBarTextStyle": "black"
+    "navigationBarTextStyle": "white"
+  },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#0052d9",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "工具",
+        "iconPath": "images/icons/home.png",
+        "selectedIconPath": "images/icons/home-active.png"
+      },
+      {
+        "pagePath": "pages/xishu/xishu",
+        "text": "悉数",
+        "iconPath": "images/icons/business.png",
+        "selectedIconPath": "images/icons/business-active.png"
+      }
+    ]
   },
   "usingComponents": {},
   "sitemapLocation": "sitemap.json"

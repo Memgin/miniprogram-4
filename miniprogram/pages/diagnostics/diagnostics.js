@@ -3,6 +3,7 @@ const app = getApp();
 Page({
   data: {
     diagnostics: [],
+    diagnosticsSummary: null,
     lastResult: '',
     lastRunTitle: '',
     isRunning: false,
@@ -42,7 +43,7 @@ Page({
         withState({ key: 'alertMonitor', title: '测试提醒检查', desc: `使用当前 ${alertRules.length} 条提醒规则进行手动检查。` }),
         withState({ key: 'tushareImport', title: '运行 Tushare 导入', desc: '需要提供 token，执行后会写入 rates_history。' })
       ]
-    });
+    }, () => this.refreshDiagnosticsSummary());
   },
 
   setDiagnosticState(key, patch) {
@@ -50,7 +51,20 @@ Page({
       if (item.key !== key) return item;
       return { ...item, ...patch };
     });
-    this.setData({ diagnostics });
+    this.setData({ diagnostics }, () => this.refreshDiagnosticsSummary());
+  },
+
+  refreshDiagnosticsSummary() {
+    const diagnostics = this.data.diagnostics || [];
+    const checkedItems = diagnostics.filter(item => item.checkedAt);
+    this.setData({
+      diagnosticsSummary: {
+        totalCount: diagnostics.length,
+        successCount: diagnostics.filter(item => item.status === 'success').length,
+        errorCount: diagnostics.filter(item => item.status === 'error').length,
+        latestCheckedAt: checkedItems.length ? checkedItems[checkedItems.length - 1].checkedAt : ''
+      }
+    });
   },
 
   onTokenInput(e) {
@@ -110,6 +124,7 @@ Page({
         data: {
           bankCards: app.globalData.bankCards || [],
           depositTarget: app.globalData.depositTarget || '',
+          goalBuckets: app.globalData.goalBuckets || [],
           selectedRateCodes: app.globalData.selectedRateCodes || ['usd', 'hkd'],
           savedStressScenarios: app.globalData.savedStressScenarios || [],
           latestStressResult: app.globalData.latestStressResult || null,
@@ -118,6 +133,9 @@ Page({
           lastAlertCheckAt: app.globalData.lastAlertCheckAt || '',
           latestRiskSummary: app.globalData.latestRiskSummary || null,
           latestAdvice: app.globalData.latestAdvice || null,
+          fxOrderPlans: app.globalData.fxOrderPlans || [],
+          cashflowPlans: app.globalData.cashflowPlans || [],
+          maturityPlans: app.globalData.maturityPlans || [],
           privacyMode: !!app.globalData.privacyMode,
           biometricEnabled: !!app.globalData.biometricEnabled
         }

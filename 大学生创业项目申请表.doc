@@ -1,0 +1,203 @@
+﻿<html xmlns:o=""urn:schemas-microsoft-com:office:office"" xmlns:w=""urn:schemas-microsoft-com:office:word"" xmlns=""http://www.w3.org/TR/REC-html40"">
+<head>
+<meta charset=""utf-8"">
+<title>大学生创业项目申请表</title>
+<style>
+body { font-family: ""SimSun"", ""Songti SC"", serif; line-height: 1.5; font-size: 12pt; }
+h1 { text-align: center; font-family: ""SimHei"", ""Heiti SC"", sans-serif; font-size: 18pt; margin-bottom: 30px;}
+table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+table, th, td { border: 1px solid black; }
+th, td { padding: 8px; text-align: left; vertical-align: middle; }
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.title-row th { background-color: #f2f2f2; }
+</style>
+</head>
+<body>
+
+<h1>大学生创业项目申请表</h1>
+
+<p><strong>项 目 名 称：</strong> 《“悉数”——基于AI与Tushare的高频工具及个人实体资产全生命周期管理平台》</p>
+<p><strong>项目负责人：</strong> [你的姓名]</p>
+<p><strong>所在学院、专业：</strong> [你的学院、专业]</p>
+<p><strong>指 导 教 师：</strong> [指导老师姓名]</p>
+<p><strong>指导教师所在学院：</strong> [指导老师学院]</p>
+<p><strong>研究起止时间：</strong> 2026 年 3 月 -- 2028 年 3 月</p>
+<p><strong>E-Mail、QQ：</strong> [你的邮箱]、[你的QQ]</p>
+<p><strong>手 机：</strong> [你的手机号]</p>
+<p><strong>填 报 日 期：</strong> 2026年 3 月</p>
+
+<p class=""text-right"">广东金融学院教务处制</p>
+
+<h2>一、基本情况</h2>
+<table>
+  <tr>
+    <td rowspan=""2"" class=""text-center"" width=""15%""><strong>创业项目</strong></td>
+    <td class=""text-center"" width=""15%""><strong>名 称</strong></td>
+    <td colspan=""5"">《“悉数”——基于AI与Tushare的高频工具及个人实体资产全生命周期管理平台》</td>
+  </tr>
+  <tr>
+    <td class=""text-center""><strong>内 容</strong></td>
+    <td colspan=""5"">□创业训练项目 &nbsp;&nbsp;&nbsp; ☑创业实践项目</td>
+  </tr>
+  <tr>
+    <td rowspan=""3"" class=""text-center""><strong>项目负责人情况</strong></td>
+    <td class=""text-center""><strong>姓 名</strong></td>
+    <td>[你的姓名]</td>
+    <td class=""text-center""><strong>申请经费</strong></td>
+    <td>[20000]元</td>
+    <td class=""text-center""><strong>出生年月</strong></td>
+    <td>[200X]年[X]月</td>
+  </tr>
+  <tr>
+    <td class=""text-center""><strong>学 院</strong></td>
+    <td>[你的学院]</td>
+    <td class=""text-center""><strong>专 业</strong></td>
+    <td>[你的专业]</td>
+    <td class=""text-center""><strong>学 号</strong></td>
+    <td>[你的学号]</td>
+  </tr>
+  <tr>
+    <td class=""text-center""><strong>简 介</strong></td>
+    <td colspan=""5"">具备完整的小程序全栈开发能力及AI模型部署经验，熟练掌握微信小程序前端架构、Tushare金融数据接口调用与ONNX本地/云端推理。作为独立开发者（Indie Hacker），独立完成了“悉数”前后端及AI模块开发，具备强大的技术变现与商业嗅觉。</td>
+  </tr>
+</table>
+
+<h3>组员</h3>
+<table>
+  <tr>
+    <th class=""text-center"">序号</th>
+    <th class=""text-center"">姓 名</th>
+    <th class=""text-center"">学院</th>
+    <th class=""text-center"">专业</th>
+    <th class=""text-center"">学号</th>
+    <th class=""text-center"">项目分工</th>
+    <th class=""text-center"">签名</th>
+  </tr>
+  <tr><td class=""text-center"">1</td><td>[你的姓名]</td><td>[全栈独立开发者]</td><td></td><td></td><td>全栈开发/AI部署/产品</td><td></td></tr>
+  <tr><td class=""text-center"">2</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+  <tr><td class=""text-center"">3</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+  <tr><td class=""text-center"">4</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+  <tr><td class=""text-center"">5</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+</table>
+
+<h3>指导教师</h3>
+<table>
+  <tr>
+    <th class=""text-center"">序号</th>
+    <th class=""text-center"">姓名</th>
+    <th class=""text-center"">职称</th>
+    <th class=""text-center"">学院</th>
+    <th class=""text-center"">手机</th>
+    <th class=""text-center"">指导分工</th>
+    <th class=""text-center"">签名</th>
+  </tr>
+  <tr><td class=""text-center"">1</td><td></td><td></td><td></td><td></td><td>理论指导/商业逻辑</td><td></td></tr>
+  <tr><td class=""text-center"">2</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+</table>
+
+<h2>二、创业项目的市场前景分析及项目论证</h2>
+<table>
+  <tr>
+    <th width=""15%"" class=""text-center""><strong>国内外开发<br>现 状</strong></th>
+    <td>当前，市场上个人资产管理工具多集中于账本，且功能单一。而实用类工具如汇率计算、金融信息获取则散落在各个独立的App中。这导致用户的留存率呈两极化：工具类App高频低留存（用完即走），而重度记账SaaS低频高门槛。<br><br>“全栈独立开发者”及微型SaaS模式在海内外逐渐兴起，依靠高频痛点工具引流，通过深度管理体系留存成为新的突破口。国内在微信生态内，将ONNX本地AI推理、Tushare金融数据服务与“万物资产化”深度结合的原生应用依然是一片蓝海，具有技术与商业的双重护城河。</td>
+  </tr>
+  <tr>
+    <th class=""text-center""><strong>项 目<br>摘 要</strong></th>
+    <td>
+      <strong>项目的发现：</strong>针对年轻用户既需要快速获取金融及常用工具数据（高频需求），又面临物品与资产“消费冲动”管理缺失（低频痛点）的矛盾。<br>
+      <strong>研究过程：</strong>作为独立开发者，基于微信小程序环境完成了“悉数”的开发。项目创新采用“双引擎驱动”：<br>1) <strong>工具侧：</strong>集成Tushare金融API及汇率工具，并利用ONNX实现AI本地/云端推理功能，为用户提供极致效率的高频工具体验；<br>2) <strong>资产侧：</strong>研发实物资产生命周期管理MVP，支持真实日耗计算、心愿单及资产图鉴功能。<br>
+      <strong>创业计划：</strong>采取“高频工具引流，低频大资产留存”战略。初期利用汇率、AI数据工具在目标社群产生自发传播，中后期将流量沉淀至用户的个人“数字资产手账”中，探索增值服务与CPS变现。<br>
+      <strong>创新点：</strong><br>
+      1. 商业模式：以独立开发者（一人团队）实现“高频工具 + 低频管账”流量漏斗，极大削减推广与人力成本；<br>
+      2. 技术前沿：在小程序端集成大模型推理技术（ONNX）与专业金融数据（Tushare）；<br>
+      3. 核心算法：通过“万物皆资产”理念推演“真实日耗”及持有成本，量化物品使用价值。
+    </td>
+  </tr>
+  <tr>
+    <th class=""text-center""><strong>项目实施风险<br>及应对措施</strong></th>
+    <td>
+      <strong>1. 独立开发资源产能限制风险。</strong>应对：利用AI编程辅助与全栈云开发架构，最大化个体产出效率；保持产品轻量级，避免陷入无效功能堆砌。<br>
+      <strong>2. 工具型应用“用完即走”风险。</strong>应对：在工具端强制关联资产图谱，如通过汇率转换直接计算海外资产/代购心愿单成本，构建顺滑的流量转化链路。<br>
+      <strong>3. 商业变现克制期风险。</strong>应对：早期依靠技术壁垒降低服务器成本，以个人开发者“车库创业”形式运行，积累口碑，伺机接入二手估值CPS及AI高级增值功能（Freemium）。
+    </td>
+  </tr>
+</table>
+
+<h2>三、创业计划</h2>
+<p><strong>所处行业：</strong> 移动互联网初创 / AI与效率SaaS</p>
+<p><strong>所处阶段：</strong> □创意  □研发  ☑产品开发  ☑试运营  □市场拓展</p>
+
+<table>
+  <tr>
+    <th width=""15%"" class=""text-center""><strong>商业模式及<br>收入来源</strong></th>
+    <td>
+      1. <strong>增值服务（Freemium）：</strong>基础的高频汇率/数据工具及轻量资产功能免费。针对高频需求用户提供高级AI推理次数订阅、Tushare深度数据解锁功能。<br>
+      2. <strong>导流平台佣金（CPS）：</strong>联合二手交易与数码回收平台，在“退役物品库”阶段植入一键估价功能，赚取抽佣；或结合金融服务导购赚取推广费。<br>
+      3. <strong>极简电商导购：</strong>在“心愿单”场景植入全网红包或历价查阅服务，成交获取淘客/联盟佣金。
+    </td>
+  </tr>
+  <tr>
+    <th class=""text-center""><strong>竞 争 对 手</strong></th>
+    <td>
+      1. 传统计算/汇率工具：功能单一，缺乏后续的用户深层财务管理粘性。<br>
+      2. 传统记账APP（如随手记）：架构臃肿，难以满足年轻化“万物皆资产”、实时汇率及趣味化AI交互的诉求。<br>
+      3. 普通极简打卡工具：缺乏技术护城河（Tushare/ONNX AI支持），容易被同质化。
+    </td>
+  </tr>
+  <tr>
+    <th class=""text-center""><strong>未 来 客 户</strong></th>
+    <td>1. 具有高频工具使用需求（查汇率、盯数据）的高校及职场新人；2. 崇尚“断舍离”、量化生活成本的理性消费者；3. 喜欢极客与AI工具尝鲜的年轻群体。</td>
+  </tr>
+  <tr>
+    <th class=""text-center""><strong>创业评估价值</strong></th>
+    <td><strong>￥ 600,000 元</strong>（一人全栈打造了涵盖双端业务（工具矩阵+资产账本）的核心代码、并拥有AI与金融中间件集成的核心资产库储备，技术变现率高。）</td>
+  </tr>
+</table>
+
+<h3>项目SWOT分析</h3>
+<table>
+  <tr>
+    <th width=""15%"" class=""text-center""><strong>优势(Strength)</strong></th>
+    <td>“独立开发者”模式具备极致成本控制优势；高频(工具)+低频(资产管理)协同引流逻辑闭环；成熟集成了Tushare和本地AI技术，具备明显的架构层优势。</td>
+  </tr>
+  <tr>
+    <th class=""text-center""><strong>劣势(Weakness)</strong></th>
+    <td>一人团队精力受限，难以同时兼顾大规模地推与高速迭代；早期的AI推理可能会消耗较多的云端计算定额。</td>
+  </tr>
+  <tr>
+    <th class=""text-center""><strong>机会(Opportunity)</strong></th>
+    <td>微信小程序对个人开发者仍有红利；极简消费观与AI平民化发展浪潮下，能够满足个人级数字化资产量化复盘的需求显著增长。</td>
+  </tr>
+  <tr>
+    <th class=""text-center""><strong>威胁(Threat)</strong></th>
+    <td>若工具增长过快，大厂或跟进集成同类轻量插件；Tushare等外部接口服务商免费额度调整带来的断供或成本转嫁风险。</td>
+  </tr>
+</table>
+
+<h3>资金使用计划</h3>
+<table>
+  <tr>
+    <th class=""text-center"">项目 / 年份</th>
+    <th class=""text-center"">2026年</th>
+    <th class=""text-center"">2027年</th>
+    <th class=""text-center"">2028年</th>
+    <th class=""text-center"">备 注</th>
+  </tr>
+  <tr><td class=""text-center""><strong>资金需求</strong></td><td class=""text-center"">20,000元</td><td class=""text-center"">50,000元</td><td class=""text-center"">200,000元</td><td>26年主要支付云数据库、服务器及AI算力额度，后期用于推广</td></tr>
+  <tr><td class=""text-center""><strong>预计收入</strong></td><td class=""text-center"">0元</td><td class=""text-center"">40,000元</td><td class=""text-center"">200,000元</td><td>通过AI工具变现订阅(Pro)及CPS二手抽拥循环回血</td></tr>
+  <tr><td class=""text-center""><strong>预计客户数</strong></td><td class=""text-center"">10,000人</td><td class=""text-center"">80,000人</td><td class=""text-center"">300,000人</td><td>以工具箱裂变为核心增长点引导注册转化</td></tr>
+</table>
+
+<h2>四、相关审核意见</h2>
+<p><strong>指导教师意见：</strong></p><br><br>
+<p class=""text-right"">指导教师（签字）：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>日期：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;年&nbsp;&nbsp;&nbsp;月&nbsp;&nbsp;&nbsp;日</p>
+<hr>
+<p><strong>学院推荐意见：</strong></p><br><br>
+<p class=""text-right"">学院负责人(签字、盖章) :&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>日期：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;年&nbsp;&nbsp;&nbsp;月&nbsp;&nbsp;&nbsp;日</p>
+<hr>
+<p><strong>创新创业训练计划工作领导小组意见：</strong></p><br><br>
+<p class=""text-right"">负责人（签章）：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>日期：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;年&nbsp;&nbsp;&nbsp;月&nbsp;&nbsp;&nbsp;日</p>
+
+</body>
+</html>

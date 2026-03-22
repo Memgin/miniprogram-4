@@ -64,6 +64,45 @@
   color: #64748b;
 }
 
+.summary-strip {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16rpx;
+}
+
+.summary-box {
+  padding: 20rpx;
+  border-radius: 18rpx;
+  background: #f8fafc;
+  border: 1rpx solid #e2e8f0;
+}
+
+.summary-label {
+  font-size: 22rpx;
+  color: #64748b;
+}
+
+.summary-value {
+  margin-top: 10rpx;
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.summary-value.small {
+  font-size: 22rpx;
+  line-height: 1.6;
+  word-break: break-all;
+}
+
+.summary-value.success {
+  color: #15803d;
+}
+
+.summary-value.error {
+  color: #b91c1c;
+}
+
 .card-head {
   display: flex;
   align-items: flex-start;
