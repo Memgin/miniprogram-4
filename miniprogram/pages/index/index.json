@@ -1,7 +1,11 @@
-{ 
-  "navigationBarTitleText": "银行卡余额汇总",
+{
+  "navigationBarTitleText": "资产总览",
+  "navigationStyle": "custom",
+  "navigationBarBackgroundColor": "#f6f4f1",
+  "navigationBarTextStyle": "black",
   "enablePullDownRefresh": true,
   "backgroundTextStyle": "dark",
+  "backgroundColor": "#f6f4f1",
   "onReachBottomDistance": 50,
   "usingComponents": {
     "ec-canvas": "../../components/ec-canvas/ec-canvas"

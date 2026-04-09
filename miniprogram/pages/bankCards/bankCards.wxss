@@ -1396,281 +1396,823 @@
   }
 }
 
-.section-head {
+/* Rebalance Panel Final Polish */
+.rebalance-list {
+  margin-top: 18rpx;
+  padding: 10rpx;
+  border-radius: 22rpx;
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.42), rgba(226, 238, 250, 0.24));
+  border: 1rpx solid rgba(255, 255, 255, 0.68);
+  backdrop-filter: blur(14rpx) saturate(1.08);
+  -webkit-backdrop-filter: blur(14rpx) saturate(1.08);
+}
+
+.rebalance-item {
+  padding: 20rpx 20rpx;
+  margin-bottom: 12rpx;
+  border-bottom: none;
+  border-radius: 18rpx;
+  background: linear-gradient(146deg, rgba(255, 255, 255, 0.62), rgba(228, 240, 251, 0.36));
+  border: 1rpx solid rgba(255, 255, 255, 0.72);
+  box-shadow: inset 0 1rpx 0 rgba(255, 255, 255, 0.55), 0 8rpx 20rpx rgba(24, 46, 68, 0.08);
+}
+
+.rebalance-item:last-child {
+  margin-bottom: 0;
+}
+
+.rebalance-code {
+  color: #163a54;
+  letter-spacing: 0.2rpx;
+}
+
+.rebalance-meta,
+.rebalance-amount,
+.rebalance-reason {
+  color: rgba(38, 69, 97, 0.78);
+}
+
+.rebalance-delta-up {
+  color: #1f9a5f;
+}
+
+.rebalance-delta-down {
+  color: #d63f45;
+}
+
+/* Full Interface Liquid Glass */
+.page {
+  background:
+    radial-gradient(circle at 12% -8%, rgba(194, 231, 255, 0.3) 0%, rgba(194, 231, 255, 0) 34%),
+    radial-gradient(circle at 92% 0%, rgba(202, 242, 226, 0.24) 0%, rgba(202, 242, 226, 0) 30%),
+    linear-gradient(178deg, #f5f9fe 0%, #eaf1f8 100%);
+}
+
+.card,
+.summary-box,
+.insight,
+.risk-band-card,
+.currency-card,
+.visual-card,
+.shock-card,
+.planner-card,
+.bank-card,
+.empty,
+.shock-alert-box,
+.editor-panel,
+.rebalance-list,
+.order-list,
+.timeline-list,
+.planner-list-block,
+.visual-placeholder,
+.flow-board,
+.shock-summary-box,
+.shock-impact-item,
+.rebalance-item,
+.order-item,
+.planner-row,
+.timeline-item,
+.editor-field,
+.forecast-box,
+.maturity-box {
+  background: linear-gradient(154deg, rgba(255, 255, 255, 0.56), rgba(232, 242, 252, 0.34));
+  border: 1rpx solid rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(18rpx) saturate(1.1);
+  -webkit-backdrop-filter: blur(18rpx) saturate(1.1);
+  box-shadow: 0 14rpx 34rpx rgba(18, 39, 62, 0.1), inset 0 1rpx 0 rgba(255, 255, 255, 0.56);
+}
+
+.heatmap-card-head,
+.heatmap-cell,
+.currency-row,
+.shock-picker-wrap,
+.risk-driver-pill,
+.planner-highlight,
+.forecast-box-strong,
+.range-tab,
+.section-pill,
+.shock-badge,
+.risk-band-badge,
+.bank-card-chip,
+.bank-card-link,
+.section-link,
+.order-delete,
+.hero-shortcut-pill,
+.hero-eye-toggle,
+.hero-total-wrap {
+  background: linear-gradient(146deg, rgba(255, 255, 255, 0.5), rgba(228, 239, 250, 0.32));
+  border: 1rpx solid rgba(255, 255, 255, 0.74);
+  box-shadow: inset 0 1rpx 0 rgba(255, 255, 255, 0.54), 0 8rpx 20rpx rgba(23, 46, 69, 0.08);
+}
+
+.editor-input,
+.editor-picker,
+.shock-picker {
+  background: linear-gradient(146deg, rgba(255, 255, 255, 0.58), rgba(230, 240, 250, 0.34));
+  border: 1rpx solid rgba(255, 255, 255, 0.76);
+  color: #1d3952;
+}
+
+/* Heatmap neutral background final override */
+.heatmap-scroll {
+  background: transparent !important;
+}
+
+.heatmap-board {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(246, 240, 232, 0.84)) !important;
+  border: 1rpx solid rgba(255, 255, 255, 0.74) !important;
+}
+
+.heatmap-card-head {
+  background: rgba(255, 255, 255, 0.86) !important;
+  border: 1rpx solid rgba(255, 255, 255, 0.72) !important;
+  box-shadow: none !important;
+}
+
+.heatmap-cell {
+  border: 1rpx solid rgba(255, 255, 255, 0.72) !important;
+  box-shadow: none !important;
+}
+
+.heatmap-legend {
+  margin-top: 10rpx;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
   gap: 16rpx;
-  margin: 28rpx 0 18rpx;
 }
 
-.section-title {
-  font-size: 30rpx;
-  font-weight: 700;
-  color: #0f172a;
+.heatmap-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
 }
 
-.section-pill {
-  padding: 10rpx 18rpx;
+.heatmap-legend-text {
+  font-size: 20rpx;
+  color: #7a6a58;
+}
+
+.heatmap-legend-chip {
+  width: 26rpx;
+  height: 14rpx;
   border-radius: 999rpx;
-  background: #dbeafe;
-  color: #1d4ed8;
-  font-size: 22rpx;
-  font-weight: 700;
+  border: 1rpx solid rgba(255, 255, 255, 0.72);
 }
 
-.card-list {
-  margin-top: 6rpx;
+.heatmap-legend-chip-1 { background: rgba(133, 102, 70, 0.24); }
+.heatmap-legend-chip-2 { background: rgba(133, 102, 70, 0.38); }
+.heatmap-legend-chip-3 { background: rgba(133, 102, 70, 0.56); }
+.heatmap-legend-chip-4 { background: rgba(133, 102, 70, 0.74); }
+
+.hero-btn,
+.editor-btn,
+.empty-btn {
+  background: linear-gradient(146deg, rgba(255, 255, 255, 0.5), rgba(220, 235, 248, 0.34));
+  border: 1rpx solid rgba(255, 255, 255, 0.78);
+  color: #1f4160;
+  box-shadow: 0 10rpx 22rpx rgba(24, 50, 74, 0.1);
 }
 
-.bank-card {
-  position: relative;
-  overflow: hidden;
-  margin-bottom: 18rpx;
-  border: 1rpx solid rgba(226, 232, 240, 0.9);
+.hero-btn-primary,
+.editor-btn:not(.editor-btn-ghost),
+.empty-btn {
+  background: linear-gradient(146deg, #2f6691, #3f7ea9);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.34);
+}
+
+.hero-btn-ghost,
+.editor-btn-ghost {
+  background: linear-gradient(146deg, rgba(255, 255, 255, 0.42), rgba(222, 236, 248, 0.28));
+  color: #244662;
 }
 
 .bank-card-shell {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 8rpx;
-  background: linear-gradient(90deg, #0f766e, #38bdf8, #2563eb);
+  background: linear-gradient(90deg, rgba(91, 150, 204, 0.74), rgba(126, 201, 208, 0.66), rgba(88, 166, 190, 0.72));
 }
 
-.bank-card-top {
-  display: flex;
-  justify-content: space-between;
+.section-title,
+.bank-card-name,
+.hero-title,
+.preview-title,
+.planner-list-title,
+.maturity-title,
+.shock-alert-title,
+.insight-title {
+  color: #173852;
+}
+
+.summary-label,
+.hero-meta-item,
+.hero-meta-dot,
+.hero-total-label,
+.hero-insight-label,
+.hero-insight-note,
+.currency-amount,
+.currency-cny,
+.planner-row-meta,
+.timeline-meta,
+.rebalance-meta,
+.order-meta,
+.order-note,
+.empty-text,
+.visual-subtitle,
+.shock-tip,
+.forecast-label,
+.editor-label {
+  color: rgba(34, 66, 92, 0.74);
+}
+
+.bank-card-actions,
+.hero-insight-strip {
+  border-top: 1rpx solid rgba(156, 183, 207, 0.32);
+}
+
+.hero-insight-strip {
+  border-bottom: 1rpx solid rgba(156, 183, 207, 0.32);
+}
+
+.hero-insight-divider {
+  background: rgba(156, 183, 207, 0.3);
+}
+
+/* Hero Action Layout Final (Absolute EOF) */
+.hero-actions {
+  align-items: stretch;
+}
+
+.hero-actions .hero-btn {
+  flex: 1;
+}
+
+.hero-shortcuts {
   align-items: center;
-  gap: 16rpx;
 }
 
-.bank-card-title-wrap {
+.hero-shortcut-eye {
+  margin-left: auto;
   display: flex;
-  align-items: flex-start;
-  gap: 16rpx;
+  align-items: center;
 }
 
-.bank-card-rank {
-  min-width: 62rpx;
-  height: 62rpx;
-  line-height: 62rpx;
-  border-radius: 18rpx;
-  text-align: center;
-  font-size: 24rpx;
-  font-weight: 700;
-  color: #0f766e;
-  background: linear-gradient(135deg, #d1fae5, #e0f2fe);
-}
-
-.bank-card-name {
-  font-size: 30rpx;
-  font-weight: 700;
-  color: #0f172a;
-}
-
-.bank-card-meta {
-  margin-top: 8rpx;
-  font-size: 22rpx;
-  color: #64748b;
-}
-
-.bank-card-total-wrap {
+.security-eye-btn {
+  width: 68rpx;
+  height: 68rpx;
+  border-radius: 20rpx;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.58), rgba(226, 238, 249, 0.38));
+  border: 1rpx solid rgba(255, 255, 255, 0.76);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
-  text-align: right;
-  min-width: 180rpx;
+  box-shadow: 0 8rpx 18rpx rgba(31, 58, 84, 0.1), inset 0 1rpx 0 rgba(255, 255, 255, 0.8);
 }
 
-.bank-card-total-label {
-  font-size: 20rpx;
-  color: #94a3b8;
+.security-eye {
+  position: relative;
+  width: 30rpx;
+  height: 18rpx;
+  border: 2rpx solid #4f6888;
+  border-radius: 24rpx / 14rpx;
+  background: radial-gradient(circle at 50% 50%, #f8fbff 0%, #edf3fb 70%, #e5edf8 100%);
+  overflow: hidden;
 }
 
-.bank-card-total {
-  margin-top: 6rpx;
-  font-size: 32rpx;
-  font-weight: 700;
-  color: #dc2626;
-  white-space: nowrap;
+.security-eye-iris {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #8fb3dc 0%, #5f84b3 60%, #4f6888 100%);
+  transform: translate(-50%, -50%);
 }
 
-.bank-card-currencies {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10rpx;
-  margin-top: 18rpx;
+.security-eye-pupil {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5rpx;
+  height: 5rpx;
+  background: #2d4461;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
 }
 
-.bank-card-chip {
-  display: flex;
-  gap: 10rpx;
-  align-items: center;
-  padding: 12rpx 18rpx;
+.security-eye-glint {
+  position: absolute;
+  top: 4rpx;
+  left: 14rpx;
+  width: 4rpx;
+  height: 4rpx;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.security-eye-off {
+  opacity: 0.6;
+}
+
+.security-eye-strike {
+  position: absolute;
+  top: 50%;
+  left: -3rpx;
+  width: 36rpx;
+  height: 2rpx;
+  background: linear-gradient(90deg, #3f5776, #5a7396);
   border-radius: 999rpx;
-  background: linear-gradient(135deg, #f8fafc, #f1f5f9);
-  border: 1rpx solid #dbe5f0;
-  font-size: 22rpx;
-  color: #475569;
+  transform: rotate(-28deg);
+  z-index: 2;
 }
 
-.bank-card-chip-code {
-  font-weight: 700;
-  color: #0f172a;
+/* Hero Data Card Unified Liquid Glass (Absolute EOF) */
+.hero,
+.hero-calm,
+.hero-active,
+.hero-strong {
+  color: #173b57;
+  border: 1rpx solid rgba(255, 255, 255, 0.74);
+  background: linear-gradient(156deg, rgba(255, 255, 255, 0.54), rgba(226, 239, 251, 0.34));
+  backdrop-filter: blur(22rpx) saturate(1.08);
+  -webkit-backdrop-filter: blur(22rpx) saturate(1.08);
+  box-shadow: 0 16rpx 36rpx rgba(24, 49, 74, 0.1), inset 0 1rpx 0 rgba(255, 255, 255, 0.58);
 }
 
-.bank-card-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 18rpx;
-  margin-top: 22rpx;
-  padding-top: 18rpx;
-  border-top: 1rpx solid #eef2f7;
+.hero::before {
+  background:
+    radial-gradient(circle at 14% 8%, rgba(255, 255, 255, 0.62) 0%, rgba(255, 255, 255, 0.18) 35%, rgba(255, 255, 255, 0) 58%),
+    radial-gradient(circle at 92% 86%, rgba(157, 201, 235, 0.24) 0%, rgba(157, 201, 235, 0) 48%);
 }
 
-.bank-card-link {
-  padding: 10rpx 18rpx;
-  border-radius: 999rpx;
-  font-size: 22rpx;
-  color: #2563eb;
-  background: #eff6ff;
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: -34% -10% auto 38%;
+  height: 82%;
+  background: linear-gradient(122deg, rgba(132, 184, 224, 0.24), rgba(255, 255, 255, 0));
+  filter: blur(14rpx);
+  transform: rotate(-8deg);
+  pointer-events: none;
 }
 
-.bank-card-link.danger {
-  color: #dc2626;
-  background: #fef2f2;
+.hero-title,
+.hero-insight-value,
+.hero-total-value {
+  color: #173b57;
 }
 
-.empty {
-  margin-top: 48rpx;
-  padding: 40rpx 28rpx;
-  border-radius: 28rpx;
-  background: rgba(255, 255, 255, 0.9);
-  text-align: center;
-  box-shadow: 0 18rpx 40rpx rgba(15, 23, 42, 0.06);
+.hero-meta-item,
+.hero-meta-dot,
+.hero-total-label,
+.hero-insight-label,
+.hero-insight-note,
+.hero-shortcut-pill-idle {
+  color: rgba(33, 68, 96, 0.74);
 }
 
-.empty-title {
-  font-size: 30rpx;
-  font-weight: 700;
-  color: #0f172a;
+.hero-insight-strip {
+  border-top: 1rpx solid rgba(157, 186, 209, 0.34);
+  border-bottom: 1rpx solid rgba(157, 186, 209, 0.34);
 }
 
-.empty-text {
-  margin-top: 12rpx;
-  font-size: 24rpx;
-  line-height: 1.7;
-  color: #64748b;
+.hero-insight-divider {
+  background: rgba(157, 186, 209, 0.3);
 }
 
+.hero-total-wrap,
+.hero-btn,
+.hero-btn-primary,
+.hero-btn-ghost,
+.hero-shortcut-pill,
+.hero-shortcut-pill-active,
+.hero-shortcut-eye .security-eye-btn {
+  background: linear-gradient(148deg, rgba(255, 255, 255, 0.52), rgba(224, 238, 250, 0.32));
+  border: 1rpx solid rgba(255, 255, 255, 0.78);
+  box-shadow: inset 0 1rpx 0 rgba(255, 255, 255, 0.56), 0 10rpx 22rpx rgba(26, 53, 79, 0.08);
+}
+
+.hero-btn,
+.hero-btn-ghost,
+.hero-shortcut-pill,
+.hero-shortcut-pill-active {
+  color: #214764;
+}
+
+.hero-btn-primary {
+  color: #1e4360;
+}
+
+.hero-shortcut-pill-active {
+  background: linear-gradient(148deg, rgba(248, 242, 234, 0.58), rgba(237, 228, 215, 0.36));
+}
+
+.hero-shortcut-eye .security-eye {
+  border-color: #4c6d8e;
+  background: radial-gradient(circle at 50% 50%, #f9fbff 0%, #eef4fb 72%, #e6eef8 100%);
+}
+
+.hero-shortcut-eye .security-eye-iris {
+  background: radial-gradient(circle at 35% 35%, #9abbe0 0%, #6f93be 62%, #4c6d8e 100%);
+}
+
+.hero-shortcut-eye .security-eye-pupil {
+  background: #2d4563;
+}
+
+.hero-shortcut-eye .security-eye-strike {
+  background: linear-gradient(90deg, #496889, #6180a0);
+}
+
+/* Base Layer Sync With Homepage */
+.page {
+  background: linear-gradient(180deg, #f6f4f1 0%, #f1eee9 100%);
+}
+
+/* Natural Liquid Glass Refinement (Absolute EOF) */
+.page {
+  background:
+    radial-gradient(circle at 12% -10%, rgba(255, 255, 255, 0.38) 0%, rgba(255, 255, 255, 0) 30%),
+    radial-gradient(circle at 92% 6%, rgba(224, 214, 199, 0.3) 0%, rgba(224, 214, 199, 0) 28%),
+    linear-gradient(180deg, #f6f4f1 0%, #f1eee9 100%);
+}
+
+.card,
+.summary-box,
+.insight,
+.risk-band-card,
+.currency-card,
+.visual-card,
+.shock-card,
+.planner-card,
+.bank-card,
+.empty,
+.editor-panel,
+.rebalance-list,
+.order-list,
+.timeline-list,
+.planner-list-block,
+.maturity-box,
+.visual-placeholder,
+.shock-alert-box {
+  background: linear-gradient(155deg, rgba(255, 255, 255, 0.72), rgba(244, 239, 232, 0.56));
+  border: 1rpx solid rgba(255, 255, 255, 0.68);
+  backdrop-filter: blur(14rpx) saturate(1.04);
+  -webkit-backdrop-filter: blur(14rpx) saturate(1.04);
+  box-shadow: 0 8rpx 20rpx rgba(55, 46, 36, 0.08), inset 0 1rpx 0 rgba(255, 255, 255, 0.52);
+}
+
+.heatmap-card-head,
+.heatmap-cell,
+.currency-row,
+.risk-driver-pill,
+.planner-highlight,
+.forecast-box-strong,
+.range-tab,
+.section-pill,
+.shock-badge,
+.risk-band-badge,
+.bank-card-chip,
+.bank-card-link,
+.section-link,
+.order-delete,
+.hero-shortcut-pill,
+.hero-total-wrap,
+.hero-shortcut-eye .security-eye-btn,
+.editor-field,
+.forecast-box,
+.planner-row,
+.timeline-item,
+.rebalance-item,
+.order-item {
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.66), rgba(239, 232, 223, 0.5));
+  border: 1rpx solid rgba(255, 255, 255, 0.72);
+  box-shadow: inset 0 1rpx 0 rgba(255, 255, 255, 0.56), 0 6rpx 14rpx rgba(58, 48, 37, 0.06);
+}
+
+.hero,
+.hero-calm,
+.hero-active,
+.hero-strong {
+  color: #4a3b2e;
+  border: 1rpx solid rgba(255, 255, 255, 0.72);
+  background: linear-gradient(158deg, rgba(255, 255, 255, 0.62), rgba(244, 236, 227, 0.44));
+  backdrop-filter: blur(18rpx) saturate(1.03);
+  -webkit-backdrop-filter: blur(18rpx) saturate(1.03);
+  box-shadow: 0 12rpx 30rpx rgba(58, 46, 33, 0.09), inset 0 1rpx 0 rgba(255, 255, 255, 0.54);
+}
+
+.hero::before {
+  background:
+    radial-gradient(circle at 16% 10%, rgba(255, 255, 255, 0.56) 0%, rgba(255, 255, 255, 0.16) 34%, rgba(255, 255, 255, 0) 56%),
+    radial-gradient(circle at 88% 84%, rgba(210, 193, 170, 0.22) 0%, rgba(210, 193, 170, 0) 46%);
+}
+
+.hero::after {
+  inset: -36% -12% auto 44%;
+  height: 68%;
+  background: linear-gradient(118deg, rgba(222, 206, 185, 0.2), rgba(255, 255, 255, 0));
+  filter: blur(16rpx);
+  transform: rotate(-7deg);
+}
+
+.hero-title,
+.hero-insight-value,
+.hero-total-value,
+.section-title,
+.bank-card-name,
+.insight-title,
+.planner-list-title,
+.maturity-title,
+.shock-alert-title {
+  color: #4a3b2e;
+}
+
+.hero-meta-item,
+.hero-meta-dot,
+.hero-total-label,
+.hero-insight-label,
+.hero-insight-note,
+.summary-label,
+.currency-amount,
+.currency-cny,
+.planner-row-meta,
+.timeline-meta,
+.rebalance-meta,
+.order-meta,
+.order-note,
+.empty-text,
+.visual-subtitle,
+.shock-tip,
+.forecast-label,
+.editor-label,
+.hero-shortcut-pill-idle {
+  color: rgba(96, 82, 66, 0.74);
+}
+
+.hero-insight-strip {
+  border-top: 1rpx solid rgba(198, 182, 161, 0.34);
+  border-bottom: 1rpx solid rgba(198, 182, 161, 0.34);
+}
+
+.hero-insight-divider {
+  background: rgba(198, 182, 161, 0.3);
+}
+
+.hero-btn,
+.editor-btn,
 .empty-btn {
-  margin-top: 24rpx;
-  height: 76rpx;
-  line-height: 76rpx;
-  border-radius: 999rpx;
-  background: linear-gradient(135deg, #2563eb, #38bdf8);
-  color: #ffffff;
-  font-size: 26rpx;
+  background: linear-gradient(148deg, rgba(255, 255, 255, 0.62), rgba(242, 234, 224, 0.42));
+  border: 1rpx solid rgba(255, 255, 255, 0.78);
+  color: #5f4d39;
+  box-shadow: 0 8rpx 18rpx rgba(58, 46, 33, 0.08);
 }
 
-@media (max-width: 420px) {
-  .page {
-    padding: 20rpx;
-  }
+.hero-btn-primary,
+.editor-btn:not(.editor-btn-ghost),
+.empty-btn {
+  background: linear-gradient(145deg, #7f6750, #6b5643);
+  color: #fff5ea;
+  border-color: rgba(255, 255, 255, 0.42);
+}
 
-  .hero {
-    padding: 26rpx;
-  }
+.hero-btn-ghost,
+.editor-btn-ghost {
+  background: linear-gradient(148deg, rgba(255, 255, 255, 0.56), rgba(239, 230, 218, 0.36));
+  color: #67523d;
+}
 
-  .hero-main {
-    gap: 14rpx;
-  }
+.hero-shortcut-pill-active {
+  background: linear-gradient(148deg, rgba(248, 242, 234, 0.66), rgba(237, 228, 215, 0.46));
+  color: #66503a;
+}
 
-  .hero-title {
-    font-size: 34rpx;
-  }
+.security-eye-btn {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.64), rgba(241, 233, 223, 0.44));
+  border-color: rgba(255, 255, 255, 0.78);
+}
 
-  .hero-total-wrap {
-    width: 216rpx;
-    padding: 18rpx 18rpx;
-  }
+.security-eye {
+  border-color: #7b654b;
+  background: radial-gradient(circle at 50% 50%, #fdf9f3 0%, #f5ece0 72%, #ece1d2 100%);
+}
 
-  .hero-total-value {
-    font-size: 32rpx;
-  }
+.security-eye-iris {
+  background: radial-gradient(circle at 35% 35%, #d2b089 0%, #aa845a 62%, #7b654b 100%);
+}
 
-  .hero-insight-strip {
-    margin-top: 22rpx;
-    padding: 16rpx 0;
-  }
+.security-eye-pupil {
+  background: #5f4a34;
+}
 
-  .hero-insight-value {
-    font-size: 26rpx;
-  }
+.security-eye-strike {
+  background: linear-gradient(90deg, #745d43, #92745a);
+}
 
-  .summary-value {
-    font-size: 30rpx;
-  }
+/* FX Order Module Polish */
+.order-list {
+  margin-top: 18rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 14rpx;
+}
 
-  .shock-summary {
-    grid-template-columns: 1fr;
-  }
+.order-item {
+  padding: 20rpx;
+  border-radius: 18rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.74);
+  background: linear-gradient(154deg, rgba(255, 255, 255, 0.72), rgba(243, 236, 227, 0.56));
+  box-shadow: inset 0 1rpx 0 rgba(255, 255, 255, 0.58), 0 8rpx 18rpx rgba(60, 48, 36, 0.07);
+}
 
-  .currency-row {
-    gap: 10rpx;
-  }
+.order-top {
+  align-items: flex-start;
+}
 
-  .currency-code {
-    width: 76rpx;
-    font-size: 24rpx;
-  }
+.order-title {
+  color: #4a3b2e;
+}
 
-  .currency-amount,
-  .currency-cny {
-    font-size: 22rpx;
-  }
+.order-meta,
+.order-note {
+  color: rgba(96, 82, 66, 0.78);
+}
 
-  .currency-cny {
-    min-width: 132rpx;
-  }
+.order-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8rpx;
+}
 
-  .heatmap-canvas {
-    height: 400rpx;
-  }
+.order-status {
+  padding: 8rpx 16rpx;
+  border-radius: 999rpx;
+  border: 1rpx solid #deceb8;
+  background: linear-gradient(148deg, rgba(247, 241, 232, 0.82), rgba(237, 226, 210, 0.64));
+  color: #6d563d;
+  font-weight: 700;
+}
 
-  .sankey-canvas {
-    height: 440rpx;
-  }
+.order-delete {
+  margin-top: 0;
+  padding: 6rpx 14rpx;
+  border-radius: 999rpx;
+  border: 1rpx solid #e7d5c4;
+  background: rgba(255, 255, 255, 0.68);
+  color: #8e6d4c;
+}
 
-  .bank-card {
-    padding: 24rpx;
-  }
+.order-stage {
+  margin-top: 12rpx;
+  border: 1rpx solid #e5d8c8;
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.66), rgba(241, 233, 222, 0.5));
+  color: #5f4e3b;
+}
 
-  .bank-card-rank {
-    min-width: 54rpx;
-    height: 54rpx;
-    line-height: 54rpx;
-    font-size: 22rpx;
-  }
+.order-stage-status {
+  color: #7f6a51;
+}
 
-  .bank-card-name {
-    font-size: 28rpx;
-  }
+.order-stage-hit {
+  color: #9a6b34;
+}
 
-  .bank-card-total-wrap {
-    min-width: 156rpx;
-  }
+/* FX Order Roundness Refinement */
+.fx-order-card {
+  border-radius: 28rpx;
+}
 
-  .bank-card-total {
-    font-size: 30rpx;
-  }
+.fx-order-card .order-list {
+  padding: 10rpx;
+  border-radius: 22rpx;
+  background: linear-gradient(154deg, rgba(255, 255, 255, 0.46), rgba(240, 231, 219, 0.34));
+  border: 1rpx solid rgba(255, 255, 255, 0.68);
+}
 
-  .bank-card-actions {
-    gap: 12rpx;
-  }
+.fx-order-card .order-item {
+  border-radius: 22rpx;
+  overflow: hidden;
+}
 
-  .bank-card-link {
-    padding: 8rpx 16rpx;
-    font-size: 20rpx;
-  }
+.fx-order-card .order-stage {
+  border-radius: 14rpx;
+}
+
+.fx-order-card .order-status,
+.fx-order-card .order-delete {
+  border-radius: 999rpx;
+}
+
+/* Liquid Glass Unified Final Override */
+.page {
+  background:
+    radial-gradient(circle at 12% -8%, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 30%),
+    radial-gradient(circle at 90% 6%, rgba(214, 194, 168, 0.22) 0%, rgba(214, 194, 168, 0) 30%),
+    linear-gradient(180deg, #f6f4f1 0%, #f1eee9 100%) !important;
+}
+
+.hero,
+.card,
+.summary-box,
+.insight,
+.risk-band-card,
+.currency-card,
+.visual-card,
+.shock-card,
+.planner-card,
+.bank-card,
+.empty,
+.editor-panel,
+.rebalance-list,
+.order-list,
+.timeline-list,
+.planner-list-block,
+.maturity-box,
+.visual-placeholder,
+.shock-alert-box,
+.rebalance-item,
+.order-item,
+.planner-row,
+.timeline-item,
+.editor-field,
+.forecast-box {
+  background: linear-gradient(154deg, rgba(255, 255, 255, 0.74), rgba(247, 241, 233, 0.56)) !important;
+  border: 1rpx solid rgba(255, 255, 255, 0.72) !important;
+  backdrop-filter: blur(14rpx) saturate(1.03);
+  -webkit-backdrop-filter: blur(14rpx) saturate(1.03);
+  box-shadow: 0 10rpx 24rpx rgba(66, 53, 39, 0.09) !important;
+}
+
+.hero-btn,
+.hero-btn-primary,
+.hero-btn-ghost,
+.editor-btn,
+.editor-btn-ghost,
+.empty-btn,
+.hero-shortcut-pill,
+.hero-shortcut-eye .security-eye-btn,
+.section-link,
+.bank-card-link,
+.order-delete,
+.order-status {
+  background: linear-gradient(148deg, rgba(255, 255, 255, 0.82), rgba(243, 234, 224, 0.64)) !important;
+  border: 1rpx solid rgba(255, 255, 255, 0.74) !important;
+  color: #63513d !important;
+}
+
+.hero-btn-primary,
+.editor-btn:not(.editor-btn-ghost),
+.empty-btn {
+  background: linear-gradient(140deg, #7a6348, #5f4d39) !important;
+  color: #fff8ef !important;
+  border-color: rgba(255, 255, 255, 0.42) !important;
+}
+
+/* Liquid Glass Main Inspired Finish */
+.page {
+  background:
+    radial-gradient(circle at 14% -10%, rgba(255, 255, 255, 0.46) 0%, rgba(255, 255, 255, 0) 32%),
+    radial-gradient(circle at 90% 8%, rgba(220, 198, 170, 0.22) 0%, rgba(220, 198, 170, 0) 30%),
+    linear-gradient(180deg, #f6f4f1 0%, #f1eee9 100%) !important;
+}
+
+.hero,
+.card,
+.summary-box,
+.insight,
+.risk-band-card,
+.currency-card,
+.visual-card,
+.shock-card,
+.planner-card,
+.bank-card,
+.empty,
+.editor-panel,
+.rebalance-list,
+.order-list,
+.timeline-list,
+.planner-list-block,
+.maturity-box,
+.visual-placeholder,
+.shock-alert-box,
+.rebalance-item,
+.order-item,
+.planner-row,
+.timeline-item,
+.editor-field,
+.forecast-box {
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.84), rgba(243, 235, 226, 0.58)) !important;
+  border: 1rpx solid rgba(255, 255, 255, 0.78) !important;
+  box-shadow: 0 8rpx 18rpx rgba(0, 0, 0, 0.16), 0 -16rpx 28rpx inset rgba(0, 0, 0, 0.08), 0 1rpx 0 inset rgba(255, 255, 255, 0.78) !important;
+  backdrop-filter: blur(16rpx) contrast(1.12) brightness(1.03) saturate(1.08);
+  -webkit-backdrop-filter: blur(16rpx) contrast(1.12) brightness(1.03) saturate(1.08);
+}
+
+/* Delete text should always be red */
+.order-delete,
+.fx-order-card .order-delete,
+.bank-card-link.danger {
+  color: #d84444 !important;
 }

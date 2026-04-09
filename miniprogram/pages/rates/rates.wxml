@@ -1,9 +1,19 @@
 <view class="container {{lockScroll ? 'lock-scroll' : ''}}">
+  <view class="custom-nav" style="height: {{navTotalHeight}}px; padding-top: {{navStatusHeight}}px;">
+    <view class="custom-nav-inner" style="height: {{navContentHeight}}px;">
+      <view class="custom-nav-side" style="width: {{navCapsuleSpace}}px;">
+        <view class="custom-nav-back" bindtap="onNavBack">←</view>
+      </view>
+      <view class="custom-nav-title">{{navTitle}}</view>
+      <view class="custom-nav-side custom-nav-side-right" style="width: {{navCapsuleSpace}}px;"></view>
+    </view>
+  </view>
+
   <view class="hero-card">
     <view class="hero-title-row">
       <view>
         <view class="hero-title">主页汇率工作台</view>
-        <view class="hero-subtitle">决定首页显示哪些实时汇率，并支持拖拽排序和 AI 波动监测。</view>
+        <view class="hero-subtitle">决定首页显示哪些实时汇率，并支持拖拽排序和波动监测。</view>
       </view>
       <view class="hero-badge">{{showingRates.length}} 项展示中</view>
     </view>

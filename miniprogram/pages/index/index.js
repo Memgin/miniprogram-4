@@ -24,6 +24,71 @@ function formatDateInput(date) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 }
 
+function formatBeijingDateTime(input) {
+  if (input === undefined || input === null || input === '') {
+    return '';
+  }
+
+  let date = null;
+  if (input instanceof Date) {
+    date = input;
+  } else if (typeof input === 'number' && Number.isFinite(input)) {
+    const ts = input < 1e12 ? input * 1000 : input;
+    date = new Date(ts);
+  } else if (typeof input === 'string') {
+    const text = input.trim();
+    if (!text) {
+      return '';
+    }
+    if (/^\d+$/.test(text)) {
+      const num = Number(text);
+      const ts = num < 1e12 ? num * 1000 : num;
+      date = new Date(ts);
+    } else {
+      date = new Date(text);
+    }
+  }
+
+  if (!(date instanceof Date) || Number.isNaN(date.getTime())) {
+    return String(input);
+  }
+
+  if (typeof Intl !== 'undefined' && Intl && typeof Intl.DateTimeFormat === 'function') {
+    try {
+      const parts = new Intl.DateTimeFormat('zh-CN', {
+        timeZone: 'Asia/Shanghai',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      }).formatToParts(date);
+
+      const getPart = (type) => {
+        const found = parts.find((part) => part.type === type);
+        return found ? found.value : '';
+      };
+
+      return `${getPart('year')}-${getPart('month')}-${getPart('day')} ${getPart('hour')}:${getPart('minute')}:${getPart('second')} 北京时间`;
+    } catch (e) {
+      // fall through to manual formatter
+    }
+  }
+
+  const pad2 = (num) => String(num).padStart(2, '0');
+  const utcMillis = date.getTime() + date.getTimezoneOffset() * 60 * 1000;
+  const beijing = new Date(utcMillis + 8 * 60 * 60 * 1000);
+  const year = beijing.getUTCFullYear();
+  const month = pad2(beijing.getUTCMonth() + 1);
+  const day = pad2(beijing.getUTCDate());
+  const hour = pad2(beijing.getUTCHours());
+  const minute = pad2(beijing.getUTCMinutes());
+  const second = pad2(beijing.getUTCSeconds());
+  return `${year}-${month}-${day} ${hour}:${minute}:${second} 北京时间`;
+}
+
 function normalizeGoalBucket(goal, index = 0) {
   const targetAmount = Number(goal && goal.targetAmount);
   const preferredCodes = Array.isArray(goal && goal.preferredCodes)
@@ -83,6 +148,11 @@ Page({
     rateList: [],
     selectedRateList: [],
     currencySummary: [],
+    navTitle: '资产总览',
+    navStatusHeight: 20,
+    navContentHeight: 44,
+    navTotalHeight: 64,
+    navCapsuleSpace: 96,
     totalCny: '0.00',
     updateTime: '',
     depositTarget: '',
@@ -121,6 +191,9 @@ Page({
     lastAlertCheckAt: '',
     latestRiskSummary: null,
     latestAdvice: null,
+    aiCapabilityPanel: null,
+    lastAIMonitorAt: '',
+    lastAIMonitorCode: '',
     privacyMode: false,
     biometricEnabled: false,
     showAlertEditor: false,
@@ -164,19 +237,94 @@ Page({
   startX: 0,
 
   onLoad() {
+    this.initCustomNavBar();
     this.setData({
       goalCurrencyOptions: this.buildGoalCurrencyOptions(),
       stressCurrencyOptions: this.buildStressCurrencyOptions(),
       alertCurrencyOptions: this.getAlertCurrencyOptions(),
       stressEditorRows: [this.createStressEditorRow()]
     });
+    app.dataReadyCallback = () => {
+      this.loadAllData();
+    };
     this.syncStressStateFromGlobal();
   },
 
+  onUnload() {
+    if (app.dataReadyCallback) {
+      app.dataReadyCallback = null;
+    }
+  },
+
+  initCustomNavBar() {
+    try {
+      const windowInfo = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
+      const statusBarHeight = Number(windowInfo.statusBarHeight || 20);
+      const windowWidth = Number(windowInfo.windowWidth || 375);
+      const menuButton = wx.getMenuButtonBoundingClientRect ? wx.getMenuButtonBoundingClientRect() : null;
+
+      let navContentHeight = 44;
+      let navTotalHeight = statusBarHeight + navContentHeight;
+      let navCapsuleSpace = 96;
+
+      if (menuButton && menuButton.top && menuButton.bottom && menuButton.height) {
+        navTotalHeight = Number(menuButton.bottom + menuButton.top - statusBarHeight);
+        navContentHeight = Math.max(32, navTotalHeight - statusBarHeight);
+        navCapsuleSpace = Math.max(88, Number(menuButton.width + (windowWidth - menuButton.right) * 2));
+      }
+
+      this.setData({
+        navStatusHeight: statusBarHeight,
+        navContentHeight,
+        navTotalHeight,
+        navCapsuleSpace
+      });
+    } catch (error) {
+      console.warn('initCustomNavBar failed:', error);
+    }
+  },
+
+  syncCustomTabBar() {
+    if (!this.getTabBar) return;
+    const tabBar = this.getTabBar();
+    if (!tabBar || !tabBar.setData) return;
+    tabBar.setData({
+      selected: 0,
+      visualSelected: 0,
+      pressedIndex: -1,
+      slideHoverIndex: -1,
+      isTracking: false,
+      highlightX: 50,
+      highlightY: 16
+    });
+  },
+
   onShow() {
+    this.syncCustomTabBar();
     this.closeAllDelete();
     this.syncStressStateFromGlobal();
+    this.hydrateBankCardsFromCache();
     this.loadAllData();
+  },
+
+  hydrateBankCardsFromCache() {
+    let bankCards = [...(app.globalData.bankCards || [])];
+    if (!bankCards.length) {
+      bankCards = wx.getStorageSync('bankCards') || [];
+    }
+    const normalized = this.normalizeBankCards(bankCards);
+    this.setData({ bankCards: normalized });
+  },
+
+  normalizeBankCards(bankCards) {
+    if (!Array.isArray(bankCards)) return [];
+    return bankCards.map((card) => {
+      const currencies = Array.isArray(card && card.currencies) ? card.currencies : [];
+      return {
+        ...(card || {}),
+        currencies
+      };
+    });
   },
 
   /**
@@ -206,22 +354,23 @@ Page({
     this.setData({ isLoading: true });
     wx.showLoading({ title: '加载中...' });
 
+    let bankCards = [...(app.globalData.bankCards || [])];
+    if (bankCards.length === 0) {
+      bankCards = wx.getStorageSync('bankCards') || [];
+    }
+    bankCards = this.normalizeBankCards(bankCards);
+
     try {
       const rates = await exchangeRateUtil.getSinaRealTimeRates();
       app.globalData.exchangeRates = rates;
       wx.setStorageSync('exchangeRates', rates);
-
-      let bankCards = [...(app.globalData.bankCards || [])];
-      if (bankCards.length === 0) {
-        bankCards = wx.getStorageSync('bankCards') || [];
-      }
 
       const summaryResult = this.calculateSummary(rates, bankCards);
       const selectedRateList = this.getSelectedRateList(rates);
 
       const formattedCards = bankCards.map(card => {
         let cardTotal = 0;
-        card.currencies.forEach(cur => {
+        (card.currencies || []).forEach(cur => {
           const amt = parseFloat(cur.amount) || 0;
           const code = (cur.code || '').toUpperCase();
           const rate = rates[code] || rates[code.toLowerCase()] || (code === 'RM' ? (rates['MYR'] || rates['myr']) : 1);
@@ -238,13 +387,44 @@ Page({
         totalCny: summaryResult.totalCny.toFixed(2),
         ratesLoaded: true,
         selectedRateList,
-        updateTime: rates.updateTime || ''
+        updateTime: formatBeijingDateTime(rates.updateTime)
+      }, () => {
+        this.refreshAICapabilityPanel();
       });
 
       this.calculateTargetProgress();
       await this.loadAdvancedInsights(rates, formattedCards);
     } catch (err) {
       console.error('loadAllData Error:', err);
+      const fallbackRates = wx.getStorageSync('exchangeRates') || app.globalData.exchangeRates || { CNY: 1, cny: 1 };
+      const summaryResult = this.calculateSummary(fallbackRates, bankCards);
+      const selectedRateList = this.getSelectedRateList(fallbackRates);
+
+      const formattedCards = bankCards.map(card => {
+        let cardTotal = 0;
+        (card.currencies || []).forEach(cur => {
+          const amt = parseFloat(cur.amount) || 0;
+          const code = (cur.code || '').toUpperCase();
+          const rate = fallbackRates[code] || fallbackRates[code.toLowerCase()] || (code === 'RM' ? (fallbackRates['MYR'] || fallbackRates['myr']) : 1);
+          cardTotal += amt * rate;
+        });
+        return { ...card, totalCny: cardTotal.toFixed(2), showDelete: false };
+      });
+
+      this.setData({
+        rates: fallbackRates,
+        bankCards: formattedCards,
+        rateList: summaryResult.rateList,
+        currencySummary: summaryResult.currencySummary,
+        totalCny: summaryResult.totalCny.toFixed(2),
+        ratesLoaded: true,
+        selectedRateList,
+        updateTime: fallbackRates.updateTime ? formatBeijingDateTime(fallbackRates.updateTime) : '使用缓存汇率'
+      }, () => {
+        this.refreshAICapabilityPanel();
+      });
+
+      this.calculateTargetProgress();
       wx.showToast({ title: '实时汇率暂不可用', icon: 'none' });
     } finally {
       this.setData({ isLoading: false });
@@ -270,10 +450,11 @@ Page({
 
     const totalByCode = {};
     bankCards.forEach(card => {
-      card.currencies.forEach(cur => {
+      (card.currencies || []).forEach(cur => {
         const amt = parseFloat(cur.amount) || 0;
         if (amt === 0) return;
-        const c = cur.code.toLowerCase();
+        const c = String(cur.code || '').toLowerCase();
+        if (!c) return;
         totalByCode[c] = (totalByCode[c] || 0) + amt;
       });
     });
@@ -373,6 +554,12 @@ Page({
           spot_api: '实时数据'
         };
         const sourceLabel = sourceMap[r.data_source] || '未知';
+        this.setData({
+          lastAIMonitorAt: new Date().toLocaleString('zh-CN', { hour12: false }),
+          lastAIMonitorCode: String(code).toUpperCase()
+        }, () => {
+          this.refreshAICapabilityPanel();
+        });
 
         wx.showModal({
           title: `AI监测: ${String(code).toUpperCase()}/CNY`,
@@ -1037,6 +1224,68 @@ Page({
     };
   },
 
+  buildAICapabilityPanel() {
+    const xishuAssets = wx.getStorageSync('XISHU_ASSETS_V1') || [];
+    const xishuAssetCount = (Array.isArray(xishuAssets) ? xishuAssets : []).filter((item) => item && item.type === 'asset').length;
+    const modules = [
+      {
+        key: 'fx-monitor',
+        name: '汇率波动监测',
+        ready: this.data.selectedRateList.length > 0,
+        detail: this.data.lastAIMonitorAt
+          ? `最近监测 ${this.data.lastAIMonitorCode || '-'} · ${this.data.lastAIMonitorAt}`
+          : `可监测币种 ${this.data.selectedRateList.length} 个`
+      },
+      {
+        key: 'risk-radar',
+        name: '风险雷达 VaR',
+        ready: !!this.data.latestRiskSummary,
+        detail: this.data.latestRiskSummary
+          ? `VaR95 ${this.data.latestRiskSummary.var95Text}`
+          : '等待风险分析结果'
+      },
+      {
+        key: 'stress-engine',
+        name: '压力测试引擎',
+        ready: !!this.data.stressResult || (this.data.savedStressScenarios || []).length > 0,
+        detail: this.data.stressResult
+          ? `最近场景 ${this.data.stressResult.scenarioName}`
+          : `已保存场景 ${(this.data.savedStressScenarios || []).length} 个`
+      },
+      {
+        key: 'portfolio-advice',
+        name: '组合建议生成',
+        ready: !!this.data.latestAdvice,
+        detail: this.data.latestAdvice
+          ? `最近生成 ${this.data.latestAdvice.generatedAt || '刚刚'}`
+          : '等待建议生成'
+      },
+      {
+        key: 'asset-intelligence',
+        name: '悉数资产智能',
+        ready: xishuAssetCount > 0,
+        detail: xishuAssetCount > 0
+          ? `已接入资产 ${xishuAssetCount} 条（含OCR/残值/回本分析）`
+          : '悉数页录入资产后自动激活'
+      }
+    ];
+    const readyCount = modules.filter((item) => item.ready).length;
+    const score = Math.round((readyCount / Math.max(1, modules.length)) * 100);
+    return {
+      score,
+      readyCount,
+      totalCount: modules.length,
+      summaryText: `当前已激活 ${readyCount}/${modules.length} 个 AI 场景能力`,
+      modules
+    };
+  },
+
+  refreshAICapabilityPanel() {
+    this.setData({
+      aiCapabilityPanel: this.buildAICapabilityPanel()
+    });
+  },
+
   syncStressStateFromGlobal() {
     const goalBuckets = deriveGoalBuckets(app.globalData.goalBuckets, app.globalData.depositTarget);
     this.setData({
@@ -1057,6 +1306,7 @@ Page({
       this.calculateTargetProgress();
       this.updateRiskFocusSuggestion();
       this.refreshRiskCharts();
+      this.refreshAICapabilityPanel();
     });
   },
 
@@ -1138,7 +1388,7 @@ Page({
           formatter: (params) => {
             const point = Array.isArray(params) ? params[0] : params;
             const item = items[point.dataIndex] || {};
-            return `${item.code}<br/>风险贡献 ${item.contributionText || '0%'}<br/>敞口占比 ${item.weightText || '0%'}<br/>年化波动 ${item.volatilityText || '0%'}`;
+            return `${item.code}\n风险贡献 ${item.contributionText || '0%'}\n敞口占比 ${item.weightText || '0%'}\n年化波动 ${item.volatilityText || '0%'}`;
           }
         },
         grid: { top: '10%', left: '16%', right: '8%', bottom: '10%', containLabel: true },
@@ -1264,6 +1514,69 @@ Page({
     } finally {
       this.setData({ isAdvancedLoading: false });
     }
+  },
+
+  onShowExperimentParams(e) {
+    const type = String((e.currentTarget && e.currentTarget.dataset && e.currentTarget.dataset.type) || '');
+    const risk = this.data.latestRiskSummary || null;
+    const stress = this.data.stressResult || null;
+    const advice = this.data.latestAdvice || null;
+
+    const riskParams = {
+      engine: 'riskAnalyzer',
+      selectedWindowDays: Number(this.data.selectedRiskWindow || 14),
+      sampleSize: risk && risk.portfolioSeries && Array.isArray(risk.portfolioSeries.values)
+        ? risk.portfolioSeries.values.length
+        : 0,
+      exposureCount: risk && Array.isArray(risk.topExposures) ? risk.topExposures.length : 0,
+      contributionCount: risk && Array.isArray(risk.riskContributions) ? risk.riskContributions.length : 0,
+      ratesUpdateTime: this.data.updateTime || '',
+      cardsCount: Array.isArray(this.data.bankCards) ? this.data.bankCards.length : 0
+    };
+
+    const stressParams = {
+      engine: 'runStressTest(local)',
+      scenarioName: stress ? stress.scenarioName : '',
+      scenarioKey: stress ? stress.scenarioKey : '',
+      shockSummary: stress ? stress.shockSummary : '',
+      shockCount: stress && Array.isArray(stress.shocks) ? stress.shocks.length : 0,
+      baseTotal: stress ? Number(stress.baseTotal || 0).toFixed(2) : '0.00',
+      timestamp: stress ? stress.timestamp : ''
+    };
+
+    const adviceParams = {
+      engine: 'aiPortfolioAdvisor',
+      generatedAt: advice ? advice.generatedAt : '',
+      hasRiskSummary: !!risk,
+      hasStressResult: !!stress,
+      ratesUpdateTime: this.data.updateTime || '',
+      cardsCount: Array.isArray(this.data.bankCards) ? this.data.bankCards.length : 0
+    };
+
+    const payloadMap = {
+      risk: {
+        title: '风险雷达实验参数',
+        payload: riskParams
+      },
+      stress: {
+        title: '压力测试实验参数',
+        payload: stressParams
+      },
+      advice: {
+        title: '组合建议实验参数',
+        payload: adviceParams
+      }
+    };
+
+    const target = payloadMap[type];
+    if (!target) return;
+
+    wx.showModal({
+      title: target.title,
+      content: JSON.stringify(target.payload, null, 2),
+      showCancel: false,
+      confirmText: '知道了'
+    });
   },
 
   requestBiometricAuth(reason = '验证身份后显示敏感金额') {

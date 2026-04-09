@@ -1,11 +1,21 @@
 <view class="container">
+  <view class="custom-nav" style="height: {{navTotalHeight}}px; padding-top: {{navStatusHeight}}px;">
+    <view class="custom-nav-inner" style="height: {{navContentHeight}}px;">
+      <view class="custom-nav-side" style="width: {{navCapsuleSpace}}px;">
+        <view class="custom-nav-back" bindtap="onNavBack">←</view>
+      </view>
+      <view class="custom-nav-title">{{navTitle}}</view>
+      <view class="custom-nav-side custom-nav-side-right" style="width: {{navCapsuleSpace}}px;"></view>
+    </view>
+  </view>
+
   <view class="export-hero card" wx:if="{{exportPreview}}">
     <view class="export-hero-title">导出中心</view>
     <view class="export-hero-subtitle">导出当前汇总的实时汇率、币种余额和人民币总计，可直接复制文本、复制摘要或生成图片。</view>
     <view class="export-hero-grid">
       <view class="export-hero-box">
         <view class="export-hero-label">人民币总计</view>
-        <view class="export-hero-value">{{exportPreview.totalCnyText}}</view>
+        <view class="export-hero-value export-hero-value-total">{{exportPreview.totalCnyText}}</view>
       </view>
       <view class="export-hero-box">
         <view class="export-hero-label">汇率条目</view>

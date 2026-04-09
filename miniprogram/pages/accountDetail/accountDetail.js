@@ -15,6 +15,11 @@ function initChart(canvas, width, height, dpr) {
 
 Page({
   data: {
+    navTitle: '银行卡详情',
+    navStatusHeight: 20,
+    navContentHeight: 44,
+    navTotalHeight: 64,
+    navCapsuleSpace: 96,
     cardId: '',
     cardInfo: {},
     currencyList: [],
@@ -75,6 +80,7 @@ Page({
   },
 
   onLoad: function(options) {
+    this.initCustomNavBar();
     var cardId = options.cardId;
     if (!cardId) {
       wx.showToast({ title: '参数错误', icon: 'none' });
@@ -82,6 +88,43 @@ Page({
       return;
     }
     this.setData({ cardId: cardId });
+  },
+
+  onNavBack: function() {
+    var pages = getCurrentPages();
+    if (pages.length > 1) {
+      wx.navigateBack({ delta: 1 });
+      return;
+    }
+    wx.switchTab({ url: '/pages/index/index' });
+  },
+
+  initCustomNavBar: function() {
+    try {
+      const windowInfo = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
+      const statusBarHeight = Number(windowInfo.statusBarHeight || 20);
+      const windowWidth = Number(windowInfo.windowWidth || 375);
+      const menuButton = wx.getMenuButtonBoundingClientRect ? wx.getMenuButtonBoundingClientRect() : null;
+
+      let navContentHeight = 44;
+      let navTotalHeight = statusBarHeight + navContentHeight;
+      let navCapsuleSpace = 96;
+
+      if (menuButton && menuButton.top && menuButton.bottom && menuButton.height) {
+        navTotalHeight = Number(menuButton.bottom + menuButton.top - statusBarHeight);
+        navContentHeight = Math.max(32, navTotalHeight - statusBarHeight);
+        navCapsuleSpace = Math.max(88, Number(menuButton.width + (windowWidth - menuButton.right) * 2));
+      }
+
+      this.setData({
+        navStatusHeight: statusBarHeight,
+        navContentHeight,
+        navTotalHeight,
+        navCapsuleSpace
+      });
+    } catch (error) {
+      console.warn('initCustomNavBar failed:', error);
+    }
   },
 
   onShow: function() {
@@ -344,7 +387,7 @@ Page({
           formatter: (params) => {
             var point = Array.isArray(params) ? params[0] : params;
             var item = items[point.dataIndex] || {};
-            return item.code + '<br/>风险贡献 ' + (item.contributionText || '0%') + '<br/>敞口占比 ' + (item.weightText || '0%') + '<br/>年化波动 ' + (item.volatilityText || '0%');
+            return item.code + '\n风险贡献 ' + (item.contributionText || '0%') + '\n敞口占比 ' + (item.weightText || '0%') + '\n年化波动 ' + (item.volatilityText || '0%');
           }
         },
         grid: { top: '10%', left: '18%', right: '8%', bottom: '10%', containLabel: true },
@@ -857,10 +900,10 @@ Page({
       chart.setOption({
         color: ['#ff9f43', '#2f54eb'],
         tooltip: { trigger: 'axis', confine: true },
-        grid: { top: '16%', left: '6%', right: '6%', bottom: '14%', containLabel: true },
+        grid: { top: '18%', left: '7%', right: '7%', bottom: '26%', containLabel: true },
         xAxis: { type: 'category', boundaryGap: false, data: labels, axisLabel: { fontSize: 10, color: '#999' } },
         yAxis: { type: 'value', axisLabel: { fontSize: 10, color: '#999' } },
-        legend: { bottom: 10, data: ['历史组合估值', '未来敏感度预测'] },
+        legend: { bottom: 42, data: ['历史组合估值', '未来敏感度预测'] },
         series: [
           {
             name: '历史组合估值',

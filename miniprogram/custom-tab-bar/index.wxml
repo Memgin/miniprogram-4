@@ -1,0 +1,37 @@
+<view class="lg-tabbar-wrap" wx:if="{{!hidden}}">
+  <view class="lg-tabbar-glow"></view>
+  <view
+    class="lg-tabbar-shell {{isTracking ? 'is-sliding' : ''}}"
+    bindtouchstart="onShellTouchStart"
+    bindtouchmove="onShellTouchMove"
+    bindtouchend="onShellTouchEnd"
+    bindtouchcancel="onShellTouchEnd"
+  >
+    <view
+      class="lg-tab-dynamic-highlight {{isTracking ? 'is-tracking' : ''}}"
+      style="left: {{highlightX}}%; top: {{highlightY}}%;"
+    ></view>
+
+    <view
+      wx:for="{{list}}"
+      wx:key="pagePath"
+      class="lg-tab-item {{visualSelected === index ? 'is-active' : ''}} {{pressedIndex === index ? 'is-pressed' : ''}}"
+      data-path="/{{item.pagePath}}"
+      data-index="{{index}}"
+      bindtap="onTabTap"
+      bindtouchstart="onItemTouchStart"
+      bindtouchend="onItemTouchEnd"
+      bindtouchcancel="onItemTouchEnd"
+    >
+      <view class="lg-tab-active-halo" wx:if="{{visualSelected === index}}"></view>
+      <view class="lg-tab-icon-shell">
+        <image
+          class="lg-tab-icon"
+          src="{{visualSelected === index ? item.selectedIconPath : item.iconPath}}"
+          mode="aspectFit"
+        />
+      </view>
+      <text class="lg-tab-text">{{item.text}}</text>
+    </view>
+  </view>
+</view>

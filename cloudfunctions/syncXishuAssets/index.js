@@ -29,7 +29,9 @@ function normalizeAssets(input) {
     status: String((item && item.status) || 'serving'),
     pinned: !!(item && item.pinned),
     excludeAsset: !!(item && item.excludeAsset),
-    excludeDaily: !!(item && item.excludeDaily)
+    excludeDaily: !!(item && item.excludeDaily),
+    useCount: Math.max(0, Number((item && item.useCount) || 0)),
+    lastUseAt: String((item && item.lastUseAt) || '')
   })).filter((item) => !!item.id);
 }
 

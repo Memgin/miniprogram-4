@@ -40,6 +40,11 @@ function diffDays(fromDate, toDate) {
 
 Page({
   data: {
+    navTitle: '银行卡账户',
+    navStatusHeight: 20,
+    navContentHeight: 44,
+    navTotalHeight: 64,
+    navCapsuleSpace: 96,
     bankCards: [],
     currencySummary: [],
     totalCny: '0.00',
@@ -107,6 +112,7 @@ Page({
   },
 
   onLoad() {
+    this.initCustomNavBar();
     this.setData({
       shockCurrencyOptions: [],
       shockCurrencyLabels: [],
@@ -114,6 +120,43 @@ Page({
       cashflowForm: this.createCashflowForm('CNY'),
       maturityForm: this.createMaturityForm('CNY')
     });
+  },
+
+  onNavBack() {
+    const pages = getCurrentPages();
+    if (pages.length > 1) {
+      wx.navigateBack({ delta: 1 });
+      return;
+    }
+    wx.switchTab({ url: '/pages/index/index' });
+  },
+
+  initCustomNavBar() {
+    try {
+      const windowInfo = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
+      const statusBarHeight = Number(windowInfo.statusBarHeight || 20);
+      const windowWidth = Number(windowInfo.windowWidth || 375);
+      const menuButton = wx.getMenuButtonBoundingClientRect ? wx.getMenuButtonBoundingClientRect() : null;
+
+      let navContentHeight = 44;
+      let navTotalHeight = statusBarHeight + navContentHeight;
+      let navCapsuleSpace = 96;
+
+      if (menuButton && menuButton.top && menuButton.bottom && menuButton.height) {
+        navTotalHeight = Number(menuButton.bottom + menuButton.top - statusBarHeight);
+        navContentHeight = Math.max(32, navTotalHeight - statusBarHeight);
+        navCapsuleSpace = Math.max(88, Number(menuButton.width + (windowWidth - menuButton.right) * 2));
+      }
+
+      this.setData({
+        navStatusHeight: statusBarHeight,
+        navContentHeight,
+        navTotalHeight,
+        navCapsuleSpace
+      });
+    } catch (error) {
+      console.warn('initCustomNavBar failed:', error);
+    }
   },
 
   onShow() {
@@ -300,14 +343,30 @@ Page({
       cells: cards.map((card) => {
         const exposure = Number((card.currencyExposureMap && card.currencyExposureMap[code]) || 0);
         const ratio = maxValue > 0 ? exposure / maxValue : 0;
-        const alpha = exposure > 0 ? Math.min(0.92, 0.14 + ratio * 0.78) : 0.06;
+        const levels = [
+          { threshold: 0.25, bg: 'rgba(133, 102, 70, 0.24)', color: '#3a3026' },
+          { threshold: 0.5, bg: 'rgba(133, 102, 70, 0.38)', color: '#3a3026' },
+          { threshold: 0.75, bg: 'rgba(133, 102, 70, 0.56)', color: '#fff8ef' },
+          { threshold: 1.01, bg: 'rgba(133, 102, 70, 0.74)', color: '#fff8ef' }
+        ];
+
+        let picked = levels[0];
+        for (let i = 0; i < levels.length; i += 1) {
+          if (ratio < levels[i].threshold) {
+            picked = levels[i];
+            break;
+          }
+        }
+
+        const background = exposure > 0 ? picked.bg : 'rgba(122, 99, 72, 0.06)';
+        const color = exposure > 0 ? picked.color : '#6f6254';
         return {
           cardId: card.id,
           cardName: card.name || '未命名',
           shortName: String(card.name || '未命名').slice(0, 6),
           value: exposure,
           valueText: `¥${exposure.toFixed(0)}`,
-          style: `background: rgba(15, 118, 110, ${alpha.toFixed(2)}); color: ${alpha > 0.55 ? '#ffffff' : '#0f172a'};`
+          style: `background: ${background}; color: ${color};`
         };
       })
     }));

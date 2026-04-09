@@ -1,5 +1,10 @@
 {
   "navigationBarTitleText": "银行卡详情",
+  "navigationStyle": "custom",
+  "navigationBarBackgroundColor": "#f6f4f1",
+  "navigationBarTextStyle": "black",
+  "backgroundColor": "#f6f4f1",
+  "backgroundTextStyle": "dark",
   "usingComponents": {
     "ec-canvas": "../../components/ec-canvas/ec-canvas"
   }

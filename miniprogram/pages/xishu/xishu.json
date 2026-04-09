@@ -1,6 +1,12 @@
 {
   "navigationBarTitleText": "悉数",
-  "navigationStyle": "default",
+  "navigationStyle": "custom",
+  "navigationBarBackgroundColor": "#f6f4f1",
+  "navigationBarTextStyle": "black",
+  "backgroundColor": "#f6f4f1",
   "enablePullDownRefresh": true,
-  "backgroundTextStyle": "dark"
+  "backgroundTextStyle": "dark",
+  "usingComponents": {
+    "ec-canvas": "../../components/ec-canvas/ec-canvas"
+  }
 }

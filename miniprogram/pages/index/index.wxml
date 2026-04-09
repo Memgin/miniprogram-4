@@ -1,5 +1,27 @@
 <view class="container">
-  <view class="total-card card" wx:if="{{totalCny > 0}}">
+  <view class="custom-nav" style="height: {{navTotalHeight}}px; padding-top: {{navStatusHeight}}px;">
+    <view class="custom-nav-inner" style="height: {{navContentHeight}}px;">
+      <view class="custom-nav-side" style="width: {{navCapsuleSpace}}px;"></view>
+      <view class="custom-nav-title">{{navTitle}}</view>
+      <view class="custom-nav-side" style="width: {{navCapsuleSpace}}px;"></view>
+    </view>
+  </view>
+
+  <view class="empty-workspace card" wx:if="{{!bankCards.length}}">
+    <view class="empty-workspace-badge">首页工作区</view>
+    <view class="empty-workspace-title">先建立第一笔真实财产</view>
+    <view class="empty-workspace-text">录入银行卡后，这里会自动接入实时汇率、目标体系、风险雷达、压力测试和组合建议。</view>
+    <view class="empty-workspace-actions">
+      <button class="empty-workspace-btn empty-workspace-btn-primary" bindtap="gotoAddCard">添加银行卡</button>
+      <button class="empty-workspace-btn" bindtap="gotoRatesPage">先看汇率</button>
+    </view>
+    <view class="empty-workspace-links">
+      <text class="empty-workspace-link" bindtap="gotoDiagnostics">诊断中心</text>
+      <text class="empty-workspace-link" bindtap="openGoalEditor">先设目标</text>
+    </view>
+  </view>
+
+  <view class="total-card card" wx:if="{{bankCards.length > 0}}">
     <view class="total-card-top">
       <view class="total-card-copy">
         <view class="card-title total-card-title">资产总览</view>
@@ -7,11 +29,16 @@
       <view class="total-card-security">
         <view class="security-eye-btn" bindtap="togglePrivacyMode" aria-label="切换金额显示">
           <view class="security-eye security-eye-{{privacyMode ? 'off' : 'on'}}">
+            <view class="security-eye-iris"></view>
             <view class="security-eye-pupil"></view>
+            <view class="security-eye-glint"></view>
             <view class="security-eye-strike" wx:if="{{privacyMode}}"></view>
           </view>
         </view>
-        <view class="security-compact-toggle {{biometricEnabled ? 'security-compact-toggle-active' : ''}}" bindtap="toggleBiometricEnabled">{{biometricEnabled ? 'Bio On' : 'Bio Off'}}</view>
+        <view class="security-compact-toggle {{biometricEnabled ? 'security-compact-toggle-active' : ''}}" bindtap="toggleBiometricEnabled">
+          <view class="security-toggle-dot {{biometricEnabled ? 'security-toggle-dot-active' : ''}}"></view>
+          <text>{{biometricEnabled ? '生物已开' : '生物已关'}}</text>
+        </view>
       </view>
     </view>
 
@@ -123,7 +150,7 @@
     </view>
     <view class="rate-list">
       <view class="rate-item">
-        <text class="rate-name">更新时间</text>
+        <text class="rate-name">源更新时间</text>
         <text class="rate-value" style="font-weight: normal; color: #94a3b8; font-size: 24rpx;">{{updateTime}}</text>
       </view>
       <view class="rate-item {{selectedRiskFocusCode && selectedRiskFocusCode === item.upperCode ? 'linked-highlight' : ''}}" wx:for="{{selectedRateList}}" wx:key="code">
@@ -182,6 +209,19 @@
         <view class="stress-impact-item" wx:for="{{stressResult.topImpacts}}" wx:key="code">
           <text class="stress-impact-code u-code">{{item.code}}</text>
           <text class="stress-impact-value stress-impact-{{item.tone}}">{{privacyMode ? '***' : item.deltaText}}</text>
+        </view>
+      </view>
+
+      <view class="exp-param-box">
+        <view class="exp-param-head">
+          <text class="exp-param-title">可复现实验参数</text>
+          <text class="exp-param-link" data-type="stress" bindtap="onShowExperimentParams">查看参数</text>
+        </view>
+        <view class="exp-param-grid">
+          <text class="exp-param-chip">引擎 runStressTest(local)</text>
+          <text class="exp-param-chip">场景 {{stressResult.scenarioName}}</text>
+          <text class="exp-param-chip">冲击项 {{stressResult.shocks.length}} 个</text>
+          <text class="exp-param-chip">快照 {{stressResult.timestamp}}</text>
         </view>
       </view>
     </view>
@@ -304,6 +344,19 @@
         <view class="risk-contribution-side">{{privacyMode ? '***' : item.cnyText}}</view>
       </view>
     </view>
+
+    <view class="exp-param-box" wx:if="{{latestRiskSummary}}">
+      <view class="exp-param-head">
+        <text class="exp-param-title">可复现实验参数</text>
+        <text class="exp-param-link" data-type="risk" bindtap="onShowExperimentParams">查看参数</text>
+      </view>
+      <view class="exp-param-grid">
+        <text class="exp-param-chip">引擎 riskAnalyzer</text>
+        <text class="exp-param-chip">窗口 {{selectedRiskWindow}} 天</text>
+        <text class="exp-param-chip">样本 {{latestRiskSummary.portfolioSeries.values.length}} 条</text>
+        <text class="exp-param-chip">源汇率时间 {{updateTime || '未更新'}}</text>
+      </view>
+    </view>
   </view>
 
   <view class="insight-card card" id="alert-section" wx:if="{{alertRules.length > 0 || ratesLoaded}}">
@@ -353,10 +406,35 @@
     </view>
   </view>
 
+  <view class="insight-card card" wx:if="{{aiCapabilityPanel}}">
+    <view class="insight-head">
+      <view>
+        <view class="card-title">AI 场景能力看板</view>
+        <view class="insight-subtitle">基于现有功能自动生成：监测、分析、推演、建议、资产智能</view>
+      </view>
+      <view class="ai-cap-badge">{{aiCapabilityPanel.score}}分</view>
+    </view>
+
+    <view class="ai-cap-summary">{{aiCapabilityPanel.summaryText}}</view>
+    <view class="ai-cap-track">
+      <view class="ai-cap-fill" style="width: {{aiCapabilityPanel.score}}%;"></view>
+    </view>
+
+    <view class="ai-cap-list">
+      <view class="ai-cap-item" wx:for="{{aiCapabilityPanel.modules}}" wx:key="key">
+        <view class="ai-cap-item-top">
+          <text class="ai-cap-item-name">{{item.name}}</text>
+          <text class="ai-cap-item-state {{item.ready ? 'ready' : 'pending'}}">{{item.ready ? '已激活' : '待激活'}}</text>
+        </view>
+        <text class="ai-cap-item-detail">{{item.detail}}</text>
+      </view>
+    </view>
+  </view>
+
   <view class="insight-card card" wx:if="{{latestAdvice}}">
     <view class="insight-head">
       <view>
-        <view class="card-title">AI 组合建议</view>
+        <view class="card-title">组合建议</view>
         <view class="insight-subtitle">结合敞口、压力测试和风险估算生成</view>
       </view>
       <view class="advice-time">{{latestAdvice.generatedAt}}</view>
@@ -371,23 +449,22 @@
       <view class="advice-block-title">建议动作</view>
       <view class="advice-line" wx:for="{{latestAdvice.actions}}" wx:key="*this">{{item}}</view>
     </view>
-  </view>
 
-
-
-  <view class="empty-workspace card" wx:else>
-    <view class="empty-workspace-badge">首页工作区</view>
-    <view class="empty-workspace-title">先建立第一笔真实资产</view>
-    <view class="empty-workspace-text">录入银行卡后，这里会自动接入实时汇率、目标体系、风险雷达、压力测试和 AI 建议。</view>
-    <view class="empty-workspace-actions">
-      <button class="empty-workspace-btn empty-workspace-btn-primary" bindtap="gotoAddCard">添加银行卡</button>
-      <button class="empty-workspace-btn" bindtap="gotoRatesPage">先看汇率</button>
-    </view>
-    <view class="empty-workspace-links">
-      <text class="empty-workspace-link" bindtap="gotoDiagnostics">诊断中心</text>
-      <text class="empty-workspace-link" bindtap="openGoalEditor">先设目标</text>
+    <view class="exp-param-box">
+      <view class="exp-param-head">
+        <text class="exp-param-title">可复现实验参数</text>
+        <text class="exp-param-link" data-type="advice" bindtap="onShowExperimentParams">查看参数</text>
+      </view>
+      <view class="exp-param-grid">
+        <text class="exp-param-chip">引擎 aiPortfolioAdvisor</text>
+        <text class="exp-param-chip">生成 {{latestAdvice.generatedAt || '刚刚'}}</text>
+        <text class="exp-param-chip">风险输入 {{latestRiskSummary ? '是' : '否'}}</text>
+        <text class="exp-param-chip">压力输入 {{stressResult ? '是' : '否'}}</text>
+      </view>
     </view>
   </view>
+
+
 
   <view class="stress-editor-mask" wx:if="{{showStressEditor}}" catchtap="closeStressEditor">
     <view class="stress-editor-panel" catchtap="noop">

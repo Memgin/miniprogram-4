@@ -1,3 +1,8 @@
 {
-  "navigationBarTitleText": "云函数诊断"
+  "navigationBarTitleText": "云函数诊断",
+  "navigationStyle": "custom",
+  "navigationBarBackgroundColor": "#f6f4f1",
+  "navigationBarTextStyle": "black",
+  "backgroundColor": "#f6f4f1",
+  "backgroundTextStyle": "dark"
 }

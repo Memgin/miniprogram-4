@@ -202,3 +202,144 @@ page {
   white-space: pre-wrap;
   line-height: 1.4;
 }
+
+/* Liquid Glass Harmonization */
+page,
+.container {
+  background:
+    radial-gradient(circle at 10% -10%, rgba(143, 244, 120, 0.18) 0%, rgba(143, 244, 120, 0) 28%),
+    radial-gradient(circle at 90% -8%, rgba(145, 214, 255, 0.2) 0%, rgba(145, 214, 255, 0) 28%),
+    linear-gradient(170deg, #f8fbff 0%, #edf1f8 100%);
+}
+
+.hero-card,
+.rate-card,
+.section,
+.custom-toast {
+  border: 1rpx solid rgba(255, 255, 255, 0.56);
+  backdrop-filter: blur(14rpx) saturate(1.14);
+  -webkit-backdrop-filter: blur(14rpx) saturate(1.14);
+}
+
+.hero-action-primary {
+  background: linear-gradient(140deg, #151d2f, #0c1324);
+  color: #ffffff;
+}
+
+/* System polish */
+.hero-card,
+.rate-card,
+.section,
+.custom-toast {
+  border-radius: 24rpx;
+}
+
+.hero-title,
+.section-title,
+.currency-code {
+  letter-spacing: 0.2rpx;
+}
+
+/* Liquid Glass Unified Final Override */
+page,
+.container {
+  background:
+    radial-gradient(circle at 12% -8%, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 30%),
+    radial-gradient(circle at 90% 6%, rgba(214, 194, 168, 0.22) 0%, rgba(214, 194, 168, 0) 30%),
+    linear-gradient(180deg, #f6f4f1 0%, #f1eee9 100%) !important;
+}
+
+.hero-card,
+.rate-card,
+.section,
+.custom-toast {
+  background: linear-gradient(154deg, rgba(255, 255, 255, 0.74), rgba(247, 241, 233, 0.56)) !important;
+  border: 1rpx solid rgba(255, 255, 255, 0.72) !important;
+  backdrop-filter: blur(14rpx) saturate(1.03);
+  -webkit-backdrop-filter: blur(14rpx) saturate(1.03);
+  box-shadow: 0 10rpx 24rpx rgba(66, 53, 39, 0.09) !important;
+}
+
+.hero-action-primary {
+  background: linear-gradient(140deg, #7a6348, #5f4d39) !important;
+  color: #fff8ef !important;
+  border-color: rgba(255, 255, 255, 0.42) !important;
+}
+
+/* Spacing Polish: improve text paddings and rhythm */
+.hero-card {
+  padding: 30rpx 28rpx 24rpx !important;
+}
+
+.hero-title {
+  line-height: 1.28;
+}
+
+.hero-subtitle {
+  margin-top: 12rpx;
+  line-height: 1.62;
+}
+
+.hero-tip {
+  margin-top: 18rpx;
+  line-height: 1.62;
+}
+
+.section {
+  padding: 22rpx 22rpx 20rpx !important;
+}
+
+.section-title {
+  margin: 0 2rpx 10rpx 2rpx !important;
+  line-height: 1.32;
+}
+
+.optional-title {
+  margin: 0 2rpx 10rpx 2rpx !important;
+  font-weight: 600;
+}
+
+.section-subtitle {
+  margin: 0 2rpx 14rpx 2rpx !important;
+  line-height: 1.62;
+}
+
+.card-list {
+  margin-top: 4rpx;
+}
+
+.rate-card {
+  padding: 24rpx 26rpx !important;
+}
+
+.rate-info {
+  gap: 10rpx;
+}
+
+.currency-code {
+  line-height: 1.2;
+}
+
+.rate-value {
+  line-height: 1.5;
+}
+
+/* Liquid Glass Main Inspired Finish */
+page,
+.container {
+  background:
+    radial-gradient(circle at 14% -10%, rgba(255, 255, 255, 0.46) 0%, rgba(255, 255, 255, 0) 32%),
+    radial-gradient(circle at 90% 8%, rgba(220, 198, 170, 0.22) 0%, rgba(220, 198, 170, 0) 30%),
+    linear-gradient(180deg, #f6f4f1 0%, #f1eee9 100%) !important;
+}
+
+.hero-card,
+.rate-card,
+.section,
+.custom-toast {
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.84), rgba(243, 235, 226, 0.58)) !important;
+  border: 1rpx solid rgba(255, 255, 255, 0.78) !important;
+  box-shadow: 0 8rpx 18rpx rgba(0, 0, 0, 0.16), 0 -16rpx 28rpx inset rgba(0, 0, 0, 0.08), 0 1rpx 0 inset rgba(255, 255, 255, 0.78) !important;
+  backdrop-filter: blur(16rpx) contrast(1.12) brightness(1.03) saturate(1.08);
+  -webkit-backdrop-filter: blur(16rpx) contrast(1.12) brightness(1.03) saturate(1.08);
+}

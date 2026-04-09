@@ -1,4 +1,14 @@
 <view class="container">
+  <view class="custom-nav" style="height: {{navTotalHeight}}px; padding-top: {{navStatusHeight}}px;">
+    <view class="custom-nav-inner" style="height: {{navContentHeight}}px;">
+      <view class="custom-nav-side" style="width: {{navCapsuleSpace}}px;">
+        <view class="custom-nav-back" bindtap="onNavBack">←</view>
+      </view>
+      <view class="custom-nav-title">{{navTitle}}</view>
+      <view class="custom-nav-side custom-nav-side-right" style="width: {{navCapsuleSpace}}px;"></view>
+    </view>
+  </view>
+
   <view class="detail-hero card">
     <view class="detail-hero-top">
       <view class="detail-hero-main" bindtap="showEditNameModal">

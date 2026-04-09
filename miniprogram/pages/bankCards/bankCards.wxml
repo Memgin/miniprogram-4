@@ -1,4 +1,14 @@
 <view class="page">
+  <view class="custom-nav" style="height: {{navTotalHeight}}px; padding-top: {{navStatusHeight}}px;">
+    <view class="custom-nav-inner" style="height: {{navContentHeight}}px;">
+      <view class="custom-nav-side" style="width: {{navCapsuleSpace}}px;">
+        <view class="custom-nav-back" bindtap="onNavBack">←</view>
+      </view>
+      <view class="custom-nav-title">{{navTitle}}</view>
+      <view class="custom-nav-side custom-nav-side-right" style="width: {{navCapsuleSpace}}px;"></view>
+    </view>
+  </view>
+
   <view class="hero hero-{{dashboardTone}}">
     <view class="hero-main">
       <view class="hero-main-left">
@@ -31,19 +41,22 @@
 
     <view class="hero-actions">
       <button class="hero-btn hero-btn-primary" bindtap="gotoAddCard">新增银行卡</button>
-      <button class="hero-btn hero-btn-ghost" bindtap="gotoDiagnostics">诊断中心</button>
-      <view class="hero-eye-toggle" bindtap="togglePrivacyMode" aria-label="切换金额显示">
-        <view class="hero-eye hero-eye-{{privacyMode ? 'off' : 'on'}}">
-          <view class="hero-eye-pupil"></view>
-          <view class="hero-eye-strike" wx:if="{{privacyMode}}"></view>
-        </view>
-      </view>
+      <button class="hero-btn hero-btn-ghost" bindtap="gotoExport">导出资产</button>
     </view>
 
     <view class="hero-shortcuts" wx:if="{{cardCount > 0}}">
-      <view class="hero-shortcut-pill" bindtap="gotoExport">导出资产</view>
       <view class="hero-shortcut-pill" bindtap="copyBankSummary">复制摘要</view>
       <view class="hero-shortcut-pill hero-shortcut-pill-{{biometricEnabled ? 'active' : 'idle'}}" bindtap="toggleBiometricEnabled">{{biometricEnabled ? 'Bio On' : 'Bio Off'}}</view>
+      <view class="hero-shortcut-eye" bindtap="togglePrivacyMode" aria-label="切换金额显示">
+        <view class="security-eye-btn">
+          <view class="security-eye security-eye-{{privacyMode ? 'off' : 'on'}}">
+            <view class="security-eye-iris"></view>
+            <view class="security-eye-pupil"></view>
+            <view class="security-eye-glint"></view>
+            <view class="security-eye-strike" wx:if="{{privacyMode}}"></view>
+          </view>
+        </view>
+      </view>
     </view>
   </view>
 
@@ -113,6 +126,12 @@
       <view class="section-pill">卡 x 币种</view>
     </view>
     <view class="visual-subtitle">颜色越深，表示该银行卡在该币种上的人民币敞口越大。</view>
+    <view class="heatmap-legend">
+      <view class="heatmap-legend-item"><view class="heatmap-legend-chip heatmap-legend-chip-1"></view><text class="heatmap-legend-text">弱</text></view>
+      <view class="heatmap-legend-item"><view class="heatmap-legend-chip heatmap-legend-chip-2"></view><text class="heatmap-legend-text">中</text></view>
+      <view class="heatmap-legend-item"><view class="heatmap-legend-chip heatmap-legend-chip-3"></view><text class="heatmap-legend-text">强</text></view>
+      <view class="heatmap-legend-item"><view class="heatmap-legend-chip heatmap-legend-chip-4"></view><text class="heatmap-legend-text">极强</text></view>
+    </view>
     <view class="visual-placeholder" wx:if="{{privacyMode}}">隐私模式下已隐藏资产热力矩阵</view>
     <scroll-view wx:else scroll-x class="heatmap-scroll">
       <view class="heatmap-board">
@@ -233,7 +252,7 @@
     </view>
   </view>
 
-  <view class="planner-card card">
+  <view class="planner-card card fx-order-card">
     <view class="section-head compact-head">
       <view class="section-title">条件单与分批换汇</view>
       <view class="section-link" bindtap="openFxOrderEditor">新增计划</view>

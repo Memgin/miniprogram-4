@@ -1,16 +1,11 @@
 <view class="container">
-  <view class="page-hero card">
-    <view class="page-hero-title">{{mode === 'add' ? '新建银行卡档案' : '编辑银行卡档案'}}</view>
-    <view class="page-hero-subtitle">先定义银行主体，再补充该卡下的多币种余额，保存后会自动纳入总资产、风险和目标体系。</view>
-    <view class="page-hero-metrics">
-      <view class="page-hero-metric">
-        <view class="page-hero-label">当前模式</view>
-        <view class="page-hero-value">{{mode === 'add' ? '新增' : '编辑'}}</view>
+  <view class="custom-nav" style="height: {{navTotalHeight}}px; padding-top: {{navStatusHeight}}px;">
+    <view class="custom-nav-inner" style="height: {{navContentHeight}}px;">
+      <view class="custom-nav-side" style="width: {{navCapsuleSpace}}px;">
+        <view class="custom-nav-back" bindtap="onNavBack">←</view>
       </view>
-      <view class="page-hero-metric">
-        <view class="page-hero-label">已录入币种</view>
-        <view class="page-hero-value">{{currencyList.length}} 项</view>
-      </view>
+      <view class="custom-nav-title">{{navTitle}}</view>
+      <view class="custom-nav-side custom-nav-side-right" style="width: {{navCapsuleSpace}}px;"></view>
     </view>
   </view>
 

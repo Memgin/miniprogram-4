@@ -1,6 +1,9 @@
 {
   "usingComponents": {},
   "navigationBarTitleText": "外汇汇率",
-  "navigationBarBackgroundColor": "#ffffff",
-  "navigationBarTextStyle": "black"
+  "navigationStyle": "custom",
+  "navigationBarBackgroundColor": "#f6f4f1",
+  "navigationBarTextStyle": "black",
+  "backgroundColor": "#f6f4f1",
+  "backgroundTextStyle": "dark"
 }

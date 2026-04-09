@@ -1,9 +1,24 @@
+:root {
+  --lg-text: #3a3026;
+  --lg-muted: #7c6f60;
+  --lg-stroke: rgba(255, 255, 255, 0.78);
+  --lg-surface: rgba(243, 235, 226, 0.58);
+  --lg-surface-strong: rgba(255, 255, 255, 0.84);
+  --lg-shadow: 0 8rpx 18rpx rgba(0, 0, 0, 0.16), 0 -16rpx 28rpx inset rgba(0, 0, 0, 0.08), 0 1rpx 0 inset rgba(255, 255, 255, 0.78);
+  --lg-accent: #7c6548;
+  --lg-accent-dark: #5d4d39;
+  --lg-font-sans: "SF Pro Text", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif;
+  --lg-font-display: "SF Pro Display", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif;
+}
+
 page {
   font-size: 28rpx;
-  color: #0f172a;
+  color: var(--lg-text);
+  font-family: var(--lg-font-sans);
   background:
-    radial-gradient(circle at top left, rgba(59, 130, 246, 0.08), transparent 22%),
-    linear-gradient(180deg, #f6f9fc 0%, #eef4fb 100%);
+    radial-gradient(circle at 10% -8%, rgba(255, 255, 255, 0.42) 0%, rgba(255, 255, 255, 0) 30%),
+    radial-gradient(circle at 92% 6%, rgba(216, 196, 171, 0.24) 0%, rgba(216, 196, 171, 0) 30%),
+    linear-gradient(180deg, #f6f4f1 0%, #f1eee9 100%);
 }
 
 view,
@@ -14,14 +29,17 @@ picker,
 scroll-view,
 swiper,
 swiper-item {
+  font-family: var(--lg-font-sans);
   box-sizing: border-box;
 }
 
 .card {
-  background-color: rgba(255, 255, 255, 0.94);
+  background: linear-gradient(160deg, var(--lg-surface-strong) 0%, var(--lg-surface) 100%);
+  border: 1rpx solid var(--lg-stroke);
   border-radius: 24rpx;
-  box-shadow: 0 12rpx 28rpx rgba(15, 23, 42, 0.06);
-  backdrop-filter: blur(6px);
+  box-shadow: var(--lg-shadow);
+  backdrop-filter: blur(16rpx) contrast(1.12) brightness(1.03) saturate(1.08);
+  -webkit-backdrop-filter: blur(16rpx) contrast(1.12) brightness(1.03) saturate(1.08);
   animation: card-fade-up 320ms ease both;
 }
 
@@ -33,6 +51,9 @@ swiper-item {
 
 button {
   border: none;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.86), rgba(243, 234, 224, 0.68));
+  border: 1rpx solid var(--lg-stroke);
+  box-shadow: 0 6rpx 14rpx rgba(0, 0, 0, 0.14), 0 -10rpx 18rpx inset rgba(0, 0, 0, 0.06), 0 1rpx 0 inset rgba(255, 255, 255, 0.72);
   transition: transform 160ms ease, opacity 160ms ease, box-shadow 160ms ease, filter 160ms ease;
 }
 
@@ -43,7 +64,159 @@ button::after {
 button:active {
   transform: translateY(2rpx) scale(0.985);
   opacity: 0.94;
-  filter: saturate(0.96);
+  filter: saturate(0.92);
+}
+
+input,
+textarea {
+  border: 1rpx solid rgba(255, 255, 255, 0.68);
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(8rpx) saturate(1.06);
+  -webkit-backdrop-filter: blur(8rpx) saturate(1.06);
+}
+
+.glass-pill {
+  border: 1rpx solid rgba(255, 255, 255, 0.58);
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.78), rgba(243, 234, 224, 0.58));
+  border-radius: 999rpx;
+  backdrop-filter: blur(16rpx) contrast(1.12) brightness(1.03) saturate(1.08);
+  -webkit-backdrop-filter: blur(16rpx) contrast(1.12) brightness(1.03) saturate(1.08);
+}
+
+/* Unified top custom navigation for all pages */
+.custom-nav {
+  position: relative;
+  margin: 0 0 12rpx;
+  padding-left: 8rpx;
+  padding-right: 8rpx;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  overflow: visible;
+}
+
+.custom-nav::after {
+  content: none;
+}
+
+.custom-nav-inner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8rpx;
+  width: 100%;
+  padding: 0 8rpx;
+  border-radius: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  overflow: visible;
+}
+
+.custom-nav-side {
+  flex-shrink: 0;
+  min-width: 88rpx;
+  display: flex;
+  align-items: center;
+}
+
+.custom-nav-side-right {
+  justify-content: flex-end;
+}
+
+.custom-nav-back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 56rpx;
+  height: 56rpx;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  font-size: 42rpx;
+  font-weight: 500;
+  line-height: 1;
+  padding-left: 0;
+  color: #2f271d;
+  transition: opacity 120ms ease, transform 120ms ease;
+}
+
+.custom-nav-back:active {
+  opacity: 0.62;
+  transform: translateX(-1rpx);
+}
+
+.custom-nav-title {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+  font-family: var(--lg-font-display);
+  font-size: 40rpx;
+  font-weight: 700;
+  letter-spacing: 0.6rpx;
+  color: #2f271d;
+  text-shadow: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* System typography and control rhythm */
+.page-title,
+.hero-title,
+.overview-title,
+.section-title,
+.card-title,
+.detail-card-title,
+.preview-title,
+.diagnostic-title {
+  font-family: var(--lg-font-display);
+  letter-spacing: 0.35rpx;
+  font-weight: 700;
+}
+
+.page-subtitle,
+.hero-subtitle,
+.section-subtitle,
+.card-subtitle,
+.tips,
+.empty-text,
+.preview-subtitle,
+.diagnostic-desc {
+  font-family: var(--lg-font-sans);
+  font-weight: 500;
+  letter-spacing: 0.18rpx;
+  line-height: 1.65;
+}
+
+.save-btn,
+.run-btn,
+.empty-btn,
+.hero-btn,
+.hero-btn-primary,
+.hero-action-btn,
+.export-hero-btn,
+.export-hero-btn-primary,
+.detail-delete-btn,
+.price-currency-confirm,
+.price-currency-cancel,
+.modal-confirm,
+.modal-cancel {
+  font-family: var(--lg-font-display);
+  font-weight: 650;
+  letter-spacing: 0.24rpx;
+  min-height: 72rpx;
+  border-radius: 999rpx;
+}
+
+input,
+textarea,
+input::placeholder,
+textarea::placeholder {
+  font-family: var(--lg-font-sans);
 }
 
 @keyframes card-fade-up {
@@ -56,4 +229,173 @@ button:active {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Readability Hotfix: keep liquid glass, raise text contrast on all pages */
+.hero,
+.hero-card,
+.detail-hero,
+.export-hero,
+.page-hero,
+.summary-card,
+.overview-card,
+.section,
+.card,
+.rate-card,
+.bank-card,
+.insight,
+.planner-card,
+.visual-card,
+.shock-card,
+.result-scroll,
+.detail-card,
+.detail-info-card,
+.detail-quantile-card,
+.detail-projection-card,
+.detail-dust-card,
+.detail-dual-card,
+.detail-resale-card {
+  color: #3a3026 !important;
+}
+
+.page-title,
+.hero-title,
+.overview-title,
+.section-title,
+.card-title,
+.detail-card-title,
+.preview-title,
+.diagnostic-title,
+.detail-name,
+.detail-daily,
+.currency-code,
+.rate-title,
+.bank-card-name,
+.section-head .section-title {
+  color: #2f271d !important;
+}
+
+.page-subtitle,
+.hero-subtitle,
+.section-subtitle,
+.card-subtitle,
+.tips,
+.empty-text,
+.preview-subtitle,
+.diagnostic-desc,
+.hero-tip,
+.hero-badge,
+.rate-value,
+.currency-amount,
+.currency-cny,
+.asset-line,
+.detail-meta,
+.order-meta,
+.order-note,
+.timeline-meta,
+.rebalance-meta {
+  color: #6e6153 !important;
+}
+
+.hero-action-btn,
+.hero-btn,
+.hero-btn-ghost,
+.export-hero-btn,
+.section-link,
+.bank-card-link,
+.detail-quantile-spec-btn,
+.detail-projection-option,
+.type-chip,
+.filter-chip,
+.security-compact-toggle,
+.security-eye-btn,
+.refresh-btn,
+.top-action-btn {
+  color: #5f4e3a !important;
+}
+
+.hero-btn-primary,
+.hero-action-primary,
+.save-btn,
+.run-btn,
+.empty-btn,
+.export-hero-btn-primary,
+.primary-btn,
+.detail-hero-btn-primary,
+.modal-confirm,
+.detail-use-btn,
+.detail-resale-btn,
+.dock-plus,
+.add-btn,
+.stress-editor-btn.primary,
+.risk-mode-tab-active,
+.risk-window-tab-active {
+  color: #fff8ef !important;
+}
+
+.check-icon {
+  color: #2f8bff !important;
+}
+
+/* Spacing Hotfix: improve typography paddings across pages */
+.page-title,
+.hero-title,
+.overview-title,
+.section-title,
+.card-title,
+.detail-card-title,
+.preview-title,
+.diagnostic-title,
+.list-title,
+.detail-name,
+.detail-daily {
+  padding-left: 2rpx;
+  padding-right: 2rpx;
+  line-height: 1.32;
+}
+
+.page-subtitle,
+.hero-subtitle,
+.section-subtitle,
+.card-subtitle,
+.tips,
+.empty-text,
+.preview-subtitle,
+.diagnostic-desc,
+.hero-tip,
+.detail-meta,
+.asset-line,
+.rate-value,
+.order-note,
+.timeline-meta,
+.rebalance-meta {
+  padding-left: 2rpx;
+  padding-right: 2rpx;
+  line-height: 1.62;
+}
+
+.section-head,
+.insight-head,
+.detail-section-head,
+.hero-title-row {
+  padding-left: 2rpx;
+  padding-right: 2rpx;
+}
+
+/* Delete actions use consistent red text across pages */
+.danger,
+.order-delete,
+.asset-delete,
+.detail-delete-btn,
+.goal-editor-delete,
+.goal-item-link.danger,
+.saved-action.danger,
+.bank-card-link.danger,
+.del-btn,
+.del-icon,
+.stress-row-remove,
+.related-remove,
+.note-media-remove,
+.delete-btn {
+  color: #d84444 !important;
 }

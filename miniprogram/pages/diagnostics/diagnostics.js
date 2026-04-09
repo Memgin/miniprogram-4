@@ -2,6 +2,11 @@ const app = getApp();
 
 Page({
   data: {
+    navTitle: '云函数诊断',
+    navStatusHeight: 20,
+    navContentHeight: 44,
+    navTotalHeight: 64,
+    navCapsuleSpace: 96,
     diagnostics: [],
     diagnosticsSummary: null,
     lastResult: '',
@@ -13,8 +18,49 @@ Page({
     tushareEndDate: ''
   },
 
+  onLoad() {
+    this.initCustomNavBar();
+  },
+
+  onNavBack() {
+    const pages = getCurrentPages();
+    if (pages.length > 1) {
+      wx.navigateBack({ delta: 1 });
+      return;
+    }
+    wx.switchTab({ url: '/pages/index/index' });
+  },
+
   onShow() {
     this.buildDiagnostics();
+  },
+
+  initCustomNavBar() {
+    try {
+      const windowInfo = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
+      const statusBarHeight = Number(windowInfo.statusBarHeight || 20);
+      const windowWidth = Number(windowInfo.windowWidth || 375);
+      const menuButton = wx.getMenuButtonBoundingClientRect ? wx.getMenuButtonBoundingClientRect() : null;
+
+      let navContentHeight = 44;
+      let navTotalHeight = statusBarHeight + navContentHeight;
+      let navCapsuleSpace = 96;
+
+      if (menuButton && menuButton.top && menuButton.bottom && menuButton.height) {
+        navTotalHeight = Number(menuButton.bottom + menuButton.top - statusBarHeight);
+        navContentHeight = Math.max(32, navTotalHeight - statusBarHeight);
+        navCapsuleSpace = Math.max(88, Number(menuButton.width + (windowWidth - menuButton.right) * 2));
+      }
+
+      this.setData({
+        navStatusHeight: statusBarHeight,
+        navContentHeight,
+        navTotalHeight,
+        navCapsuleSpace
+      });
+    } catch (error) {
+      console.warn('initCustomNavBar failed:', error);
+    }
   },
 
   buildDiagnostics() {

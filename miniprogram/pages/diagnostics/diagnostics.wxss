@@ -233,3 +233,86 @@
   white-space: pre-wrap;
   word-break: break-all;
 }
+
+/* Liquid Glass Harmonization */
+.container {
+  background:
+    radial-gradient(circle at 10% -10%, rgba(143, 244, 120, 0.18) 0%, rgba(143, 244, 120, 0) 28%),
+    radial-gradient(circle at 90% -8%, rgba(145, 214, 255, 0.2) 0%, rgba(145, 214, 255, 0) 28%),
+    linear-gradient(170deg, #f8fbff 0%, #edf1f8 100%);
+}
+
+.card,
+.summary-box,
+.card-summary {
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.62));
+  border: 1rpx solid rgba(255, 255, 255, 0.56);
+  backdrop-filter: blur(14rpx) saturate(1.14);
+  -webkit-backdrop-filter: blur(14rpx) saturate(1.14);
+  box-shadow: 0 14rpx 30rpx rgba(15, 23, 42, 0.1);
+}
+
+.run-btn,
+.hero-btn-primary {
+  background: linear-gradient(140deg, #151d2f, #0c1324);
+  color: #ffffff;
+}
+
+/* System polish */
+.card,
+.summary-box,
+.card-summary,
+.result-scroll {
+  border-radius: 24rpx;
+}
+
+.page-title,
+.diagnostic-title,
+.result-title {
+  letter-spacing: 0.2rpx;
+}
+
+/* Liquid Glass Unified Final Override */
+.container {
+  background:
+    radial-gradient(circle at 12% -8%, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 30%),
+    radial-gradient(circle at 90% 6%, rgba(214, 194, 168, 0.22) 0%, rgba(214, 194, 168, 0) 30%),
+    linear-gradient(180deg, #f6f4f1 0%, #f1eee9 100%) !important;
+}
+
+.card,
+.summary-box,
+.card-summary,
+.result-scroll {
+  background: linear-gradient(154deg, rgba(255, 255, 255, 0.74), rgba(247, 241, 233, 0.56)) !important;
+  border: 1rpx solid rgba(255, 255, 255, 0.72) !important;
+  backdrop-filter: blur(14rpx) saturate(1.03);
+  -webkit-backdrop-filter: blur(14rpx) saturate(1.03);
+  box-shadow: 0 10rpx 24rpx rgba(66, 53, 39, 0.09) !important;
+}
+
+.run-btn,
+.hero-btn-primary {
+  background: linear-gradient(140deg, #7a6348, #5f4d39) !important;
+  color: #fff8ef !important;
+  border-color: rgba(255, 255, 255, 0.42) !important;
+}
+
+/* Liquid Glass Main Inspired Finish */
+.container {
+  background:
+    radial-gradient(circle at 14% -10%, rgba(255, 255, 255, 0.46) 0%, rgba(255, 255, 255, 0) 32%),
+    radial-gradient(circle at 90% 8%, rgba(220, 198, 170, 0.22) 0%, rgba(220, 198, 170, 0) 30%),
+    linear-gradient(180deg, #f6f4f1 0%, #f1eee9 100%) !important;
+}
+
+.card,
+.summary-box,
+.card-summary,
+.result-scroll {
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.84), rgba(243, 235, 226, 0.58)) !important;
+  border: 1rpx solid rgba(255, 255, 255, 0.78) !important;
+  box-shadow: 0 8rpx 18rpx rgba(0, 0, 0, 0.16), 0 -16rpx 28rpx inset rgba(0, 0, 0, 0.08), 0 1rpx 0 inset rgba(255, 255, 255, 0.78) !important;
+  backdrop-filter: blur(16rpx) contrast(1.12) brightness(1.03) saturate(1.08);
+  -webkit-backdrop-filter: blur(16rpx) contrast(1.12) brightness(1.03) saturate(1.08);
+}

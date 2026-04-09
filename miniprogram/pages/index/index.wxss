@@ -1,7 +1,7 @@
 .container {
   padding: 30rpx;
   min-height: 100vh;
-  background-color: #f5f7fa;
+  background-color: #f3f7fb;
   font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
 }
 
@@ -31,34 +31,64 @@
 }
 
 .security-eye-btn {
-  width: 72rpx;
-  height: 72rpx;
-  border-radius: 50%;
-  background: #fff3d9;
-  border: 1rpx solid #f8d57e;
+  width: 68rpx;
+  height: 68rpx;
+  border-radius: 20rpx;
+  background: linear-gradient(145deg, #f8fbff, #eef4ff);
+  border: 1rpx solid #cfe0f7;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  box-shadow: 0 6rpx 14rpx rgba(73, 110, 154, 0.12), inset 0 1rpx 0 rgba(255, 255, 255, 0.9);
+  transition: all 0.2s ease;
+}
+
+.security-eye-btn:active {
+  transform: translateY(1rpx);
+  box-shadow: 0 3rpx 10rpx rgba(73, 110, 154, 0.12), inset 0 1rpx 0 rgba(255, 255, 255, 0.88);
 }
 
 .security-eye {
   position: relative;
-  width: 34rpx;
-  height: 20rpx;
-  border: 3rpx solid #7c4f00;
+  width: 30rpx;
+  height: 18rpx;
+  border: 2rpx solid #4f6888;
   border-radius: 24rpx / 14rpx;
+  background: radial-gradient(circle at 50% 50%, #f8fbff 0%, #edf3fb 70%, #e5edf8 100%);
+  overflow: hidden;
+}
+
+.security-eye-iris {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #8fb3dc 0%, #5f84b3 60%, #4f6888 100%);
+  transform: translate(-50%, -50%);
 }
 
 .security-eye-pupil {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 10rpx;
-  height: 10rpx;
-  background: #7c4f00;
+  width: 5rpx;
+  height: 5rpx;
+  background: #2d4461;
   border-radius: 50%;
   transform: translate(-50%, -50%);
+}
+
+.security-eye-glint {
+  position: absolute;
+  top: 4rpx;
+  left: 14rpx;
+  width: 4rpx;
+  height: 4rpx;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
 }
 
 .security-eye-off {
@@ -68,11 +98,13 @@
 .security-eye-strike {
   position: absolute;
   top: 50%;
-  left: -4rpx;
-  width: 42rpx;
-  height: 3rpx;
-  background: #7c4f00;
+  left: -3rpx;
+  width: 36rpx;
+  height: 2rpx;
+  background: linear-gradient(90deg, #3f5776, #5a7396);
+  border-radius: 999rpx;
   transform: rotate(-28deg);
+  z-index: 2;
 }
 
 .security-toolbar-copy {
@@ -93,19 +125,44 @@
 }
 
 .security-compact-toggle {
-  padding: 14rpx 20rpx;
+  min-height: 68rpx;
+  padding: 0 24rpx;
   border-radius: 999rpx;
   font-size: 22rpx;
-  color: #7c4f00;
-  background: #fff3d9;
-  border: 1rpx solid #f8d57e;
+  font-weight: 600;
+  color: #4f6888;
+  background: linear-gradient(145deg, #f8fbff, #eef4ff);
+  border: 1rpx solid #cfe0f7;
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
   flex-shrink: 0;
+  box-shadow: 0 6rpx 14rpx rgba(73, 110, 154, 0.12), inset 0 1rpx 0 rgba(255, 255, 255, 0.9);
+  transition: all 0.2s ease;
+}
+
+.security-compact-toggle:active {
+  transform: translateY(1rpx);
+  box-shadow: 0 3rpx 10rpx rgba(73, 110, 154, 0.12), inset 0 1rpx 0 rgba(255, 255, 255, 0.88);
 }
 
 .security-compact-toggle-active {
-  color: #125d35;
-  background: #eaf8ef;
-  border-color: #9dd9b6;
+  color: #355274;
+  background: linear-gradient(145deg, #eef4fb, #e7f0fa);
+  border-color: #c5d8ee;
+}
+
+.security-toggle-dot {
+  width: 10rpx;
+  height: 10rpx;
+  border-radius: 50%;
+  background: #9fb3ce;
+  box-shadow: 0 0 0 4rpx rgba(159, 179, 206, 0.18);
+}
+
+.security-toggle-dot-active {
+  background: #4f6f95;
+  box-shadow: 0 0 0 4rpx rgba(79, 111, 149, 0.22);
 }
 .add-btn {
   flex: 1;
@@ -313,7 +370,7 @@
 
 .total-card-link {
   font-size: 24rpx;
-  color: #175cd3;
+  color: #3d5c84;
 }
 
 .total-card-entry {
@@ -328,7 +385,7 @@
   left: 0;
   width: 6rpx;
   height: 100%;
-  background: linear-gradient(180deg, #ff6b6b, #ff8e8e);
+  background: linear-gradient(180deg, #4f6f95, #8ca9cc);
   border-top-left-radius: 20rpx;
   border-bottom-left-radius: 20rpx;
 }
@@ -373,7 +430,7 @@
   padding-left: 12rpx;
   padding-right: 12rpx;
   border-radius: 14rpx;
-  background: linear-gradient(135deg, #fff8db, #fff1bf);
+  background: linear-gradient(135deg, #eef4fb, #e8f1fb);
   border-bottom-color: transparent;
 }
 .rate-name, .currency-name {
@@ -397,9 +454,9 @@
   padding: 2rpx 10rpx;
   border-radius: 999rpx;
   font-size: 20rpx;
-  color: #125d35;
-  background: #eaf8ef;
-  border: 1rpx solid #9dd9b6;
+  color: #3d5c84;
+  background: #edf4fb;
+  border: 1rpx solid #cfe0f2;
 }
 .rate-value, .currency-amount {
   flex: 1;
@@ -557,15 +614,15 @@
   height: 78rpx;
   line-height: 78rpx;
   border-radius: 18rpx;
-  background: #e8f0fb;
-  color: #12314c;
+  background: #ebf2fa;
+  color: #355274;
   font-size: 24rpx;
   font-weight: 600;
-  border: 1rpx solid #d8e4f3;
+  border: 1rpx solid #cfdeee;
 }
 
 .empty-workspace-btn-primary {
-  background: linear-gradient(135deg, #12314c, #175cd3);
+  background: linear-gradient(135deg, #3d5c84, #2f4664);
   color: #ffffff;
   border: none;
 }
@@ -580,7 +637,7 @@
 
 .empty-workspace-link {
   font-size: 24rpx;
-  color: #175cd3;
+  color: #3d5c84;
 }
 
 /* 刷新按钮：和其他按钮统一圆角/动效 */
@@ -615,16 +672,16 @@
   flex: 1;
 }
 .stress-btn {
-  background: #eaf8ef;
-  color: #125d35;
-  border: 1rpx solid #9dd9b6;
+  background: #edf4fb;
+  color: #3d5c84;
+  border: 1rpx solid #cfe0f2;
   border-radius: 12rpx;
   padding: 16rpx 0;
   font-size: 28rpx;
   transition: all 0.2s ease;
 }
 .stress-btn:active {
-  background: #d9f0e2;
+  background: #dfeaf7;
   transform: scale(0.98);
 }
 
@@ -660,7 +717,7 @@
 
 .stress-head-link {
   font-size: 24rpx;
-  color: #1890ff;
+  color: #3d5c84;
 }
 
 .stress-result-box {
@@ -848,7 +905,7 @@
 
 .saved-action {
   font-size: 24rpx;
-  color: #1890ff;
+  color: #3d5c84;
 }
 
 .saved-action.danger {
@@ -987,7 +1044,7 @@
 .stress-editor-add {
   margin-top: 20rpx;
   font-size: 26rpx;
-  color: #1890ff;
+  color: #3d5c84;
 }
 
 .stress-editor-actions {
@@ -1009,7 +1066,7 @@
 }
 
 .stress-editor-btn.primary {
-  background: linear-gradient(135deg, #1890ff, #40a9ff);
+  background: linear-gradient(135deg, #3d5c84, #5d7fa8);
   color: #fff;
 }
 
@@ -1042,14 +1099,14 @@
 /* 编辑汇率按钮：hover效果+统一颜色 */
 .edit-rate-btn {
   font-size: 28rpx;
-  color: #1890ff;
+  color: #3d5c84;
   padding: 4rpx 16rpx;
   font-weight: 500;
   border-radius: 8rpx;
   transition: background 0.2s ease;
 }
 .edit-rate-btn:active {
-  background: rgba(24, 144, 255, 0.1);
+  background: rgba(61, 92, 132, 0.12);
 }
 
 /* 按钮重置：去除默认样式，保证自定义样式生效 */
@@ -1089,9 +1146,9 @@ button::after {
   flex-shrink: 0;
   padding: 10rpx 18rpx;
   border-radius: 999rpx;
-  background: #eff6ff;
-  color: #1d4ed8;
-  border: 1rpx solid #bfdbfe;
+  background: #ebf2fa;
+  color: #3d5c84;
+  border: 1rpx solid #cfdeee;
   font-size: 24rpx;
 }
 .target-empty {
@@ -1253,28 +1310,28 @@ button::after {
   width: 8rpx;
   height: 8rpx;
   border-radius: 50%;
-  background: #0f766e;
+  background: #4f6f95;
 }
 
 .risk-focus-banner {
   margin-top: 18rpx;
   padding: 20rpx 22rpx;
   border-radius: 16rpx;
-  background: linear-gradient(135deg, #fff7ed, #fffbeb);
-  border: 1rpx solid #fed7aa;
+  background: linear-gradient(135deg, #f1f6fd, #ebf2fa);
+  border: 1rpx solid #d7e4f3;
 }
 
 .risk-focus-title {
   font-size: 26rpx;
   font-weight: 600;
-  color: #9a3412;
+  color: #355274;
 }
 
 .risk-focus-desc {
   margin-top: 10rpx;
   font-size: 24rpx;
   line-height: 1.6;
-  color: #7c2d12;
+  color: #4d6686;
 }
 
 .risk-suggestion-box {
@@ -1282,7 +1339,7 @@ button::after {
   padding: 18rpx 20rpx;
   border-radius: 14rpx;
   background: rgba(255, 255, 255, 0.82);
-  border: 1rpx solid #fed7aa;
+  border: 1rpx solid #d7e4f3;
 }
 
 .risk-mode-tabs {
@@ -1296,26 +1353,26 @@ button::after {
   padding: 8rpx 16rpx;
   border-radius: 999rpx;
   background: #ffffff;
-  border: 1rpx solid #fed7aa;
-  color: #9a3412;
+  border: 1rpx solid #ccdaeb;
+  color: #4d6686;
   font-size: 22rpx;
 }
 
 .risk-mode-tab-active {
-  background: #ea580c;
-  border-color: #ea580c;
+  background: #3d5c84;
+  border-color: #3d5c84;
   color: #ffffff;
 }
 
 .risk-suggestion-line {
   font-size: 23rpx;
   line-height: 1.7;
-  color: #7c2d12;
+  color: #4d6686;
 }
 
 .risk-suggestion-footnote {
   margin-top: 10rpx;
-  color: #9a3412;
+  color: #5c7391;
   opacity: 0.88;
 }
 
@@ -1324,7 +1381,7 @@ button::after {
   height: 72rpx;
   line-height: 72rpx;
   border-radius: 999rpx;
-  background: linear-gradient(135deg, #ea580c, #f59e0b);
+  background: linear-gradient(135deg, #3d5c84, #2f4664);
   color: #ffffff;
   font-size: 25rpx;
 }
@@ -1337,7 +1394,7 @@ button::after {
   display: inline-block;
   margin-top: 14rpx;
   font-size: 24rpx;
-  color: #c2410c;
+  color: #3d5c84;
 }
 
 .alert-rule-emphasis {
@@ -1391,8 +1448,8 @@ button::after {
 }
 
 .risk-window-tab-active {
-  background: #0f766e;
-  border-color: #0f766e;
+  background: #3d5c84;
+  border-color: #3d5c84;
   color: #ffffff;
 }
 
@@ -1536,8 +1593,8 @@ button::after {
 
 .alert-history-badge {
   font-size: 22rpx;
-  color: #125d35;
-  background: #eaf8ef;
+  color: #3d5c84;
+  background: #edf4fb;
   border-radius: 999rpx;
   padding: 6rpx 14rpx;
 }
@@ -1607,8 +1664,128 @@ button::after {
   width: 8rpx;
   height: 8rpx;
   border-radius: 50%;
-  background: #1890ff;
+  background: #4f6f95;
 }
+
+.exp-param-box {
+  margin-top: 18rpx;
+  padding: 16rpx;
+  border-radius: 16rpx;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1rpx solid #dce4ef;
+}
+
+.exp-param-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.exp-param-title {
+  font-size: 22rpx;
+  color: #64748b;
+}
+
+.exp-param-link {
+  font-size: 22rpx;
+  color: #3d5c84;
+}
+
+.exp-param-grid {
+  margin-top: 10rpx;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+}
+
+.exp-param-chip {
+  padding: 8rpx 12rpx;
+  border-radius: 999rpx;
+  background: #f8fafc;
+  border: 1rpx solid #e2e8f0;
+  font-size: 21rpx;
+  color: #475569;
+}
+
+.ai-cap-badge {
+  min-width: 88rpx;
+  height: 46rpx;
+  padding: 0 16rpx;
+  border-radius: 999rpx;
+  background: linear-gradient(140deg, #3d5c84, #253754);
+  color: #ffffff;
+  font-size: 22rpx;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ai-cap-summary {
+  margin-top: 14rpx;
+  font-size: 24rpx;
+  color: #334155;
+}
+
+.ai-cap-track {
+  margin-top: 12rpx;
+  width: 100%;
+  height: 12rpx;
+  border-radius: 999rpx;
+  background: #e2e8f0;
+  overflow: hidden;
+}
+
+.ai-cap-fill {
+  height: 100%;
+  border-radius: 999rpx;
+  background: linear-gradient(90deg, #5d7fa8, #3d5c84);
+}
+
+.ai-cap-list {
+  margin-top: 16rpx;
+  display: grid;
+  gap: 10rpx;
+}
+
+.ai-cap-item {
+  padding: 14rpx;
+  border-radius: 14rpx;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1rpx solid #dbe3ee;
+}
+
+.ai-cap-item-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ai-cap-item-name {
+  font-size: 24rpx;
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.ai-cap-item-state {
+  font-size: 22rpx;
+}
+
+.ai-cap-item-state.ready {
+  color: #0f766e;
+}
+
+.ai-cap-item-state.pending {
+  color: #64748b;
+}
+
+.ai-cap-item-detail {
+  display: block;
+  margin-top: 8rpx;
+  font-size: 22rpx;
+  line-height: 1.6;
+  color: #475569;
+}
+
 .target-empty:active {
   background: #e2e8f0;
 }
@@ -1725,10 +1902,10 @@ button::after {
 }
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #FF7D00, #FFB547);
+  background: linear-gradient(90deg, #7d9dc2, #4f6f95);
   border-radius: 999rpx;
   transition: width 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  box-shadow: 0 0 12rpx rgba(255, 125, 0, 0.3);
+  box-shadow: 0 0 12rpx rgba(79, 111, 149, 0.28);
 }
 .target-diff {
   font-size: 26rpx;
@@ -1825,4 +2002,292 @@ button::after {
 .card-currencies {
   display: block;
   width: 100%;
+}
+
+/* Final Natural Neutral Theme */
+.container {
+  background: linear-gradient(180deg, #f6f4f1 0%, #f1eee9 100%);
+}
+
+.security-toolbar,
+.rate-card,
+.summary-card,
+.total-card,
+.stress-center,
+.insight-card,
+.card,
+.goal-item,
+.risk-chart-block,
+.stress-result-box,
+.alert-history-item,
+.goal-overview-card,
+.risk-focus-banner,
+.risk-suggestion-box,
+.risk-metric-box,
+.risk-pulse,
+.risk-pulse-metric,
+.stress-metric {
+  background: #fbfaf7;
+  border: 1rpx solid #e6e1d8;
+  box-shadow: 0 6rpx 14rpx rgba(45, 38, 30, 0.05);
+}
+
+.total-card::before {
+  width: 8rpx;
+  background: linear-gradient(180deg, #e5554f 0%, #e5554f 30%, #f08a3e 64%, #e26a27 100%);
+}
+
+.card-title,
+.total-card-title,
+.risk-chart-title,
+.saved-scenario-name,
+.alert-rule-name,
+.advice-headline,
+.risk-focus-title,
+.goal-item-name,
+.target-head-title,
+.rate-title,
+.stress-result-name {
+  color: #2f2b25;
+}
+
+.total-card-metric-label,
+.total-card-entry,
+.total-card-progress-label,
+.total-card-metric-note,
+.target-head-subtitle,
+.goal-overview-label,
+.goal-overview-note,
+.goal-overview-next,
+.goal-item-meta,
+.goal-item-bottom,
+.stress-subtitle,
+.insight-subtitle,
+.risk-chart-subtitle,
+.alert-rule-meta,
+.advice-summary,
+.risk-confidence,
+.rate-name,
+.cny-amount,
+.alert-last-check,
+.exp-param-title,
+.exp-param-chip,
+.stress-metric-label,
+.stress-summary-line,
+.saved-scenario-summary,
+.risk-signal-item,
+.risk-suggestion-line,
+.risk-suggestion-footnote,
+.alert-history-summary,
+.risk-chart-placeholder {
+  color: #756d62;
+}
+
+.rate-value,
+.total-card-progress-value,
+.risk-metric-value,
+.stress-metric-value,
+.risk-contribution-side,
+.goal-overview-value,
+.goal-item-amounts,
+.advice-line,
+.ai-cap-item-name,
+.ai-cap-item-detail,
+.risk-pulse-value,
+.goal-item-actions,
+.saved-action,
+.exp-param-link,
+.total-card-link,
+.stress-head-link,
+.edit-rate-btn,
+.target-head-action,
+.risk-focus-clear,
+.risk-mode-tab,
+.risk-window-tab {
+  color: #6d5c47;
+}
+
+.top-action-btn,
+.empty-workspace-btn,
+.refresh-btn,
+.stress-btn,
+.ai-monitor-tag,
+.risk-mode-tab,
+.risk-window-tab,
+.exp-param-chip,
+.target-empty,
+.alert-history-trigger,
+.goal-currency-chip,
+.security-eye-btn,
+.security-compact-toggle,
+.security-compact-toggle-active {
+  background: #f4f0e8;
+  color: #5d4d39;
+  border: 1rpx solid #dfd6c9;
+  box-shadow: none;
+}
+
+.empty-workspace-btn-primary,
+.stress-editor-btn.primary,
+.risk-suggestion-btn,
+.add-btn,
+.export-btn,
+.goal-currency-chip-active,
+.ai-cap-badge,
+.risk-mode-tab-active,
+.risk-window-tab-active {
+  background: #6a5844;
+  color: #ffffff;
+  border-color: #6a5844;
+  box-shadow: 0 6rpx 12rpx rgba(58, 46, 33, 0.16);
+}
+
+.linked-highlight {
+  background: #f2ece2;
+}
+
+.progress-bar,
+.ai-cap-track {
+  background: #e9e1d5;
+  box-shadow: none;
+}
+
+.progress-fill,
+.ai-cap-fill {
+  background: linear-gradient(90deg, #c4aa87, #ab8f69);
+  box-shadow: none;
+}
+
+.security-eye {
+  border-color: #6f5e4a;
+  background: #f5efe6;
+}
+
+.security-eye-iris {
+  background: radial-gradient(circle at 35% 35%, #cfb28b 0%, #ac8d66 65%, #8d6f4d 100%);
+}
+
+.security-eye-pupil,
+.security-eye-strike,
+.risk-signal-item::before {
+  background: #8f7657;
+}
+
+.risk-chart-placeholder {
+  background: #f4eee6;
+  border: 1rpx dashed #d8cbbb;
+}
+
+/* Total Card Local Tone Lift */
+.total-card-metric-primary {
+  background: linear-gradient(135deg, #fefcf9, #f9f6f1);
+  border: 1rpx solid #ebe5dc;
+}
+
+.total-card-progress {
+  border-top: 1rpx solid #e6dfd3;
+}
+
+/* Liquid Glass Unified Final Override */
+.container {
+  background:
+    radial-gradient(circle at 12% -8%, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 30%),
+    radial-gradient(circle at 90% 6%, rgba(214, 194, 168, 0.22) 0%, rgba(214, 194, 168, 0) 30%),
+    linear-gradient(180deg, #f6f4f1 0%, #f1eee9 100%) !important;
+}
+
+.security-toolbar,
+.rate-card,
+.summary-card,
+.total-card,
+.stress-center,
+.insight-card,
+.card,
+.goal-item,
+.risk-chart-block,
+.stress-result-box,
+.alert-history-item,
+.goal-overview-card,
+.risk-focus-banner,
+.risk-suggestion-box,
+.risk-metric-box,
+.risk-pulse,
+.risk-pulse-metric,
+.stress-metric,
+.exp-param-box,
+.ai-cap-item,
+.empty-workspace {
+  background: linear-gradient(154deg, rgba(255, 255, 255, 0.74), rgba(247, 241, 233, 0.56)) !important;
+  border: 1rpx solid rgba(255, 255, 255, 0.72) !important;
+  backdrop-filter: blur(14rpx) saturate(1.03);
+  -webkit-backdrop-filter: blur(14rpx) saturate(1.03);
+  box-shadow: 0 10rpx 24rpx rgba(66, 53, 39, 0.09) !important;
+}
+
+.top-action-btn,
+.empty-workspace-btn,
+.refresh-btn,
+.stress-btn,
+.target-empty,
+.security-eye-btn,
+.security-compact-toggle,
+.add-btn,
+.export-btn,
+.risk-suggestion-btn,
+.stress-editor-btn {
+  background: linear-gradient(148deg, rgba(255, 255, 255, 0.82), rgba(243, 234, 224, 0.64)) !important;
+  border: 1rpx solid rgba(255, 255, 255, 0.74) !important;
+  color: #63513d !important;
+}
+
+.empty-workspace-btn-primary,
+.stress-editor-btn.primary,
+.add-btn,
+.risk-mode-tab-active,
+.risk-window-tab-active,
+.risk-suggestion-btn {
+  background: linear-gradient(140deg, #7a6348, #5f4d39) !important;
+  color: #fff8ef !important;
+  border-color: rgba(255, 255, 255, 0.42) !important;
+}
+
+/* Liquid Glass Main Inspired Finish */
+.container {
+  background:
+    radial-gradient(circle at 14% -10%, rgba(255, 255, 255, 0.46) 0%, rgba(255, 255, 255, 0) 32%),
+    radial-gradient(circle at 90% 8%, rgba(220, 198, 170, 0.22) 0%, rgba(220, 198, 170, 0) 30%),
+    linear-gradient(180deg, #f6f4f1 0%, #f1eee9 100%) !important;
+}
+
+.security-toolbar,
+.rate-card,
+.summary-card,
+.total-card,
+.stress-center,
+.insight-card,
+.card,
+.goal-item,
+.risk-chart-block,
+.stress-result-box,
+.alert-history-item,
+.goal-overview-card,
+.risk-focus-banner,
+.risk-suggestion-box,
+.risk-metric-box,
+.risk-pulse,
+.risk-pulse-metric,
+.stress-metric,
+.exp-param-box,
+.ai-cap-item,
+.empty-workspace {
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.84), rgba(243, 235, 226, 0.58)) !important;
+  border: 1rpx solid rgba(255, 255, 255, 0.78) !important;
+  box-shadow: 0 8rpx 18rpx rgba(0, 0, 0, 0.16), 0 -16rpx 28rpx inset rgba(0, 0, 0, 0.08), 0 1rpx 0 inset rgba(255, 255, 255, 0.78) !important;
+  backdrop-filter: blur(16rpx) contrast(1.12) brightness(1.03) saturate(1.08);
+  -webkit-backdrop-filter: blur(16rpx) contrast(1.12) brightness(1.03) saturate(1.08);
+}
+
+/* Custom Tab Bar Safe Area */
+.container {
+  padding-bottom: calc(188rpx + env(safe-area-inset-bottom)) !important;
 }

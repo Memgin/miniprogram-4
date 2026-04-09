@@ -1,4 +1,12 @@
 <view class="ys-page">
+  <view class="custom-nav" style="height: {{navTotalHeight}}px; padding-top: {{navStatusHeight}}px;">
+    <view class="custom-nav-inner" style="height: {{navContentHeight}}px;">
+      <view class="custom-nav-side" style="width: {{navCapsuleSpace}}px;"></view>
+      <view class="custom-nav-title">{{navTitle}}</view>
+      <view class="custom-nav-side" style="width: {{navCapsuleSpace}}px;"></view>
+    </view>
+  </view>
+
   <view class="hero-bg">
     <view class="overview-card">
       <view class="overview-header">
@@ -17,9 +25,9 @@
         </view>
       </view>
 
-      <view class="overview-divider"></view>
+      <view class="overview-divider" wx:if="{{listType === 'asset'}}"></view>
 
-      <view class="status-row">
+      <view class="status-row" wx:if="{{listType === 'asset'}}">
         <view class="status-item" wx:for="{{statusSummary}}" wx:key="id">
           <text class="status-text">{{item.text}} {{item.count}}</text>
           <view class="status-track">
@@ -35,7 +43,7 @@
       <view class="type-chip {{listType === 'asset' ? 'active' : ''}}" data-type="asset" bindtap="onSwitchListType">资产</view>
       <view class="type-chip {{listType === 'wish' ? 'active' : ''}}" data-type="wish" bindtap="onSwitchListType">心愿</view>
     </view>
-    <scroll-view class="filter-scroll" scroll-x="true" enhanced="true" show-scrollbar="false">
+    <scroll-view class="filter-scroll" scroll-x="true" enhanced="true" show-scrollbar="false" wx:if="{{listType === 'asset'}}">
       <view class="filter-scroll-inner">
         <view
           class="filter-chip {{activeFilter === item.id ? 'active' : ''}}"
@@ -48,12 +56,9 @@
         </view>
       </view>
     </scroll-view>
-    <view class="filter-icons">
-      <text class="small-icon" data-action="focus-search" bindtap="onToolbarAction">⌕</text>
+    <view class="filter-icons" wx:if="{{listType === 'asset'}}">
       <text class="small-icon {{showOnlyPinned ? 'active' : ''}}" data-action="toggle-pinned" bindtap="onToolbarAction">◈</text>
       <text class="small-icon" bindtap="onToggleSort">⇅</text>
-      <text class="small-icon" data-action="switch-list" bindtap="onToolbarAction">⎚</text>
-      <text class="small-icon" data-action="reset" bindtap="onToolbarAction">☑</text>
     </view>
   </view>
 
@@ -65,6 +70,24 @@
     <text>{{cloudSyncText}}</text>
   </view>
 
+  <view class="viz-card" wx:if="{{categoryVisualList.length}}">
+    <view class="viz-head">
+      <text class="viz-title">资产分类可视化</text>
+      <text class="viz-sub">TOP {{categoryVisualList.length}}</text>
+    </view>
+    <view class="viz-list">
+      <view class="viz-item" wx:for="{{categoryVisualList}}" wx:key="name">
+        <view class="viz-row">
+          <text class="viz-name">{{item.name}}</text>
+          <text class="viz-value">{{item.valueText}} · {{item.ratio}}%</text>
+        </view>
+        <view class="viz-track">
+          <view class="viz-fill" style="width: {{item.width}};"></view>
+        </view>
+      </view>
+    </view>
+  </view>
+
   <view class="asset-list" wx:if="{{viewAssets.length}}">
     <view class="asset-item" wx:for="{{viewAssets}}" wx:key="id" data-id="{{item.id}}" bindtap="onTapAssetCard">
       <view class="asset-icon-wrap">
@@ -72,16 +95,26 @@
           <image class="asset-icon-image" wx:if="{{item.iconType === 'image' && item.iconImagePath}}" src="{{item.iconImagePath}}" mode="aspectFill" />
           <text class="asset-icon" wx:else>{{item.iconEmoji || (item.type === 'wish' ? '🎯' : '📦')}}</text>
         </view>
-        <text class="asset-badge">● {{item.statusText}}</text>
+        <text class="asset-badge" wx:if="{{item.type === 'asset'}}">● {{item.statusText}}</text>
       </view>
       <text class="asset-name">{{item.name}}</text>
-      <view class="asset-line">
+      <view class="asset-line" wx:if="{{item.type === 'asset'}}">
         <text>{{item.effectivePriceText}} | 已使用{{item.holdText}}</text>
       </view>
-      <view class="asset-bottom">
-        <text class="asset-daily">{{item.dailyCostText}}/天</text>
-        <view class="asset-delete" data-id="{{item.id}}" bindtap="onDeleteAsset">删除</view>
+      <view class="asset-line minor" wx:if="{{item.type === 'asset'}}">
+        <text>{{item.modeHintText}}</text>
       </view>
+      <view class="asset-dust-row" wx:if="{{item.type === 'asset'}}">
+        <text class="asset-dust-label">{{item.progressLabelText}}</text>
+        <view class="asset-dust-track">
+          <view class="asset-dust-fill {{item.progressFillClass}}" style="width: {{item.progressTrackWidth}};"></view>
+        </view>
+      </view>
+      <view class="asset-bottom">
+        <text class="asset-daily">{{item.primaryCostText}}</text>
+        <view class="asset-delete" data-id="{{item.id}}" catchtap="onDeleteAsset">删除</view>
+      </view>
+      <text class="asset-checkin-tip" wx:if="{{item.type === 'asset' && item.costMode === 'use'}}">双击卡片快速打卡 +1</text>
     </view>
   </view>
 
@@ -91,11 +124,210 @@
     <text class="empty-desc">点击 + 添加{{listType === 'asset' ? '资产' : '心愿'}}</text>
   </view>
 
-  <view class="bottom-dock">
+  <view class="bottom-dock" wx:if="{{!editorVisible && !detailVisible}}">
     <view class="dock-plus" bindtap="onOpenEditor">+</view>
   </view>
 
-  <view class="editor-page" wx:if="{{editorVisible}}">
+  <view class="detail-page" wx:if="{{detailVisible && detailItem}}" style="padding-top: {{navStatusHeight + 8}}px;">
+    <view class="detail-top">
+      <view class="detail-close" bindtap="onCloseDetail">✕</view>
+      <view class="detail-top-title">详情</view>
+    </view>
+
+    <view class="detail-hero">
+      <view class="detail-icon-wrap">
+        <image class="detail-icon-image" wx:if="{{detailItem.iconType === 'image' && detailItem.iconImagePath}}" src="{{detailItem.iconImagePath}}" mode="aspectFill" />
+        <text class="detail-icon" wx:else>{{detailItem.iconEmoji || '📦'}}</text>
+      </view>
+      <text class="detail-name">{{detailItem.name}}</text>
+      <text class="detail-daily">{{detailItem.dailyText}}/天</text>
+      <text class="detail-meta">总价 {{detailItem.totalText}} ｜ 已使用 {{detailItem.holdText}}</text>
+      <view class="detail-hero-actions">
+        <button class="detail-edit-btn" bindtap="onTapDetailEdit">修改信息</button>
+        <button class="detail-use-btn" wx:if="{{detailItem.costMode === 'use'}}" bindtap="onTapDetailUseCheckin">+1 使用打卡</button>
+      </view>
+    </view>
+
+    <view class="detail-chart-card">
+      <view class="detail-card-title">日均成本</view>
+      <ec-canvas id="xishu-detail-trend-chart" canvas-id="xishu-detail-trend-chart-canvas" ec="{{ecDetailTrend}}" type="2d"></ec-canvas>
+    </view>
+
+    <view class="detail-dual-card" wx:if="{{detailItem.usageModel}}">
+      <view class="detail-dual-head">
+        <text class="detail-dual-title">双轨降本系统</text>
+        <text class="detail-dual-sub">按天 / 按次 双视角</text>
+      </view>
+      <view class="detail-dual-modes">
+        <view
+          class="detail-dual-mode {{detailItem.usageModel.selectedMode === item.id ? 'active' : ''}}"
+          wx:for="{{detailItem.usageModel.modeOptions}}"
+          wx:key="id"
+          data-mode="{{item.id}}"
+          bindtap="onSelectDetailCostMode"
+        >{{item.text}}</view>
+      </view>
+      <view class="detail-dual-grid">
+        <view class="detail-dual-cell">
+          <text class="detail-dual-key">时间日均成本</text>
+          <text class="detail-dual-value">{{detailItem.usageModel.dailyCostText}}/天</text>
+        </view>
+        <view class="detail-dual-cell">
+          <text class="detail-dual-key">单次使用成本</text>
+          <text class="detail-dual-value">{{detailItem.usageModel.useCostText}}/次</text>
+        </view>
+      </view>
+      <view class="detail-dual-primary">
+        <text class="detail-dual-primary-label">当前主成本口径</text>
+        <text class="detail-dual-primary-value">{{detailItem.usageModel.selectedValueText}}{{detailItem.usageModel.selectedUnitText}}</text>
+      </view>
+      <text class="detail-dual-summary">{{detailItem.usageModel.summaryText}}</text>
+    </view>
+
+    <view class="detail-dust-card" wx:if="{{detailItem.costMode === 'use' && detailItem.dustRadar}}">
+      <view class="detail-dust-head">
+        <text class="detail-dust-title">真实吃灰指数雷达</text>
+        <text class="detail-dust-tag">{{detailItem.dustRadar.levelText}}</text>
+      </view>
+      <view class="detail-dust-score">{{detailItem.dustRadar.index}}%</view>
+      <view class="detail-dust-track">
+        <view class="detail-dust-fill" style="width: {{detailItem.dustRadar.trackWidth}};"></view>
+      </view>
+      <view class="detail-dust-grid">
+        <view class="detail-dust-cell">
+          <text class="detail-dust-key">活跃率</text>
+          <text class="detail-dust-value">{{detailItem.dustRadar.activeRateText}}</text>
+        </view>
+        <view class="detail-dust-cell">
+          <text class="detail-dust-key">闲置率</text>
+          <text class="detail-dust-value">{{detailItem.dustRadar.idleRateText}}</text>
+        </view>
+      </view>
+      <text class="detail-dust-summary">{{detailItem.dustRadar.summaryText}}</text>
+    </view>
+
+    <view class="detail-quantile-card">
+      <view class="detail-quantile-head">
+        <text class="detail-quantile-title">回本分位线</text>
+        <view class="detail-quantile-head-right">
+          <text class="detail-quantile-spec-btn" bindtap="onShowPaybackSpec">查看口径</text>
+          <text class="detail-quantile-tag" wx:if="{{detailItem.paybackQuantile && detailItem.paybackQuantile.ready}}">{{detailItem.paybackQuantile.percentileTag}}</text>
+        </view>
+      </view>
+
+      <view wx:if="{{detailItem.paybackQuantile && detailItem.paybackQuantile.ready}}">
+        <view class="detail-quantile-track">
+          <view class="detail-quantile-fill" style="width: {{detailItem.paybackQuantile.trackWidth}};"></view>
+        </view>
+        <view class="detail-quantile-foot">
+          <text class="detail-quantile-level">{{detailItem.paybackQuantile.levelText}}</text>
+          <text class="detail-quantile-sample">样本 {{detailItem.paybackQuantile.sampleSize}} 条 · {{detailItem.paybackQuantile.sourceText}}</text>
+        </view>
+        <text class="detail-quantile-hint">{{detailItem.paybackQuantile.hint}}</text>
+      </view>
+
+      <view wx:else>
+        <text class="detail-quantile-empty-title">{{detailItem.paybackQuantile.title || '样本不足'}}</text>
+        <text class="detail-quantile-hint">{{detailItem.paybackQuantile.hint || '继续记录资产后即可看到回本分位线'}}</text>
+      </view>
+    </view>
+
+    <view class="detail-projection-card" wx:if="{{detailItem.futureProjection}}">
+      <view class="detail-projection-head">
+        <text class="detail-projection-title">未来回本推演</text>
+        <text class="detail-projection-summary">{{detailItem.futureProjection.summaryText}}</text>
+      </view>
+
+      <view class="detail-projection-options">
+        <view
+          class="detail-projection-option {{detailItem.futureProjection.selectedDays === item ? 'active' : ''}}"
+          wx:for="{{detailItem.futureProjection.options}}"
+          wx:key="*this"
+          data-days="{{item}}"
+          bindtap="onSelectProjectionHorizon"
+        >{{item}}天</view>
+      </view>
+
+      <view class="detail-projection-grid">
+        <view class="detail-projection-cell">
+          <text class="detail-projection-key">当前日均</text>
+          <text class="detail-projection-value">{{detailItem.futureProjection.currentDailyText}}/天</text>
+        </view>
+        <view class="detail-projection-cell">
+          <text class="detail-projection-key">推演日均</text>
+          <text class="detail-projection-value">{{detailItem.futureProjection.projectedDailyText}}/天</text>
+        </view>
+        <view class="detail-projection-cell">
+          <text class="detail-projection-key">预期下降</text>
+          <text class="detail-projection-value">{{detailItem.futureProjection.dropDailyText}} / {{detailItem.futureProjection.dropPercentText}}</text>
+        </view>
+        <view class="detail-projection-cell">
+          <text class="detail-projection-key">同类中位目标</text>
+          <text class="detail-projection-value">{{detailItem.futureProjection.benchmarkText}}/天</text>
+          <text class="detail-projection-sub">{{detailItem.futureProjection.benchmarkSourceText}}</text>
+        </view>
+      </view>
+
+      <view class="detail-projection-target">
+        <text class="detail-projection-target-label">达到中位目标预计还需</text>
+        <text class="detail-projection-target-value">{{detailItem.futureProjection.targetNeedDaysText}}</text>
+      </view>
+    </view>
+
+    <view class="detail-resale-card">
+      <view class="detail-resale-head">
+        <view class="detail-resale-title">
+          <text class="detail-resale-icon">🤖</text>AI 智能二手预测
+        </view>
+        <button class="detail-resale-btn" bindtap="onPredictResale" disabled="{{detailItem.resalePredicting}}">
+          {{detailItem.resalePredicting ? '预测中...' : '开始估算'}}
+        </button>
+      </view>
+
+      <view class="detail-resale-body" wx:if="{{detailItem.resaleResult}}">
+        <view class="detail-resale-price-row">
+          <text class="detail-resale-price-label">预测残值</text>
+          <text class="detail-resale-price-value">{{detailItem.resaleResult.estimatedPriceText}}</text>
+          <text class="detail-resale-tag" wx:if="{{detailItem.resaleResult.depreciationRate}}">当前折损: {{detailItem.resaleResult.depreciationRate}}</text>
+        </view>
+        <view class="detail-resale-insight">
+          <text class="detail-resale-insight-label">AI 建议</text>
+          <text class="detail-resale-insight-text">{{detailItem.resaleResult.marketTrend}}</text>
+        </view>
+        <view class="detail-resale-meta" wx:if="{{detailItem.resaleResult.generatedAt}}">
+          <text>来源：{{detailItem.resaleResult.sourceText}}</text>
+          <text>模型：{{detailItem.resaleResult.modelText}}</text>
+          <text>生成时间：{{detailItem.resaleResult.generatedAt}}</text>
+        </view>
+        <view class="detail-resale-compare">
+          <text>若今日按此价出手，时间成本将降至：</text>
+          <text class="detail-resale-compare-strong">{{detailItem.resaleResult.netDailyText}}/天</text>
+        </view>
+      </view>
+      <view class="detail-resale-empty" wx:else>
+        结合大模型分析当前品类贬值曲线及二手行情，快速测算今日卖出的真实日均变化。
+      </view>
+    </view>
+
+    <view class="detail-info-card">
+      <view class="detail-info-row">
+        <text class="detail-info-key">价格</text>
+        <text class="detail-info-value">{{detailItem.totalText}}</text>
+      </view>
+      <view class="detail-info-row">
+        <text class="detail-info-key">类别</text>
+        <text class="detail-info-value">{{detailItem.category}}</text>
+      </view>
+      <view class="detail-info-row">
+        <text class="detail-info-key">购买日期</text>
+        <text class="detail-info-value">{{detailItem.dateText}}</text>
+      </view>
+    </view>
+
+    <view class="detail-delete-btn" bindtap="onDeleteDetailAsset">删除</view>
+  </view>
+
+  <view class="editor-page" wx:if="{{editorVisible}}" style="padding-top: {{navStatusHeight + 8}}px;">
     <view class="editor-top">
       <view class="editor-close" bindtap="onCloseEditor">✕</view>
       <view class="editor-tabs {{editorTab === 'asset' ? 'asset-active' : 'wish-active'}}">
@@ -113,7 +345,7 @@
 
     <scroll-view class="editor-scroll" scroll-y="true" enhanced="true" enable-flex="true" show-scrollbar="false">
       <view class="editor-scroll-inner">
-        <!-- AI OCR Card -->
+        <!-- OCR Card -->
         <view class="ocr-card" bindtap="onTapOcrImport" wx:if="{{editorMode === 'create'}}">
           <view class="ocr-left">
             <view class="ocr-icon">✨</view>
@@ -123,7 +355,7 @@
             </view>
           </view>
           <view class="ocr-right">
-            <text class="ocr-btn">AI 添加</text>
+            <text class="ocr-btn">智能添加</text>
           </view>
         </view>
         <view class="editor-avatar-wrap">
@@ -175,6 +407,39 @@
             >
               {{item.text}}
             </view>
+          </view>
+        </view>
+
+        <view class="editor-resale-card" wx:if="{{editorTab === 'asset'}}">
+          <view class="editor-resale-head">
+            <view class="editor-resale-title">
+              <text class="editor-resale-icon">🤖</text>AI 智能二手预测
+            </view>
+            <button class="editor-resale-btn" bindtap="onPredictEditorResale" disabled="{{editorResalePredicting}}">
+              {{editorResalePredicting ? '预测中...' : '开始估算'}}
+            </button>
+          </view>
+
+          <view class="editor-resale-body" wx:if="{{editorResaleResult}}">
+            <view class="editor-resale-price-row">
+              <text class="editor-resale-price-label">预测残值</text>
+              <text class="editor-resale-price-value">{{editorResaleResult.estimatedPriceText}}</text>
+              <text class="editor-resale-tag" wx:if="{{editorResaleResult.depreciationRate}}">当前折损: {{editorResaleResult.depreciationRate}}</text>
+            </view>
+            <view class="editor-resale-insight">
+              <text class="editor-resale-insight-label">AI 建议</text>
+              <text class="editor-resale-insight-text">{{editorResaleResult.marketTrend}}</text>
+            </view>
+            <view class="editor-resale-compare">
+              <text>若今日按此价出手，时间成本将降至：</text>
+              <text class="editor-resale-compare-strong">{{editorResaleResult.netDailyText}}/天</text>
+            </view>
+            <view class="editor-resale-actions">
+              <view class="editor-resale-apply" bindtap="onApplyEditorResalePrice">回填到卖出价格</view>
+            </view>
+          </view>
+          <view class="editor-resale-empty" wx:else>
+            结合大模型分析当前品类贬值曲线及二手行情，快速测算今日卖出的真实日均变化。
           </view>
         </view>
 

@@ -2,6 +2,11 @@ const app = getApp();
 
 Page({
   data: {
+    navTitle: '添加银行卡',
+    navStatusHeight: 20,
+    navContentHeight: 44,
+    navTotalHeight: 64,
+    navCapsuleSpace: 96,
     id: '',
     cardName: '',
     mode: 'add',
@@ -25,10 +30,48 @@ Page({
   },
 
   onLoad(options) {
+    this.initCustomNavBar();
     const { mode, id } = options;
     this.setData({ mode: mode || 'add', id: id || '' });
     if (mode === 'edit' && id) this.loadCardData(id);
     this.toastAnimation = wx.createAnimation({ duration: 300, timingFunction: 'ease-out' });
+  },
+
+  onNavBack() {
+    const pages = getCurrentPages();
+    if (pages.length > 1) {
+      wx.navigateBack({ delta: 1 });
+      return;
+    }
+    wx.switchTab({ url: '/pages/index/index' });
+  },
+
+  initCustomNavBar() {
+    try {
+      const windowInfo = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
+      const statusBarHeight = Number(windowInfo.statusBarHeight || 20);
+      const windowWidth = Number(windowInfo.windowWidth || 375);
+      const menuButton = wx.getMenuButtonBoundingClientRect ? wx.getMenuButtonBoundingClientRect() : null;
+
+      let navContentHeight = 44;
+      let navTotalHeight = statusBarHeight + navContentHeight;
+      let navCapsuleSpace = 96;
+
+      if (menuButton && menuButton.top && menuButton.bottom && menuButton.height) {
+        navTotalHeight = Number(menuButton.bottom + menuButton.top - statusBarHeight);
+        navContentHeight = Math.max(32, navTotalHeight - statusBarHeight);
+        navCapsuleSpace = Math.max(88, Number(menuButton.width + (windowWidth - menuButton.right) * 2));
+      }
+
+      this.setData({
+        navStatusHeight: statusBarHeight,
+        navContentHeight,
+        navTotalHeight,
+        navCapsuleSpace
+      });
+    } catch (error) {
+      console.warn('initCustomNavBar failed:', error);
+    }
   },
 
   loadCardData(id) {

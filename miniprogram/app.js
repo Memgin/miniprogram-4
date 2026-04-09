@@ -64,7 +64,8 @@ App({
     privacyMode: false,
     biometricEnabled: false,
     exchangeRates: { cny: 1 }, // 实时汇率表
-    _syncTimer: null         // 全局同步防抖定时器
+    _syncTimer: null,        // 全局同步防抖定时器
+    _hasPendingLocalMutation: false
   },
 
   onLaunch() {
@@ -109,8 +110,15 @@ App({
       const res = await wx.cloud.callFunction({ name: 'getUserProfile' });
       console.log('🔄 getUserProfile 返回结果:', res);
       if (res.result?.success) {
-        const cloudData = res.result.data;
-        this.globalData.bankCards = cloudData.bankCards || [];
+        const cloudData = res.result.data || {};
+        const cloudBankCards = Array.isArray(cloudData.bankCards) ? cloudData.bankCards : [];
+        const latestLocalBankCards = Array.isArray(this.globalData.bankCards) && this.globalData.bankCards.length
+          ? [...this.globalData.bankCards]
+          : (wx.getStorageSync('bankCards') || []);
+        // 安卓端常见时序：本地新增后云端旧快照晚到，若本地有待同步改动或数量更多，优先保留本地
+        const shouldPreferLocalBankCards = this.globalData._hasPendingLocalMutation ||
+          (Array.isArray(latestLocalBankCards) && latestLocalBankCards.length > cloudBankCards.length);
+        this.globalData.bankCards = shouldPreferLocalBankCards ? latestLocalBankCards : cloudBankCards;
         this.globalData.goalBuckets = migrateGoalBuckets(cloudData.goalBuckets, cloudData.depositTarget);
         this.globalData.depositTarget = getLegacyDepositTarget(this.globalData.goalBuckets, cloudData.depositTarget);
         this.globalData.selectedRateCodes = (cloudData.selectedRateCodes || ['usd', 'hkd']).map(code => String(code || '').toLowerCase());
@@ -128,6 +136,10 @@ App({
         this.globalData.biometricEnabled = !!cloudData.biometricEnabled;
         
         this.updateStorage();
+        if (shouldPreferLocalBankCards) {
+          // 将本地最新银行卡快照回写云端，避免下次启动再次被旧数据覆盖
+          this.sync();
+        }
         console.log('✅ 云端数据对齐完成', cloudData);
         if (this.dataReadyCallback) this.dataReadyCallback();
       } else {
@@ -146,6 +158,7 @@ App({
    * 核心同步逻辑
    */
   sync() {
+    this.globalData._hasPendingLocalMutation = true;
     // 1. 整理历史记录
     this.recordCardHistory();
     // 2. 更新本地缓存
@@ -177,6 +190,7 @@ App({
             biometricEnabled: this.globalData.biometricEnabled
           }
         });
+        this.globalData._hasPendingLocalMutation = false;
         console.log('✨ 云端同步一致');
       } catch (err) {
         console.error('❌ 云端同步失败:', err);
