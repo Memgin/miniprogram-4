@@ -258,9 +258,5 @@ App({
     } catch (e) {
       console.error('本地持久化失败', e);
     }
-  },
-
-  checkDuplicateCard(name, excludeId = '') {
-    return this.globalData.bankCards.find(c => c.name === name && c.id !== excludeId);
   }
 })
